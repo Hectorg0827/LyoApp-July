@@ -1,0 +1,69 @@
+name: LyoApp
+options:
+  bundleIdPrefix: com.lyo
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "17.0"
+  developmentLanguage: en
+  xcodeVersion: "15.0"
+
+targets:
+  LyoApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - LyoApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.lyo.app
+        DEVELOPMENT_TEAM: ""
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1,2"
+        IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+        SWIFT_VERSION: "5.0"
+        ENABLE_PREVIEWS: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        INFOPLIST_FILE: LyoApp/Info.plist
+        SUPPORTS_MACCATALYST: NO
+      debug:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
+      release:
+        SWIFT_COMPILATION_MODE: wholemodule
+    info:
+      path: LyoApp/Info.plist
+      properties:
+        CFBundleDisplayName: Lyo
+        CFBundleName: LyoApp
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "1"
+        LSRequiresIPhoneOS: true
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UIApplicationSupportsIndirectInputEvents: true
+        UILaunchScreen: {}
+        UIRequiredDeviceCapabilities:
+          - armv7
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        NSMicrophoneUsageDescription: "Lyo needs microphone access for voice interactions and 'Hey Lyo' wake word detection."
+        NSCameraUsageDescription: "Lyo needs camera access for visual learning features and content creation."
+        NSPhotoLibraryUsageDescription: "Lyo needs photo library access to save your learning progress and visual content."
+        NSLocationWhenInUseUsageDescription: "Lyo can use location to provide contextual learning experiences."
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+          NSExceptionDomains:
+            localhost:
+              NSExceptionAllowsInsecureHTTPLoads: true
+              NSExceptionMinimumTLSVersion: "1.0"
+            127.0.0.1:
+              NSExceptionAllowsInsecureHTTPLoads: true
+              NSExceptionMinimumTLSVersion: "1.0"
