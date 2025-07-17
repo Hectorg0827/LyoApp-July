@@ -1,0 +1,14 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "Build Xcode Project",
+			"command": "xcodebuild -scheme LyoApp -workspace LyoApp.xcworkspace build",
+			"group": "build",
+			"problemMatcher": [
+				"$xcodebuild"
+			]
+		}
+	]
+}
