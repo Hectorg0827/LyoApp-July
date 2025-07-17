@@ -79,7 +79,7 @@ struct AIFullChatViewWithCompletion: View {
                     .background(
                         RoundedRectangle(cornerRadius: DesignTokens.Radius.lg)
                             .fill(DesignTokens.Colors.glassBg)
-                            .shadow(color: DesignTokens.Colors.neonBlue.opacity(0.10), radius: DesignTokens.Shadows.sm, x: 0, y: 2)
+                            .shadow(color: DesignTokens.Colors.neonBlue.opacity(0.10), radius: DesignTokens.Shadows.small.radius, x: 0, y: 2)
                     )
                     .lineLimit(1...4)
                     .onSubmit {
@@ -127,7 +127,7 @@ struct AIFullChatViewWithCompletion: View {
         .padding(DesignTokens.Spacing.md)
         .background(DesignTokens.Colors.glassBg)
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.xl))
-        .shadow(color: DesignTokens.Colors.neonBlue.opacity(0.08), radius: DesignTokens.Shadows.sm, x: 0, y: -2)
+        .shadow(color: DesignTokens.Colors.neonBlue.opacity(0.08), radius: DesignTokens.Shadows.small.radius, x: 0, y: -2)
     }
 
     private func sendUserMessage() {
