@@ -10,6 +10,8 @@ struct PostView: View {
     @State private var tags: [String] = []
     @State private var currentTag = ""
     @State private var isPosting = false
+    @State private var showAIAssistant = false
+    @State private var aiSuggestions: [String] = []
     
     var body: some View {
         NavigationView {
@@ -18,8 +20,11 @@ struct PostView: View {
                     // User Info
                     userSection
                     
-                    // Content Input
+                    // Content Input with AI Assistant
                     contentSection
+                    
+                    // AI Assistant Section
+                    aiAssistantSection
                     
                     // Media Section
                     mediaSection
@@ -88,8 +93,79 @@ struct PostView: View {
                 .padding(DesignTokens.Spacing.md)
                 .background(
                     RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
-                        .fill(DesignTokens.Colors.gray100)
+                        .fill(DesignTokens.Colors.glassBg)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                                .strokeBorder(DesignTokens.Colors.glassBorder, lineWidth: 1)
+                        )
                 )
+                .onChange(of: content) { _, newValue in
+                    generateAISuggestions(for: newValue)
+                }
+        }
+    }
+    
+    private var aiAssistantSection: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+            HStack {
+                Image(systemName: "sparkles")
+                    .foregroundColor(DesignTokens.Colors.primary)
+                    .font(.caption)
+                
+                Text("AI Assistant")
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundColor(DesignTokens.Colors.primary)
+                
+                Spacer()
+                
+                Button("Get Help") {
+                    showAIAssistant.toggle()
+                }
+                .font(DesignTokens.Typography.caption)
+                .foregroundColor(DesignTokens.Colors.primary)
+            }
+            
+            if showAIAssistant {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
+                    Text("AI Suggestions:")
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundColor(DesignTokens.Colors.secondaryLabel)
+                    
+                    ForEach(aiSuggestions, id: \.self) { suggestion in
+                        Button(suggestion) {
+                            content = suggestion
+                            showAIAssistant = false
+                        }
+                        .font(DesignTokens.Typography.body)
+                        .foregroundColor(DesignTokens.Colors.textPrimary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.vertical, DesignTokens.Spacing.xs)
+                        .background(
+                            RoundedRectangle(cornerRadius: DesignTokens.Radius.sm)
+                                .fill(DesignTokens.Colors.glassBg)
+                        )
+                    }
+                    
+                    Button("Ask Lyo AI") {
+                        // Open AI chat for post assistance
+                    }
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, DesignTokens.Spacing.md)
+                    .padding(.vertical, DesignTokens.Spacing.sm)
+                    .background(DesignTokens.Colors.primaryGradient)
+                    .cornerRadius(DesignTokens.Radius.button)
+                }
+                .padding(DesignTokens.Spacing.md)
+                .background(
+                    RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                        .fill(DesignTokens.Colors.glassBg)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                                .strokeBorder(DesignTokens.Colors.primary.opacity(0.3), lineWidth: 1)
+                        )
+                )
+            }
         }
     }
     
@@ -277,6 +353,25 @@ struct PostView: View {
             )
             appState.addNotification(notification)
         }
+    }
+    
+    private func generateAISuggestions(for text: String) {
+        // Simulate AI-generated suggestions based on content
+        if text.isEmpty {
+            aiSuggestions = []
+            return
+        }
+        
+        // Simple keyword-based suggestions (in real app, this would be AI-powered)
+        let suggestions = [
+            "How about sharing a programming tip?",
+            "What did you learn today?",
+            "Share your latest project progress",
+            "Ask the community for advice",
+            "Start a discussion about \(text.prefix(20))..."
+        ]
+        
+        aiSuggestions = suggestions.prefix(3).map { String($0) }
     }
 }
 
