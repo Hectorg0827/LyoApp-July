@@ -2,6 +2,24 @@
 import SwiftUI
 import Combine
 
+// MARK: - Loading States
+enum LoadingState: Equatable {
+    case idle
+    case loading(message: String? = nil)
+    case success
+    case failure(AppError)
+    
+    var isLoading: Bool {
+        if case .loading = self { return true }
+        return false
+    }
+    
+    var error: AppError? {
+        if case .failure(let error) = self { return error }
+        return nil
+    }
+}
+
 // MARK: - Error Types
 enum AppError: LocalizedError, Equatable {
     case networkError
@@ -57,23 +75,7 @@ enum AppError: LocalizedError, Equatable {
     }
 }
 
-// MARK: - Loading States
-enum LoadingState: Equatable {
-    case idle
-    case loading(message: String? = nil)
-    case success
-    case failure(AppError)
-    
-    var isLoading: Bool {
-        if case .loading = self { return true }
-        return false
-    }
-    
-    var error: AppError? {
-        if case .failure(let error) = self { return error }
-        return nil
-    }
-}
+// LoadingState is defined in ErrorHandling.swift
 
 /// Global application state manager
 @MainActor
@@ -122,6 +124,18 @@ class AppState: ObservableObject {
         setupSessionMonitoring()
     }
     
+    // initializeServices is defined in AppStateExtensions.swift
+    
+    private func setupAPIAuthentication(for user: User) {
+        // TODO: Get actual auth token from authentication service
+        let mockToken = "mock_auth_token_\(user.id)"
+        let userId = abs(user.id.hashValue)
+        
+        LyoAPIService.shared.setAuthToken(mockToken, userId: userId)
+    }
+    
+    // saveUserPreferences is defined in AppStateExtensions.swift
+    
     private func loadUserDefaults() {
         isDarkMode = UserDefaults.standard.bool(forKey: "isDarkMode")
         isListeningForWakeWord = UserDefaults.standard.object(forKey: "isListeningForWakeWord") as? Bool ?? true
@@ -154,6 +168,7 @@ class AppState: ObservableObject {
                 if let user = notification.object as? User {
                     self?.currentUser = user
                     self?.isAuthenticated = true
+                    self?.setupAPIAuthentication(for: user)
                 }
             }
             .store(in: &cancellables)
@@ -162,8 +177,17 @@ class AppState: ObservableObject {
             .sink { [weak self] _ in
                 self?.currentUser = nil
                 self?.isAuthenticated = false
+                self?.clearAPIAuthentication()
             }
             .store(in: &cancellables)
+    }
+    
+    private func clearAPIAuthentication() {
+        // Clear API authentication
+        LyoAPIService.shared.setAuthToken("", userId: 0)
+        
+        // Disconnect WebSocket
+        LyoWebSocketService.shared.disconnect()
     }
     
     func toggleDarkMode() {
