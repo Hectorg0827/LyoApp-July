@@ -14,7 +14,9 @@ class WebSocketService: ObservableObject {
         webSocketTask = URLSession.shared.webSocketTask(with: url)
         webSocketTask?.resume()
         
-        listenForMessages()
+        Task {
+            await listenForMessages()
+        }
     }
     
     func disconnect() {
@@ -32,7 +34,7 @@ class WebSocketService: ObservableObject {
         }
     }
     
-    private func listenForMessages() {
+    private func listenForMessages() async {
         guard let webSocketTask = webSocketTask else { return }
         
         webSocketTask.receive { [weak self] result in
@@ -42,14 +44,18 @@ class WebSocketService: ObservableObject {
             case .success(let message):
                 switch message {
                 case .string(let text):
-                    self?.receivedMessage = text
+                    Task { @MainActor in
+                        self?.receivedMessage = text
+                    }
                 case .data(let data):
                     print("Received binary data: \(data)")
                 @unknown default:
                     fatalError()
                 }
                 
-                self?.listenForMessages()
+                Task {
+                    await self?.listenForMessages()
+                }
             }
         }
     }
