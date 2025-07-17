@@ -228,8 +228,10 @@ struct AuthenticationView: View {
                 isVerified: true
             )
             
-            appState.currentUser = user
-            appState.isAuthenticated = true
+            Task { @MainActor in
+                appState.currentUser = user
+                appState.isAuthenticated = true
+            }
             
             NotificationCenter.default.post(
                 name: .userDidLogin,
@@ -250,8 +252,12 @@ struct AuthenticationView: View {
             bio: "New to LyoApp!"
         )
         
-        appState.currentUser = user
-        appState.isAuthenticated = true
+        Task { @MainActor in
+            Task { @MainActor in
+                appState.currentUser = user
+                appState.isAuthenticated = true
+            }
+        }
         
         NotificationCenter.default.post(
             name: .userDidLogin,
