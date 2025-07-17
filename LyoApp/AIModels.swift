@@ -144,26 +144,18 @@ class AIService: ObservableObject {
         return [
             QuizQuestion(
                 question: "What is the main benefit of using SwiftUI?",
-                options: ["Declarative syntax", "Better performance", "Cross-platform", "All of the above"],
-                correctAnswer: 3,
+                type: .multipleChoice,
+                options: [
+                    QuizOption(text: "Declarative syntax", isCorrect: false),
+                    QuizOption(text: "Better performance", isCorrect: false),
+                    QuizOption(text: "Cross-platform", isCorrect: false),
+                    QuizOption(text: "All of the above", isCorrect: true)
+                ],
+                correctAnswer: "All of the above",
                 explanation: "SwiftUI offers declarative syntax, good performance, and works across Apple platforms."
             )
         ]
     }
 }
 
-struct QuizQuestion: Identifiable, Codable {
-    let id: UUID
-    let question: String
-    let options: [String]
-    let correctAnswer: Int
-    let explanation: String
-    
-    init(question: String, options: [String], correctAnswer: Int, explanation: String) {
-        self.id = UUID()
-        self.question = question
-        self.options = options
-        self.correctAnswer = correctAnswer
-        self.explanation = explanation
-    }
-}
+// QuizQuestion is defined in LessonModels.swift
