@@ -1,203 +1,114 @@
 import SwiftUI
 
-// MARK: - Basic Profile Manager
-@MainActor
-class ProfileManager: ObservableObject {
-    @Published var user: ProfileUser = ProfileUser(
-        username: "user123",
-        name: "John Doe",
-        bio: "Learning enthusiast",
-        avatarURL: "",
-        isVerified: false,
-        followerCount: 100,
-        followingCount: 50,
-        postCount: 25
-    )
-    @Published var isLoading = false
-    @Published var userStats: UserStats? = UserStats(postsCount: 25, followersCount: 100, followingCount: 50)
-    @Published var userPosts: [ProfilePost] = []
-    
-    func updateProfile() {
-        // Simulate profile update
-    }
-    
-    func preload() async {
-        isLoading = true
-        // Simulate loading
-        try? await Task.sleep(nanoseconds: 500_000_000)
-        userPosts = generateSamplePosts()
-        isLoading = false
-    }
-    
-    func refresh() async {
-        await preload()
-    }
-    
-    func cleanup() {
-        // Cleanup resources
-    }
-    
-    func loadMorePosts() async {
-        // Load more posts
-        let morePosts = generateSamplePosts()
-        userPosts.append(contentsOf: morePosts)
-    }
-    
-    private func generateSamplePosts() -> [ProfilePost] {
-        return (1...9).map { index in
-            ProfilePost(
-                id: "post_\(index)",
-                username: user.username,
-                userAvatar: user.avatarURL,
-                content: "Sample post content \(index)",
-                timestamp: Date(),
-                likes: Int.random(in: 10...100),
-                comments: Int.random(in: 0...20),
-                imageURL: "sample_image_\(index)"
-            )
-        }
-    }
-}
-
-struct UserStats {
-    let postsCount: Int
-    let followersCount: Int
-    let followingCount: Int
-}
-
-struct ProfilePost: Identifiable, Equatable {
-    let id: String
-    let username: String
-    let userAvatar: String
-    let content: String
-    let timestamp: Date
-    let likes: Int
-    let comments: Int
-    let imageURL: String
-}
-
-struct ProfileUser {
-    let username: String
-    let name: String
-    let bio: String
-    let avatarURL: String
-    let isVerified: Bool
-    let followerCount: Int
-    let followingCount: Int
-    let postCount: Int
-}
-
 struct ProfileView: View {
     @EnvironmentObject var appState: AppState
-    @StateObject private var profileManager = ProfileManager()
-    @State private var selectedTab = 0
-    @State private var showingSettings = false
+    @Environment(\.dismiss) var dismiss
     @State private var showingEditProfile = false
+    @State private var showingSettings = false
+    @State private var selectedTab = 0
     
-    // Provide a dummy binding for showingStoryDrawer (not used in ProfileView)
-    @State private var showingStoryDrawer = false
-
+    private let tabs = ["Posts", "Courses", "Achievements"]
+    
     var body: some View {
         NavigationView {
-            VStack(spacing: 0) {
-                // Header
-                HeaderView(showingStoryDrawer: $showingStoryDrawer)
-
-                if profileManager.isLoading {
-                    DesignSystem.LoadingStateView(message: "Loading profile...")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    ScrollView {
-                        LazyVStack(spacing: DesignTokens.Spacing.lg) {
-                            // Profile Header
-                            profileHeader
-
-                            // Stats Section
-                            statsSection
-
-                            // Action Buttons
-                            actionButtons
-
-                            // Content Tabs
-                            contentTabs
-
-                            // Content based on selected tab
-                            contentSection
-                        }
-                        .padding(DesignTokens.Spacing.md)
-                    }
-                    .refreshable {
-                        await profileManager.refresh()
-                    }
+            ScrollView {
+                VStack(spacing: 0) {
+                    // Profile Header
+                    profileHeader
+                    
+                    // Stats Section
+                    statsSection
+                    
+                    // Action Buttons
+                    actionButtons
+                    
+                    // Tab Selection
+                    tabSelection
+                    
+                    // Tab Content
+                    tabContent
                 }
             }
             .background(DesignTokens.Colors.primaryBg.ignoresSafeArea())
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarHidden(true)
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Close") {
+                        dismiss()
+                    }
+                    .foregroundColor(DesignTokens.Colors.primary)
+                }
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         showingSettings = true
                     } label: {
-                        Image(systemName: "gearshape.fill")
+                        Image(systemName: "gearshape")
                             .foregroundColor(DesignTokens.Colors.primary)
                     }
-                    .accessibilityLabel("Settings")
-                    .accessibilityHint("Opens settings menu")
-                    .accessibilityIdentifier("profile_settings_button")
                 }
             }
-            .task {
-                await profileManager.preload()
-            }
-            .onDisappear {
-                profileManager.cleanup()
-            }
-        }
-        .sheet(isPresented: $showingSettings) {
-            SettingsView()
         }
         .sheet(isPresented: $showingEditProfile) {
             EditProfileView()
+                .environmentObject(appState)
+        }
+        .sheet(isPresented: $showingSettings) {
+            SettingsView()
+                .environmentObject(appState)
         }
     }
     
     private var profileHeader: some View {
-        VStack(spacing: DesignTokens.Spacing.md) {
-            // Profile Image
+        VStack(spacing: DesignTokens.Spacing.lg) {
+            // Profile Image with AI Glow
             ZStack {
-                DesignSystem.Avatar(
-                    imageURL: appState.currentUser?.profileImageURL,
-                    name: appState.currentUser?.fullName ?? "User",
-                    size: 100
-                )
+                Circle()
+                    .fill(DesignTokens.Colors.primaryGradient)
+                    .frame(width: 120, height: 120)
+                    .shadow(color: DesignTokens.Colors.primary.opacity(0.3), radius: 20, x: 0, y: 0)
                 
-                // Edit Button
+                AsyncImage(url: URL(string: appState.currentUser?.profileImageURL ?? "")) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    Text(appState.currentUser?.fullName.prefix(1) ?? "U")
+                        .font(.system(size: 40, weight: .bold))
+                        .foregroundColor(.white)
+                }
+                .frame(width: 110, height: 110)
+                .clipShape(Circle())
+                
+                // Level Badge
                 VStack {
                     Spacer()
                     HStack {
                         Spacer()
-                        Button {
-                            showingEditProfile = true
-                        } label: {
-                            Image(systemName: "camera.fill")
-                                .font(.caption)
+                        
+                        ZStack {
+                            Circle()
+                                .fill(DesignTokens.Colors.neonBlue)
+                                .frame(width: 30, height: 30)
+                                .shadow(color: DesignTokens.Colors.neonBlue.opacity(0.5), radius: 8, x: 0, y: 0)
+                            
+                            Text("\(appState.currentUser?.level ?? 1)")
+                                .font(.system(size: 12, weight: .bold))
                                 .foregroundColor(.white)
-                                .frame(width: 24, height: 24)
-                                .background(Circle().fill(DesignTokens.Colors.primary))
                         }
-                        .offset(x: -8, y: -8)
+                        .offset(x: -5, y: -5)
                     }
                 }
-                .frame(width: 100, height: 100)
+                .frame(width: 120, height: 120)
             }
             
             // User Info
-            VStack(spacing: DesignTokens.Spacing.xs) {
+            VStack(spacing: DesignTokens.Spacing.sm) {
                 HStack {
                     Text(appState.currentUser?.fullName ?? "User Name")
                         .font(DesignTokens.Typography.title2)
+                        .foregroundColor(DesignTokens.Colors.textPrimary)
                     
                     if appState.currentUser?.isVerified == true {
                         Image(systemName: "checkmark.seal.fill")
@@ -207,43 +118,72 @@ struct ProfileView: View {
                 
                 Text("@\(appState.currentUser?.username ?? "username")")
                     .font(DesignTokens.Typography.body)
-                    .foregroundColor(DesignTokens.Colors.secondaryLabel)
+                    .foregroundColor(DesignTokens.Colors.textSecondary)
                 
                 if let bio = appState.currentUser?.bio {
                     Text(bio)
                         .font(DesignTokens.Typography.body)
-                        .foregroundColor(DesignTokens.Colors.label)
+                        .foregroundColor(DesignTokens.Colors.textPrimary)
                         .multilineTextAlignment(.center)
                         .lineLimit(3)
                 }
                 
-                // Level and XP
+                // Join Date
                 HStack {
-                    DesignSystem.Badge(text: "Level \(appState.currentUser?.level ?? 1)", style: .primary)
-                    DesignSystem.Badge(text: "\(appState.currentUser?.experience ?? 0) XP", style: .secondary)
+                    Image(systemName: "calendar")
+                        .foregroundColor(DesignTokens.Colors.textSecondary)
+                        .font(.caption)
+                    
+                    Text("Joined \(appState.currentUser?.joinDate ?? Date(), style: .date)")
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundColor(DesignTokens.Colors.textSecondary)
                 }
             }
         }
+        .padding(DesignTokens.Spacing.lg)
     }
     
     private var statsSection: some View {
         HStack {
-            StatView(title: "Posts", value: "\(profileManager.userStats?.postsCount ?? 0)")
+            Spacer()
             
-            Divider()
-                .frame(height: 40)
+            StatCard(
+                title: "Posts",
+                value: "\(appState.currentUser?.posts ?? 0)",
+                icon: "doc.text",
+                color: DesignTokens.Colors.neonBlue
+            )
             
-            StatView(title: "Followers", value: "\(profileManager.userStats?.followersCount ?? 0)")
+            Spacer()
             
-            Divider()
-                .frame(height: 40)
+            StatCard(
+                title: "Followers",
+                value: formatNumber(appState.currentUser?.followers ?? 0),
+                icon: "person.3",
+                color: DesignTokens.Colors.neonPurple
+            )
             
-            StatView(title: "Following", value: "\(profileManager.userStats?.followingCount ?? 0)")
+            Spacer()
+            
+            StatCard(
+                title: "Following",
+                value: formatNumber(appState.currentUser?.following ?? 0),
+                icon: "person.2",
+                color: DesignTokens.Colors.neonPink
+            )
+            
+            Spacer()
+            
+            StatCard(
+                title: "XP",
+                value: "\(appState.currentUser?.experience ?? 0)",
+                icon: "star",
+                color: DesignTokens.Colors.neonYellow
+            )
+            
+            Spacer()
         }
-        .cardStyle()
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("User statistics")
-        .accessibilityValue("Posts: \(profileManager.userStats?.postsCount ?? 0), Followers: \(profileManager.userStats?.followersCount ?? 0), Following: \(profileManager.userStats?.followingCount ?? 0)")
+        .padding(.horizontal, DesignTokens.Spacing.lg)
     }
     
     private var actionButtons: some View {
@@ -251,308 +191,267 @@ struct ProfileView: View {
             Button("Edit Profile") {
                 showingEditProfile = true
             }
-            .secondaryButton()
+            .font(DesignTokens.Typography.bodyMedium)
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, DesignTokens.Spacing.sm)
+            .background(DesignTokens.Colors.primaryGradient)
+            .cornerRadius(DesignTokens.Radius.button)
             
             Button("Share Profile") {
-                // Handle share profile
+                // Share profile
             }
-            .secondaryButton()
+            .font(DesignTokens.Typography.bodyMedium)
+            .foregroundColor(DesignTokens.Colors.primary)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, DesignTokens.Spacing.sm)
+            .background(
+                RoundedRectangle(cornerRadius: DesignTokens.Radius.button)
+                    .strokeBorder(DesignTokens.Colors.primary, lineWidth: 1)
+                    .background(DesignTokens.Colors.glassBg)
+            )
         }
+        .padding(.horizontal, DesignTokens.Spacing.lg)
+        .padding(.top, DesignTokens.Spacing.lg)
     }
     
-    private var contentTabs: some View {
+    private var tabSelection: some View {
         HStack {
-            ForEach(0..<4) { index in
-                Button {
+            ForEach(Array(tabs.enumerated()), id: \.offset) { index, tab in
+                Button(tab) {
                     selectedTab = index
-                } label: {
-                    VStack(spacing: DesignTokens.Spacing.xs) {
-                        Image(systemName: tabIcon(for: index))
-                            .font(.title3)
-                        
-                        Text(tabTitle(for: index))
-                            .font(DesignTokens.Typography.caption)
-                    }
-                    .foregroundColor(selectedTab == index ? DesignTokens.Colors.primary : DesignTokens.Colors.secondaryLabel)
-                    .frame(maxWidth: .infinity, alignment: .center)
                 }
+                .font(DesignTokens.Typography.bodyMedium)
+                .foregroundColor(selectedTab == index ? DesignTokens.Colors.primary : DesignTokens.Colors.textSecondary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, DesignTokens.Spacing.md)
+                .background(
+                    Rectangle()
+                        .fill(selectedTab == index ? DesignTokens.Colors.primary : Color.clear)
+                        .frame(height: 2)
+                        .offset(y: DesignTokens.Spacing.md)
+                )
             }
         }
-        .padding(.vertical, DesignTokens.Spacing.sm)
-        .background(DesignTokens.Colors.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.md))
+        .padding(.horizontal, DesignTokens.Spacing.lg)
+        .padding(.top, DesignTokens.Spacing.lg)
     }
     
-    private var contentSection: some View {
+    private var tabContent: some View {
         Group {
             switch selectedTab {
             case 0:
-                postsSection
+                postsTab
             case 1:
-                achievementsSection
+                coursesTab
             case 2:
-                coursesSection
-            case 3:
-                savedSection
+                achievementsTab
             default:
-                EmptyView()
+                postsTab
             }
         }
+        .padding(.top, DesignTokens.Spacing.lg)
     }
     
-    private var postsSection: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: DesignTokens.Spacing.xs) {
-            ForEach(profileManager.userPosts) { post in
-                PostThumbnail(post: post)
-                    .onAppear {
-                        // Load more when near the end
-                        if post == profileManager.userPosts.last {
-                            Task {
-                                await profileManager.loadMorePosts()
-                            }
-                        }
-                    }
-            }
-            
-            if profileManager.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .gridCellColumns(3)
-            }
-        }
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel("User posts grid")
-    }
-    
-    private var achievementsSection: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: DesignTokens.Spacing.md) {
-            ForEach(sampleBadges) { badge in
-                AchievementCard(badge: badge)
-            }
-        }
-    }
-    
-    private var coursesSection: some View {
+    private var postsTab: some View {
         LazyVStack(spacing: DesignTokens.Spacing.md) {
-            ForEach(sampleCourses) { course in
-                ProfileCourseRow(course: course)
+            ForEach(0..<5) { index in
+                UserPostCard(index: index)
             }
         }
+        .padding(.horizontal, DesignTokens.Spacing.lg)
     }
     
-    private var savedSection: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: DesignTokens.Spacing.xs) {
-            ForEach(profileManager.userPosts.shuffled()) { post in
-                PostThumbnail(post: post)
+    private var coursesTab: some View {
+        LazyVStack(spacing: DesignTokens.Spacing.md) {
+            ForEach(LibraryCourse.sampleCompleted) { course in
+                CompletedCourseCard(course: course)
             }
         }
+        .padding(.horizontal, DesignTokens.Spacing.lg)
     }
     
-    private func tabIcon(for index: Int) -> String {
-        switch index {
-        case 0: return "grid.circle"
-        case 1: return "trophy.circle"
-        case 2: return "book.circle"
-        case 3: return "bookmark.circle"
-        default: return "circle"
+    private var achievementsTab: some View {
+        LazyVGrid(columns: [
+            GridItem(.flexible()),
+            GridItem(.flexible())
+        ], spacing: DesignTokens.Spacing.md) {
+            ForEach(Achievement.sampleAchievements) { achievement in
+                AchievementCard(achievement: achievement)
+            }
         }
+        .padding(.horizontal, DesignTokens.Spacing.lg)
     }
     
-    private func tabTitle(for index: Int) -> String {
-        switch index {
-        case 0: return "Posts"
-        case 1: return "Badges"
-        case 2: return "Courses"
-        case 3: return "Saved"
-        default: return ""
+    private func formatNumber(_ number: Int) -> String {
+        if number >= 1000000 {
+            return "\(number / 1000000)M"
+        } else if number >= 1000 {
+            return "\(number / 1000)K"
+        } else {
+            return "\(number)"
         }
     }
 }
 
-// MARK: - Supporting Components
+// MARK: - Supporting Views
 
-struct StatView: View {
+struct StatCard: View {
     let title: String
     let value: String
+    let icon: String
+    let color: Color
     
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.xs) {
+            ZStack {
+                Circle()
+                    .fill(color.opacity(0.2))
+                    .frame(width: 40, height: 40)
+                
+                Image(systemName: icon)
+                    .font(.system(size: 16))
+                    .foregroundColor(color)
+            }
+            
             Text(value)
-                .font(DesignTokens.Typography.title2)
-                .foregroundColor(DesignTokens.Colors.primary)
+                .font(DesignTokens.Typography.title3)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
+                .fontWeight(.bold)
             
             Text(title)
-                .font(DesignTokens.Typography.caption)
-                .foregroundColor(DesignTokens.Colors.secondaryLabel)
+                .font(DesignTokens.Typography.caption2)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
         }
-        .frame(maxWidth: .infinity, alignment: .center)
     }
 }
 
-struct PostThumbnail: View {
-    let post: ProfilePost
+struct UserPostCard: View {
+    let index: Int
     
     var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(DesignTokens.Colors.gray200)
-                .overlay(
-                    Image(systemName: "text.alignleft")
-                        .foregroundColor(DesignTokens.Colors.gray500)
-                )
-            // Overlay for post type
-            VStack {
-                HStack {
-                    Spacer()
-                    Image(systemName: "square.on.square")
-                        .foregroundColor(.white)
-                        .padding(4)
-                        .background(Circle().fill(Color.black.opacity(0.5)))
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+            HStack {
+                Text("2\(index) days ago")
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundColor(DesignTokens.Colors.textSecondary)
+                
+                Spacer()
+                
+                Button {
+                    // More options
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .foregroundColor(DesignTokens.Colors.textSecondary)
                 }
+            }
+            
+            Text("Just completed another AI course! The future of learning is here 🚀")
+                .font(DesignTokens.Typography.body)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
+            
+            HStack {
+                Button {
+                    // Like
+                } label: {
+                    HStack(spacing: DesignTokens.Spacing.xs) {
+                        Image(systemName: "heart")
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
+                        Text("24")
+                            .font(DesignTokens.Typography.caption)
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
+                    }
+                }
+                
+                Button {
+                    // Comment
+                } label: {
+                    HStack(spacing: DesignTokens.Spacing.xs) {
+                        Image(systemName: "message")
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
+                        Text("8")
+                            .font(DesignTokens.Typography.caption)
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
+                    }
+                }
+                
                 Spacer()
             }
-            .padding(4)
         }
-        .aspectRatio(1, contentMode: .fit)
-        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.sm))
+        .padding(DesignTokens.Spacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                .fill(DesignTokens.Colors.glassBg)
+                .overlay(
+                    RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                        .strokeBorder(DesignTokens.Colors.glassBorder, lineWidth: 1)
+                )
+        )
     }
 }
 
 struct AchievementCard: View {
-    let badge: ProfileBadge
+    let achievement: Achievement
     
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.sm) {
-            Image(systemName: badge.iconName)
-                .font(.largeTitle)
-                .foregroundColor(badgeColor(for: badge.rarity))
-                .frame(width: 60, height: 60)
-                .background(
-                    Circle()
-                        .fill(badgeColor(for: badge.rarity).opacity(0.1))
-                )
+            ZStack {
+                Circle()
+                    .fill(achievement.isUnlocked ? DesignTokens.Colors.primaryGradient : DesignTokens.Colors.glassBg)
+                    .frame(width: 60, height: 60)
+                    .shadow(color: achievement.isUnlocked ? DesignTokens.Colors.primary.opacity(0.3) : Color.clear, radius: 10, x: 0, y: 0)
+                
+                Image(systemName: achievement.icon)
+                    .font(.title2)
+                    .foregroundColor(achievement.isUnlocked ? .white : DesignTokens.Colors.textSecondary)
+            }
             
             VStack(spacing: DesignTokens.Spacing.xs) {
-                Text(badge.title)
-                    .font(DesignTokens.Typography.bodyMedium)
+                Text(achievement.title)
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundColor(DesignTokens.Colors.textPrimary)
+                    .fontWeight(.medium)
+                    .lineLimit(2)
                     .multilineTextAlignment(.center)
                 
-                Text(badge.description)
-                    .font(DesignTokens.Typography.caption)
-                    .foregroundColor(DesignTokens.Colors.secondaryLabel)
-                    .multilineTextAlignment(.center)
+                Text(achievement.description)
+                    .font(DesignTokens.Typography.caption2)
+                    .foregroundColor(DesignTokens.Colors.textSecondary)
                     .lineLimit(3)
+                    .multilineTextAlignment(.center)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .center)
-        .cardStyle()
-    }
-    
-    private func badgeColor(for rarity: BadgeRarity) -> Color {
-        switch rarity {
-        case .common: return .gray
-        case .rare: return .blue
-        case .epic: return .purple
-        case .legendary: return .orange
-        }
-    }
-}
-
-struct ProfileCourseRow: View {
-    let course: ProfileCourse
-    
-    var body: some View {
-        HStack {
-            AsyncImage(url: URL(string: course.thumbnailURL)) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                RoundedRectangle(cornerRadius: DesignTokens.Radius.sm)
-                    .fill(DesignTokens.Colors.gray200)
-            }
-            .frame(width: 60, height: 60)
-            .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.sm))
-            
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
-                Text(course.title)
-                    .font(DesignTokens.Typography.bodyMedium)
-                    .lineLimit(1)
-                
-                Text(course.instructor)
-                    .font(DesignTokens.Typography.caption)
-                    .foregroundColor(DesignTokens.Colors.secondaryLabel)
-                
-                if course.progress > 0 {
-                    HStack {
-                        Text("\(Int(course.progress * 100))% complete")
-                            .font(DesignTokens.Typography.caption2)
-                            .foregroundColor(DesignTokens.Colors.tertiaryLabel)
-                        
-                        Spacer()
-                        
-                        ProgressView(value: course.progress)
-                            .frame(width: 60, height: 60)
-                            .tint(DesignTokens.Colors.primary)
-                    }
-                } else {
-                    Text("Not started")
-                        .font(DesignTokens.Typography.caption2)
-                        .foregroundColor(DesignTokens.Colors.tertiaryLabel)
-                }
-            }
-            
-            Spacer()
-            
-            Button("Continue") {
-                // Handle continue course
-            }
-            .font(DesignTokens.Typography.caption)
-            .foregroundColor(DesignTokens.Colors.primary)
-        }
-        .cardStyle()
+        .padding(DesignTokens.Spacing.sm)
+        .background(
+            RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                .fill(DesignTokens.Colors.glassBg)
+                .overlay(
+                    RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                        .strokeBorder(achievement.isUnlocked ? DesignTokens.Colors.primary.opacity(0.3) : DesignTokens.Colors.glassBorder, lineWidth: 1)
+                )
+        )
+        .opacity(achievement.isUnlocked ? 1.0 : 0.6)
     }
 }
 
-// MARK: - Sample Data and Missing Components
-
-// Sample badges data
-let sampleBadges = [
-    ProfileBadge(id: "1", title: "First Steps", description: "Completed your first lesson", rarity: .common, iconName: "star.fill"),
-    ProfileBadge(id: "2", title: "Streak Master", description: "Maintained a 7-day learning streak", rarity: .rare, iconName: "flame.fill"),
-    ProfileBadge(id: "3", title: "Quiz Champion", description: "Scored 100% on 5 quizzes", rarity: .epic, iconName: "trophy.fill"),
-    ProfileBadge(id: "4", title: "Course Completionist", description: "Finished an entire course", rarity: .legendary, iconName: "graduation.cap.fill")
-]
-
-// Sample courses data
-let sampleCourses = [
-    ProfileCourse(id: "1", title: "Swift Programming Basics", instructor: "Dr. Jane Smith", thumbnailURL: "", progress: 0.7),
-    ProfileCourse(id: "2", title: "iOS Development", instructor: "John Developer", thumbnailURL: "", progress: 0.3),
-    ProfileCourse(id: "3", title: "SwiftUI Fundamentals", instructor: "UI Expert", thumbnailURL: "", progress: 0.0),
-    ProfileCourse(id: "4", title: "Advanced iOS", instructor: "Senior Dev", thumbnailURL: "", progress: 1.0)
-]
-
-struct ProfileBadge: Identifiable {
-    let id: String
+// MARK: - Achievement Model
+struct Achievement: Identifiable {
+    let id = UUID()
     let title: String
     let description: String
-    let rarity: BadgeRarity
-    let iconName: String
+    let icon: String
+    let isUnlocked: Bool
+    let unlockedDate: Date?
+    
+    static let sampleAchievements: [Achievement] = [
+        Achievement(title: "First Steps", description: "Complete your first course", icon: "star.fill", isUnlocked: true, unlockedDate: Date().addingTimeInterval(-86400 * 30)),
+        Achievement(title: "AI Explorer", description: "Complete 5 AI courses", icon: "brain.head.profile", isUnlocked: true, unlockedDate: Date().addingTimeInterval(-86400 * 15)),
+        Achievement(title: "Community Helper", description: "Help 10 community members", icon: "person.3.fill", isUnlocked: true, unlockedDate: Date().addingTimeInterval(-86400 * 7)),
+        Achievement(title: "Streak Master", description: "Maintain 30-day learning streak", icon: "flame.fill", isUnlocked: false, unlockedDate: nil),
+        Achievement(title: "Knowledge Seeker", description: "Complete 25 courses", icon: "book.fill", isUnlocked: false, unlockedDate: nil),
+        Achievement(title: "Mentor", description: "Create 5 helpful posts", icon: "graduationcap.fill", isUnlocked: false, unlockedDate: nil)
+    ]
 }
-
-enum BadgeRarity: String, CaseIterable {
-    case common, rare, epic, legendary
-}
-
-struct ProfileCourse: Identifiable {
-    let id: String
-    let title: String
-    let instructor: String
-    let thumbnailURL: String
-    let progress: Double
-}
-
-
 
 #Preview {
     ProfileView()
