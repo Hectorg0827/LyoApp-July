@@ -9,7 +9,7 @@ struct CommunityView: View {
         NavigationView {
             VStack(spacing: 0) {
                 // Header
-                HeaderView()
+                HeaderView(showingStoryDrawer: .constant(false))
                 
                 // Tab Selection
                 Picker("Community Tabs", selection: $selectedTab) {
