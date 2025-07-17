@@ -1,6 +1,7 @@
 import Foundation
 import Speech
 import SwiftUI
+import AVFoundation
 
 /// Simple speech recognizer for "Hey Lyo" or "Hi Lio" hotword detection and dictation.
 class VoiceRecognizer: ObservableObject {
