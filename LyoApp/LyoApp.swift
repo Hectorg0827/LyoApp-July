@@ -3,15 +3,21 @@ import SwiftUI
 @main
 struct LyoApp: App {
     @StateObject private var appState = AppState()
+    @StateObject private var voiceActivationService = VoiceActivationService()
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainTabView(appState: appState)
                 .environmentObject(appState)
+                .environmentObject(voiceActivationService)
                 .preferredColorScheme(.dark) // Force dark mode for futuristic design
                 .onAppear {
                     appState.initializeServices()
                     setupFuturisticAppearance()
+                    // Start voice activation service if enabled
+                    if appState.isListeningForWakeWord {
+                        voiceActivationService.startListening()
+                    }
                 }
                 .onChange(of: appState.isDarkMode) { _, _ in
                     appState.saveUserPreferences()
@@ -44,17 +50,4 @@ struct LyoApp: App {
     }
 }
 
-struct ContentView: View {
-    @EnvironmentObject var appState: AppState
-    
-    var body: some View {
-        Group {
-            if appState.isAuthenticated {
-                MainTabView(appState: appState)
-            } else {
-                AuthenticationView()
-            }
-        }
-        .animation(.easeInOut(duration: 0.3), value: appState.isAuthenticated)
-    }
-}
+// ContentView is in its own file
