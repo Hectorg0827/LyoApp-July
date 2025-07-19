@@ -20,6 +20,11 @@ enum LoadingState: Equatable {
     }
 }
 
+// MARK: - Avatar State
+enum AvatarState {
+    case idle, listening, thinking, speaking
+}
+
 // MARK: - Error Types
 enum AppError: LocalizedError, Equatable {
     case networkError
@@ -102,6 +107,13 @@ class AppState: ObservableObject {
     @Published var lastSessionDate: Date?
     @Published var currentLearningObjective: String?
     
+    // MARK: - Avatar Companion State
+    @Published var isAvatarPresented: Bool = false
+    @Published var avatarState: AvatarState = .idle
+    @Published var liveTranscript: String = ""
+    @Published var currentAvatarContext: Any? = nil
+    @Published var showFloatingCompanion: Bool = false
+    
     // MARK: - Learning Path State
     @Published var currentLearningPath: LearningPath?
     @Published var showingPathSelection = false
@@ -141,6 +153,9 @@ class AppState: ObservableObject {
         isListeningForWakeWord = UserDefaults.standard.object(forKey: "isListeningForWakeWord") as? Bool ?? true
         hasActiveSession = UserDefaults.standard.bool(forKey: "hasActiveLyoSession")
         currentLearningObjective = UserDefaults.standard.string(forKey: "currentLearningObjective")
+        
+        // Load avatar companion state
+        showFloatingCompanion = UserDefaults.standard.bool(forKey: "showFloatingCompanion")
         
         // Load learning path state
         currentTopic = UserDefaults.standard.string(forKey: "currentTopic")
@@ -279,6 +294,38 @@ class AppState: ObservableObject {
     func toggleWakeWordListening() {
         isListeningForWakeWord.toggle()
         UserDefaults.standard.set(isListeningForWakeWord, forKey: "isListeningForWakeWord")
+    }
+    
+    // MARK: - Avatar Companion Management
+    func presentAvatar(with context: Any? = nil) {
+        currentAvatarContext = context
+        isAvatarPresented = true
+        avatarState = .idle
+        
+        // Enable floating companion after first interaction
+        if !showFloatingCompanion {
+            showFloatingCompanion = true
+            UserDefaults.standard.set(true, forKey: "showFloatingCompanion")
+        }
+    }
+    
+    func dismissAvatar() {
+        isAvatarPresented = false
+        avatarState = .idle
+        liveTranscript = ""
+        currentAvatarContext = nil
+    }
+    
+    func updateAvatarState(_ state: AvatarState) {
+        avatarState = state
+    }
+    
+    func updateLiveTranscript(_ transcript: String) {
+        liveTranscript = transcript
+    }
+    
+    func setAvatarContext(_ context: Any?) {
+        currentAvatarContext = context
     }
     
     // MARK: - Learning Path Management
