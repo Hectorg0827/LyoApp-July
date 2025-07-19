@@ -86,7 +86,7 @@ struct MoreTabView: View {
                 .environmentObject(appState)
         }
         .sheet(isPresented: $showingLibrary) {
-            LibraryView()
+            LearnTabView()
         }
         .sheet(isPresented: $showingAIChat) {
             AIFullChatViewWithCompletion { topic in
