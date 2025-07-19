@@ -54,6 +54,10 @@
 		EA0783E720CFD83A463191C0 /* TypingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEDB7AFA7B9DFCD4DCCFDE40 /* TypingIndicator.swift */; };
 		F4DF5A4B1E87EFDEF5B01D16 /* MoreTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B4DB8C2C525CD622E49736 /* MoreTabView.swift */; };
 		FF27B03C011A2898BC0A0EE2 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E744088E2146A51E7D5748BC /* DesignSystem.swift */; };
+		AA111111111111AA111111AA /* AIAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB222222222222BB222222BB /* AIAvatarView.swift */; };
+		CC333333333333CC333333CC /* AvatarCompanionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD444444444444DD444444DD /* AvatarCompanionCoordinator.swift */; };
+		EE555555555555EE555555EE /* LearnTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF666666666666FF666666FF /* LearnTabView.swift */; };
+		1234567890ABCDEF12345678 /* AIAvatarIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCDEF1234567890ABCDEF12 /* AIAvatarIntegration.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -108,6 +112,10 @@
 		E28717C22D32A623B17D8B6E /* DiscoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverView.swift; sourceTree = "<group>"; };
 		E744088E2146A51E7D5748BC /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		EEDB7AFA7B9DFCD4DCCFDE40 /* TypingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingIndicator.swift; sourceTree = "<group>"; };
+		BB222222222222BB222222BB /* AIAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAvatarView.swift; sourceTree = "<group>"; };
+		DD444444444444DD444444DD /* AvatarCompanionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarCompanionCoordinator.swift; sourceTree = "<group>"; };
+		FF666666666666FF666666FF /* LearnTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnTabView.swift; sourceTree = "<group>"; };
+		ABCDEF1234567890ABCDEF12 /* AIAvatarIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAvatarIntegration.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -138,6 +146,8 @@
 		8CA8452090AEBF166E954ADC /* LyoApp */ = {
 			isa = PBXGroup;
 			children = (
+				BB222222222222BB222222BB /* AIAvatarView.swift */,
+				ABCDEF1234567890ABCDEF12 /* AIAvatarIntegration.swift */,
 				A389D70B057F69A73DC5F98B /* AIFullChatViewWithCompletion.swift */,
 				389E2A71924339227EC03B80 /* AIModels.swift */,
 				1E99689F49663592647047E7 /* AIOnboardingFlowView.swift */,
@@ -148,6 +158,7 @@
 				8CA9503D4D21CEEFA252EBFD /* AppStateExtensions.swift */,
 				C75D4CCFD25F740961DE5867 /* Assets.xcassets */,
 				7D915DBF4841F30DE7719A6C /* AuthenticationView.swift */,
+				DD444444444444DD444444DD /* AvatarCompanionCoordinator.swift */,
 				68C13AAEC36CFCC2A7BE005B /* CommunityView_new.swift */,
 				B3FD4CE591E6A573E0638AFC /* CompilationVerification.swift */,
 				5B819F9A8F025AFC323FBE04 /* ContentView.swift */,
@@ -164,6 +175,7 @@
 				D26EABA49A3E5DEE4211A875 /* Info.plist */,
 				80A77A71B17C98E0239167EC /* LaunchScreen.storyboard */,
 				97F5517617EECE37AA28266F /* LaunchScreenView.swift */,
+				FF666666666666FF666666FF /* LearnTabView.swift */,
 				CFE089C414C4C2A41AAB8478 /* LearnView.swift */,
 				B8E4A0FEB92FBCE60BE99B69 /* LessonBlockView.swift */,
 				35FE04CA56FAA9228F3A5F02 /* LessonModels.swift */,
@@ -265,6 +277,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				2A23F4DE2E2800770030771A /* LessonBlockView.swift in Sources */,
+				AA111111111111AA111111AA /* AIAvatarView.swift in Sources */,
+				1234567890ABCDEF12345678 /* AIAvatarIntegration.swift in Sources */,
 				54D0CC3AAF0295567DAEE24E /* AIFullChatViewWithCompletion.swift in Sources */,
 				D0BE8B92110A4BCFCCD3C326 /* AIModels.swift in Sources */,
 				E4D08D50FAA8CE517AEF25F1 /* AIOnboardingFlowView.swift in Sources */,
@@ -273,6 +287,7 @@
 				1F5F0E88B55EE164A9AB7BBC /* AppState.swift in Sources */,
 				6B907BB366019851AF38DE1A /* AppStateExtensions.swift in Sources */,
 				5D1A0B87C352582DA07246E1 /* AuthenticationView.swift in Sources */,
+				CC333333333333CC333333CC /* AvatarCompanionCoordinator.swift in Sources */,
 				1DA8CB7E4B8737189BD38A40 /* CommunityView_new.swift in Sources */,
 				1B4C1C4BA36CF163AE3A76DB /* CompilationVerification.swift in Sources */,
 				54C3B0EAD3C1FC124C4FC347 /* ContentView.swift in Sources */,
@@ -286,6 +301,7 @@
 				16D6E860CE43BE681236F2D3 /* FloatingActionButton.swift in Sources */,
 				99D342B7B9DF021FEE987919 /* GamificationOverlay.swift in Sources */,
 				35A5A1A3973BED1B6140FAFE /* HeaderView.swift in Sources */,
+				EE555555555555EE555555EE /* LearnTabView.swift in Sources */,
 				330A34CC004130053120612C /* LessonModels.swift in Sources */,
 				1DC8DD6F937037BE336359F9 /* LibraryView.swift in Sources */,
 				2A23F4DB2E27F9A50030771A /* HomeFeedView.swift in Sources */,
