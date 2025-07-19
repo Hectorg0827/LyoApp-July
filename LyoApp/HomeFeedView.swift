@@ -78,19 +78,65 @@ class FeedManager: ObservableObject {
     func preload() async {}
     func cleanup() {}
     func preloadNextVideo(at index: Int) {}
-    func toggleLike(for item: FeedItem) {}
-    func toggleSave(for item: FeedItem) {}
+    
+    func toggleLike(for item: FeedItem) {
+        if let index = feedItems.firstIndex(where: { $0.id == item.id }) {
+            feedItems[index].engagement.isLiked.toggle()
+            if feedItems[index].engagement.isLiked {
+                feedItems[index].engagement.likes += 1
+            } else {
+                feedItems[index].engagement.likes -= 1
+            }
+            FeedbackManager.shared.likeAction()
+        }
+    }
+    
+    func toggleSave(for item: FeedItem) {
+        if let index = feedItems.firstIndex(where: { $0.id == item.id }) {
+            feedItems[index].engagement.isSaved.toggle()
+            if feedItems[index].engagement.isSaved {
+                feedItems[index].engagement.saves += 1
+            } else {
+                feedItems[index].engagement.saves -= 1
+            }
+            FeedbackManager.shared.saveAction()
+        }
+    }
 }
 
 class FeedbackManager: ObservableObject {
     static let shared = FeedbackManager()
-    func cardSwipe() {}
-    func likeAction() {}
-    func saveAction() {}
-    func buttonTap() {}
+    
+    func cardSwipe() {
+        // Provide haptic feedback
+        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+        impactFeedback.impactOccurred()
+        print("💬 Card swipe action triggered")
+    }
+    
+    func likeAction() {
+        // Provide haptic feedback
+        let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+        impactFeedback.impactOccurred()
+        print("❤️ Like action triggered")
+    }
+    
+    func saveAction() {
+        // Provide haptic feedback
+        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+        impactFeedback.impactOccurred()
+        print("🔖 Save action triggered")
+    }
+    
+    func buttonTap() {
+        // Provide haptic feedback
+        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+        impactFeedback.impactOccurred()
+        print("👆 Button tap action triggered")
+    }
 }
 
-struct FeedItem {
+struct FeedItem: Identifiable {
     let id: UUID
     let creator: Creator
     let contentType: FeedContentType
@@ -131,7 +177,6 @@ enum FeedContentType {
 }
 // ...existing code...
 
-// MARK: - Minimal DiscoverHeaderView (Fixes missing symbol error)
 // MARK: - Content Views (Moved above immersiveContentView for SwiftUI scoping)
 private func tikTokStyleVideoView(videoContent: VideoContent, geometry: GeometryProxy) -> some View {
     AsyncImage(url: videoContent.thumbnailURL) { image in
@@ -231,23 +276,6 @@ private func tikTokStyleProductView(productContent: ProductContent, geometry: Ge
             )
     }
 }
-struct DiscoverHeaderView: View {
-    var body: some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 24, weight: .bold))
-                .foregroundColor(.white)
-            Text("Discover")
-                .font(.system(size: 22, weight: .bold))
-                .foregroundColor(.white)
-            Spacer()
-            Image(systemName: "line.3.horizontal")
-                .font(.system(size: 24, weight: .bold))
-                .foregroundColor(.white)
-        }
-        .padding()
-    }
-}
 struct HomeFeedView: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var feedManager: FeedManager = FeedManager()
@@ -281,8 +309,8 @@ struct HomeFeedView: View {
     private var overlayUIElements: some View {
         ZStack {
             VStack(spacing: 0) {
-                // Use shared DiscoverHeaderView for header
-                DiscoverHeaderView()
+                // Use shared HeaderView for header (from DiscoverView)
+                HeaderView(showingStoryDrawer: $showingStoryDrawer)
                     .padding(.top, 44)
                     .padding(.horizontal)
 
@@ -300,22 +328,38 @@ struct HomeFeedView: View {
                         }
                         // Social actions
                         HStack(spacing: 24) {
-                            Button(action: { feedbackManager.likeAction() }) {
-                                Image(systemName: "heart")
+                            Button(action: { 
+                                if let item = feedManager.feedItems[safe: selectedIndex] {
+                                    feedManager.toggleLike(for: item)
+                                }
+                            }) {
+                                let item = feedManager.feedItems[safe: selectedIndex]
+                                Image(systemName: item?.engagement.isLiked == true ? "heart.fill" : "heart")
                                     .font(.system(size: 24))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(item?.engagement.isLiked == true ? .red : .white)
                             }
-                            Button(action: { feedbackManager.cardSwipe() }) {
+                            Button(action: { 
+                                feedbackManager.cardSwipe()
+                                showChatOverlay.toggle()
+                            }) {
                                 Image(systemName: "bubble.right")
                                     .font(.system(size: 24))
                                     .foregroundColor(.white)
                             }
-                            Button(action: { feedbackManager.saveAction() }) {
-                                Image(systemName: "bookmark")
+                            Button(action: { 
+                                if let item = feedManager.feedItems[safe: selectedIndex] {
+                                    feedManager.toggleSave(for: item)
+                                }
+                            }) {
+                                let item = feedManager.feedItems[safe: selectedIndex]
+                                Image(systemName: item?.engagement.isSaved == true ? "bookmark.fill" : "bookmark")
                                     .font(.system(size: 24))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(item?.engagement.isSaved == true ? .yellow : .white)
                             }
-                            Button(action: { /* Share */ }) {
+                            Button(action: { 
+                                feedbackManager.buttonTap()
+                                print("📤 Share action triggered")
+                            }) {
                                 Image(systemName: "square.and.arrow.up")
                                     .font(.system(size: 24))
                                     .foregroundColor(.white)
@@ -340,13 +384,32 @@ struct HomeFeedView: View {
                                 .background(Color(.systemGray6))
                                 .cornerRadius(16)
                                 .font(.system(size: 16))
-                            Button(action: { /* Voice input */ }) {
+                            Button(action: { 
+                                feedbackManager.buttonTap()
+                                print("🎤 Voice input action triggered")
+                                // TODO: Integrate with VoiceRecognizer
+                            }) {
                                 Image(systemName: "mic.fill")
                                     .font(.system(size: 22))
                                     .foregroundColor(.blue)
                             }
-                            Button(action: { /* Camera/upload */ }) {
+                            Button(action: { 
+                                feedbackManager.buttonTap()
+                                print("📷 Camera/upload action triggered")
+                                // TODO: Present camera/photo picker
+                            }) {
                                 Image(systemName: "camera.fill")
+                                    .font(.system(size: 22))
+                                    .foregroundColor(.blue)
+                            }
+                            Button(action: {
+                                feedbackManager.buttonTap()
+                                if !chatText.isEmpty {
+                                    print("💬 Sending message: \(chatText)")
+                                    chatText = ""
+                                }
+                            }) {
+                                Image(systemName: "paperplane.fill")
                                     .font(.system(size: 22))
                                     .foregroundColor(.blue)
                             }
@@ -368,7 +431,7 @@ struct HomeFeedView: View {
         ZStack {
             // Full-screen content - TikTok style
             immersiveContentView
-                .ignoresSafeArea(.all)
+                .ignoresSafeArea(.all, edges: .top)
 
             // Overlay UI Elements
             overlayUIElements
@@ -379,6 +442,29 @@ struct HomeFeedView: View {
                 await feedManager.preload()
             }
         }
+        .gesture(
+            DragGesture()
+                .onEnded { value in
+                    let swipeThreshold: CGFloat = 100
+                    if value.translation.height > swipeThreshold {
+                        // Swipe down - previous item
+                        if selectedIndex > 0 {
+                            withAnimation(.spring()) {
+                                selectedIndex -= 1
+                            }
+                            feedbackManager.cardSwipe()
+                        }
+                    } else if value.translation.height < -swipeThreshold {
+                        // Swipe up - next item
+                        if selectedIndex < feedManager.feedItems.count - 1 {
+                            withAnimation(.spring()) {
+                                selectedIndex += 1
+                            }
+                            feedbackManager.cardSwipe()
+                        }
+                    }
+                }
+        )
         .onDisappear {
             feedManager.cleanup()
             uiDelayTimer?.invalidate()
