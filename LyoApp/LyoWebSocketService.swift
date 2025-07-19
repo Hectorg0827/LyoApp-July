@@ -18,6 +18,13 @@ class LyoWebSocketService: NSObject, ObservableObject {
     @Published var messages: [WebSocketMessage] = []
     @Published var lastError: WebSocketError?
     
+    // MARK: - Avatar Companion State
+    @Published var liveTranscript: String = ""
+    @Published var isProcessingAudio: Bool = false
+    @Published var currentAvatarState: AvatarState = .idle
+    @Published var contextualResponse: String = ""
+    @Published var isStreaming: Bool = false
+    
     // MARK: - Private Properties
     private var userId: Int?
     private var pingTimer: Timer?
@@ -25,6 +32,13 @@ class LyoWebSocketService: NSObject, ObservableObject {
     private var reconnectAttempts = 0
     private let maxReconnectAttempts = 5
     private let reconnectDelay: TimeInterval = 5.0
+    
+    // MARK: - Avatar Companion Properties
+    private var audioStreamTask: Task<Void, Never>?
+    private var contextBuffer: [String] = []
+    private let maxContextBufferSize = 10
+    private var currentSessionId: String?
+    private weak var appState: AppState?
     
     // MARK: - Initialization
     
@@ -38,9 +52,10 @@ class LyoWebSocketService: NSObject, ObservableObject {
     
     // MARK: - Connection Management
     
-    func connect(userId: Int) {
+    func connect(userId: Int, appState: AppState? = nil) {
         self.userId = userId
-        guard let url = URL(string: "\(baseURL)/ai/ws/\(userId)") else {
+        self.appState = appState
+        guard let url = URL(string: "\(baseURL)/api/v1/ai/ws/\(userId)") else {
             lastError = .invalidURL
             return
         }
@@ -128,10 +143,49 @@ class LyoWebSocketService: NSObject, ObservableObject {
                 isConnected = true
                 connectionState = .connected
                 reconnectAttempts = 0
+                currentSessionId = message.metadata?["sessionId"]
                 print("✅ WebSocket connected successfully")
+                
+                // Notify AppState of connection
+                appState?.updateAvatarState(.idle)
                 
             case .mentorResponse:
                 print("💬 Received mentor response: \(message.content)")
+                
+                // Update avatar state and context
+                contextualResponse = message.content
+                appState?.updateAvatarState(.speaking)
+                
+                // Process streaming response if applicable
+                if let isStreamingStr = message.metadata?["streaming"],
+                   let isStreamingBool = Bool(isStreamingStr) {
+                    isStreaming = isStreamingBool
+                }
+                
+            case .transcriptUpdate:
+                print("📝 Received transcript update: \(message.content)")
+                liveTranscript = message.content
+                appState?.updateLiveTranscript(message.content)
+                
+            case .avatarStateChange:
+                if let rawState = AvatarState(rawValue: message.content) {
+                    currentAvatarState = rawState
+                    appState?.updateAvatarState(rawState)
+                    print("🤖 Avatar state changed to: \(rawState)")
+                }
+                
+            case .contextualResponse:
+                print("🎯 Received contextual response: \(message.content)")
+                contextualResponse = message.content
+                appState?.updateAvatarState(.speaking)
+                
+            case .speechSynthesis:
+                print("🔊 Received speech synthesis: \(message.content)")
+                // Handle speech synthesis response
+                
+            case .audioStream:
+                print("🎵 Received audio stream data")
+                // Handle audio stream response
                 
             case .error:
                 lastError = .messageError(message.content)
@@ -263,6 +317,102 @@ class LyoWebSocketService: NSObject, ObservableObject {
         sendMessage(message)
     }
     
+    // MARK: - Avatar Companion Methods
+    
+    /// Send live transcript for contextual processing
+    func sendLiveTranscript(_ transcript: String) {
+        let message = WebSocketMessage(
+            type: .transcriptUpdate,
+            content: transcript,
+            timestamp: Date().timeIntervalSince1970,
+            metadata: ["sessionId": currentSessionId ?? ""]
+        )
+        
+        sendMessage(message)
+        liveTranscript = transcript
+        appState?.updateLiveTranscript(transcript)
+    }
+    
+    /// Send audio stream data for real-time processing
+    func sendAudioStream(_ audioData: Data) {
+        guard let webSocketTask = webSocketTask, isConnected else { return }
+        
+        isProcessingAudio = true
+        webSocketTask.send(.data(audioData)) { [weak self] error in
+            Task { @MainActor in
+                self?.isProcessingAudio = false
+                if let error = error {
+                    self?.lastError = .sendError
+                    print("❌ Failed to send audio stream: \(error)")
+                }
+            }
+        }
+    }
+    
+    /// Send contextual information for avatar response
+    func sendContextualRequest(_ context: String, currentScreen: String? = nil) {
+        var metadata: [String: String] = ["sessionId": currentSessionId ?? ""]
+        if let screen = currentScreen {
+            metadata["currentScreen"] = screen
+        }
+        
+        let message = WebSocketMessage(
+            type: .contextualResponse,
+            content: context,
+            timestamp: Date().timeIntervalSince1970,
+            metadata: metadata
+        )
+        
+        sendMessage(message)
+        addToContextBuffer(context)
+    }
+    
+    /// Update avatar state
+    func updateAvatarState(_ state: AvatarState) {
+        currentAvatarState = state
+        appState?.updateAvatarState(state)
+        
+        let message = WebSocketMessage(
+            type: .avatarStateChange,
+            content: state.rawValue,
+            timestamp: Date().timeIntervalSince1970,
+            metadata: ["sessionId": currentSessionId ?? ""]
+        )
+        
+        sendMessage(message)
+    }
+    
+    /// Request speech synthesis
+    func requestSpeechSynthesis(_ text: String) {
+        let message = WebSocketMessage(
+            type: .speechSynthesis,
+            content: text,
+            timestamp: Date().timeIntervalSince1970,
+            metadata: ["sessionId": currentSessionId ?? ""]
+        )
+        
+        sendMessage(message)
+    }
+    
+    // MARK: - Context Management
+    
+    private func addToContextBuffer(_ context: String) {
+        contextBuffer.append(context)
+        if contextBuffer.count > maxContextBufferSize {
+            contextBuffer.removeFirst()
+        }
+    }
+    
+    /// Get current context for avatar interactions
+    func getCurrentContext() -> String {
+        return contextBuffer.joined(separator: "\n")
+    }
+    
+    /// Clear context buffer
+    func clearContext() {
+        contextBuffer.removeAll()
+    }
+    
     // MARK: - Utility Methods
     
     func clearMessages() {
@@ -346,10 +496,38 @@ struct WebSocketMessage: Codable, Identifiable {
         case taskStatus = "task_status"
         case courseGenerated = "course_generated"
         case lessonContent = "lesson_content"
+        
+        // Avatar Companion specific message types
+        case audioStream = "audio_stream"
+        case transcriptUpdate = "transcript_update"
+        case avatarStateChange = "avatar_state_change"
+        case contextualResponse = "contextual_response"
+        case speechSynthesis = "speech_synthesis"
     }
 }
 
 // MARK: - Extensions
+
+extension AvatarState {
+    var rawValue: String {
+        switch self {
+        case .idle: return "idle"
+        case .listening: return "listening"
+        case .thinking: return "thinking"
+        case .speaking: return "speaking"
+        }
+    }
+    
+    init?(rawValue: String) {
+        switch rawValue {
+        case "idle": self = .idle
+        case "listening": self = .listening
+        case "thinking": self = .thinking
+        case "speaking": self = .speaking
+        default: return nil
+        }
+    }
+}
 
 extension LyoWebSocketService {
     /// Get messages of a specific type
