@@ -109,6 +109,16 @@ class ErrorHandlingService: ObservableObject {
         handleError(error, context: context)
     }
     
+    func handleAvatarCompanionError(_ error: Error) {
+        let context = ErrorContext(
+            operation: "Avatar Companion",
+            endpoint: "System Integration",
+            userAction: "Interacting with AI Avatar"
+        )
+        
+        handleError(error, context: context)
+    }
+    
     func handleWebSocketError(_ error: WebSocketError) {
         let context = ErrorContext(
             operation: "WebSocket Connection",
@@ -191,6 +201,13 @@ class ErrorHandlingService: ObservableObject {
             return [
                 RecoveryAction(title: "Contact Support", action: { await self.contactSupport() }),
                 RecoveryAction(title: "Try Later", action: { await self.scheduleRetryLater() })
+            ]
+            
+        case .avatarCompanionError:
+            return [
+                RecoveryAction(title: "Retry Connection", action: { await self.retryAvatarConnection() }),
+                RecoveryAction(title: "Use Basic Chat", action: { await self.fallbackToBasicChat() }),
+                RecoveryAction(title: "Restart System", action: { await self.restartAvatarSystem() })
             ]
         }
     }
@@ -280,6 +297,39 @@ class ErrorHandlingService: ObservableObject {
         // Schedule retry for later
         print("Scheduling retry for later...")
     }
+    
+    // MARK: - Avatar Companion Recovery Actions
+    
+    private func retryAvatarConnection() async {
+        // Retry avatar companion connection
+        print("Retrying avatar companion connection...")
+    }
+    
+    private func fallbackToBasicChat() async {
+        // Fallback to basic chat mode
+        print("Falling back to basic chat mode...")
+    }
+    
+    private func restartAvatarSystem() async {
+        // Restart the avatar companion system
+        print("Restarting avatar companion system...")
+    }
+    
+    private func checkPermissions() async {
+        // Check and request necessary permissions
+        print("Checking permissions...")
+    }
+    
+    private func waitAndRetry() async {
+        // Wait for system to be ready and retry
+        try? await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
+        await retryAvatarConnection()
+    }
+    
+    private func forceInitializeSystem() async {
+        // Force initialize the system
+        print("Force initializing avatar companion system...")
+    }
 }
 
 // MARK: - Error Types
@@ -304,7 +354,7 @@ struct LyoError: Error, Identifiable {
                 context: context,
                 timestamp: Date(),
                 shouldShowToUser: true,
-                canRetry: apiError != .unauthorized
+                canRetry: !LyoError.isUnauthorizedError(apiError)
             )
             
         case let wsError as WebSocketError:
@@ -312,6 +362,17 @@ struct LyoError: Error, Identifiable {
                 type: .webSocketError(wsError),
                 title: "Connection Error",
                 message: wsError.localizedDescription,
+                context: context,
+                timestamp: Date(),
+                shouldShowToUser: false,
+                canRetry: true
+            )
+            
+        case let coordinatorError where coordinatorError.localizedDescription.contains("Avatar"):
+            return LyoError(
+                type: .avatarCompanionError,
+                title: "Avatar Companion Error",
+                message: coordinatorError.localizedDescription,
                 context: context,
                 timestamp: Date(),
                 shouldShowToUser: false,
@@ -340,6 +401,15 @@ struct LyoError: Error, Identifiable {
         shouldShowToUser: true,
         canRetry: false
     )
+    
+    static func isUnauthorizedError(_ error: APIError) -> Bool {
+        switch error {
+        case .unauthorized:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 enum ErrorType {
@@ -351,7 +421,9 @@ enum ErrorType {
     case lessonContentError
     case authenticationError
     case maxRetriesExceeded
+    case avatarCompanionError
 }
+
 
 struct ErrorContext {
     let operation: String
