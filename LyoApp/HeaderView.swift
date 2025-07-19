@@ -101,9 +101,18 @@ struct AddStoryCircle: View {
 struct LyoButton: View {
     @Binding var showingStoryDrawer: Bool
     @State private var glowAnimation = false
+    @State private var showingAIAvatar = false
+    @EnvironmentObject var appState: AppState
+    
     var body: some View {
         Button {
-            showingStoryDrawer.toggle()
+            // Toggle between story drawer and AI Avatar
+            if showingStoryDrawer {
+                showingStoryDrawer = false
+            } else {
+                // Launch AI Avatar
+                appState.presentAvatar()
+            }
         } label: {
             ZStack {
                 RoundedRectangle(cornerRadius: DesignTokens.Radius.xl)
@@ -132,6 +141,10 @@ struct LyoButton: View {
             withAnimation(Animation.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
                 glowAnimation = true
             }
+        }
+        .onLongPressGesture {
+            // Long press to show story drawer
+            showingStoryDrawer.toggle()
         }
     }
 }
