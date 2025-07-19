@@ -10,13 +10,13 @@ struct FloatingActionButton: View {
     @State private var pulseAnimation = false
     
     @GestureState private var dragOffset = CGSize.zero
-    @EnvironmentObject var voiceActivationService: VoiceActivationService
+    @EnvironmentObject var appState: AppState
     
     var body: some View {
         ZStack {
             // Lyo Avatar Button
             Button(action: {
-                showingLyoModal = true
+                appState.presentAvatar()
             }) {
                 ZStack {
                     // Background glow effect
@@ -109,27 +109,14 @@ struct FloatingActionButton: View {
                     position.y -= 10
                 }
             }
-            .onChange(of: voiceActivationService.isLyoActivated) { _, activated in
+            .onChange(of: appState.isLyoAwake) { _, activated in
                 if activated {
-                    showingLyoModal = true
-                    voiceActivationService.resetActivation()
+                    appState.presentAvatar()
                 }
             }
             .accessibilityLabel("Lyo AI Assistant")
             .accessibilityHint("Tap to open Lyo AI chat, drag to move button")
         }
-        .fullScreenCover(isPresented: $showingLyoModal) {
-            LyoModalView()
-        }
-    }
-}
-
-/// Modal view that shows when Lyo is activated
-struct LyoModalView: View {
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View {
-        AIOnboardingFlowView()
     }
 }
 
@@ -137,5 +124,6 @@ struct LyoModalView: View {
     ZStack {
         Color.black.ignoresSafeArea()
         FloatingActionButton()
+            .environmentObject(AppState())
     }
 }
