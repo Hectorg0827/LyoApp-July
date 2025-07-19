@@ -27,7 +27,7 @@ class LyoAPIService: ObservableObject {
     // MARK: - Connection Management
     
     func checkConnection() {
-        guard let url = URL(string: "\(baseURL)/ai/health") else { return }
+        guard let url = URL(string: "\(baseURL)/api/v1/health") else { return }
         
         var request = URLRequest(url: url)
         request.timeoutInterval = 5.0
@@ -40,7 +40,7 @@ class LyoAPIService: ObservableObject {
                     self?.lastError = nil
                 } else {
                     self?.isConnected = false
-                    self?.lastError = .connectionError
+                    self?.lastError = .networkError(NSError(domain: "ConnectionError", code: 0))
                 }
             }
         }.resume()
@@ -72,7 +72,7 @@ class LyoAPIService: ObservableObject {
         )
         
         return try await performRequest(
-            endpoint: "/ai/curriculum/course-outline",
+            endpoint: "/api/v1/ai/curriculum/course-outline",
             method: .POST,
             body: request,
             responseType: CourseGenerationResponse.self
@@ -90,7 +90,7 @@ class LyoAPIService: ObservableObject {
         )
         
         return try await performRequest(
-            endpoint: "/ai/mentor/conversation",
+            endpoint: "/api/v1/ai/mentor/conversation",
             method: .POST,
             body: request,
             responseType: MentorResponse.self
@@ -99,7 +99,7 @@ class LyoAPIService: ObservableObject {
     
     /// Get conversation history with mentor
     func getConversationHistory(limit: Int = 20) async throws -> ConversationHistoryResponse {
-        let endpoint = "/ai/mentor/history?limit=\(limit)"
+        let endpoint = "/api/v1/ai/mentor/history?limit=\(limit)"
         
         return try await performRequest(
             endpoint: endpoint,
@@ -128,7 +128,7 @@ class LyoAPIService: ObservableObject {
         )
         
         return try await performRequest(
-            endpoint: "/ai/curriculum/lesson-content",
+            endpoint: "/api/v1/ai/curriculum/lesson-content",
             method: .POST,
             body: request,
             responseType: LessonContentResponse.self
@@ -138,7 +138,7 @@ class LyoAPIService: ObservableObject {
     /// Get AI system health status
     func getSystemHealth() async throws -> AIHealthResponse {
         return try await performRequest(
-            endpoint: "/ai/health",
+            endpoint: "/api/v1/health",
             method: .GET,
             body: nil as EmptyRequest?,
             responseType: AIHealthResponse.self
@@ -153,7 +153,7 @@ class LyoAPIService: ObservableObject {
         )
         
         let _: EmptyResponse = try await performRequest(
-            endpoint: "/ai/mentor/rate",
+            endpoint: "/api/v1/ai/mentor/rate",
             method: .POST,
             body: request,
             responseType: EmptyResponse.self
@@ -186,7 +186,7 @@ class LyoAPIService: ObservableObject {
             do {
                 request.httpBody = try JSONEncoder().encode(body)
             } catch {
-                throw APIError.encodingError
+                throw APIError.decodingError(error)
             }
         }
         
@@ -202,7 +202,7 @@ class LyoAPIService: ObservableObject {
             
             // Check HTTP response
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw APIError.invalidResponse
+                throw APIError.networkError(NSError(domain: "InvalidResponse", code: 0))
             }
             
             // Handle different status codes
@@ -216,11 +216,11 @@ class LyoAPIService: ObservableObject {
                     return result
                 } catch {
                     print("Decoding error: \(error)")
-                    throw APIError.decodingError
+                    throw APIError.decodingError(error)
                 }
                 
             case 400:
-                throw APIError.badRequest
+                throw APIError.serverError(400, "Bad request")
             case 401:
                 throw APIError.unauthorized
             case 403:
@@ -228,9 +228,9 @@ class LyoAPIService: ObservableObject {
             case 404:
                 throw APIError.notFound
             case 500...599:
-                throw APIError.serverError
+                throw APIError.serverError(httpResponse.statusCode, "Server error")
             default:
-                throw APIError.unknownError
+                throw APIError.unknown(NSError(domain: "UnknownError", code: httpResponse.statusCode))
             }
             
         } catch {
@@ -239,8 +239,8 @@ class LyoAPIService: ObservableObject {
                 lastError = apiError
                 throw apiError
             } else {
-                lastError = .networkError
-                throw APIError.networkError
+                lastError = .networkError(error)
+                throw APIError.networkError(error)
             }
         }
     }
@@ -251,50 +251,7 @@ class LyoAPIService: ObservableObject {
 // HTTPMethod is defined in NetworkLayer.swift
 
 // MARK: - API Error Types
-
-enum APIError: Error, LocalizedError {
-    case invalidURL
-    case encodingError
-    case decodingError
-    case networkError
-    case connectionError
-    case invalidResponse
-    case badRequest
-    case unauthorized
-    case forbidden
-    case notFound
-    case serverError
-    case unknownError
-    
-    var errorDescription: String? {
-        switch self {
-        case .invalidURL:
-            return "Invalid URL"
-        case .encodingError:
-            return "Failed to encode request"
-        case .decodingError:
-            return "Failed to decode response"
-        case .networkError:
-            return "Network error occurred"
-        case .connectionError:
-            return "Cannot connect to server"
-        case .invalidResponse:
-            return "Invalid response from server"
-        case .badRequest:
-            return "Bad request"
-        case .unauthorized:
-            return "Unauthorized access"
-        case .forbidden:
-            return "Access forbidden"
-        case .notFound:
-            return "Resource not found"
-        case .serverError:
-            return "Server error"
-        case .unknownError:
-            return "Unknown error occurred"
-        }
-    }
-}
+// APIError is defined in AIAvatarIntegration.swift to avoid duplication
 
 // MARK: - Request Models
 
@@ -556,9 +513,7 @@ struct PerformanceData: Codable {
     }
 }
 
-struct EmptyResponse: Codable {
-    // Empty response for endpoints that return no data
-}
+// EmptyResponse is defined in AIAvatarIntegration.swift to avoid duplication
 
 // MARK: - API Service Extensions
 
