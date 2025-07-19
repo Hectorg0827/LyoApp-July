@@ -13,6 +13,8 @@ class VoiceActivationService: ObservableObject {
     
     private var cancellables = Set<AnyCancellable>()
     private let debounceInterval: TimeInterval = 2.0 // Prevent rapid successive activations
+    private weak var appState: AppState?
+    private weak var webSocketService: LyoWebSocketService?
     
     init() {
         setupObservers()
@@ -71,6 +73,16 @@ class VoiceActivationService: ObservableObject {
         
         print("🎯 Hey Lyo detected! Activating AI assistant...")
         
+        // Integrate with Avatar Companion system
+        appState?.presentAvatar(with: "voice_activation")
+        appState?.updateAvatarState(.listening)
+        
+        // Send activation event to WebSocket
+        webSocketService?.sendContextualRequest(
+            "Voice activation detected - user said 'Hey Lyo'",
+            currentScreen: getCurrentScreen()
+        )
+        
         // Auto-reset after a brief moment
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.isLyoActivated = false
@@ -79,5 +91,35 @@ class VoiceActivationService: ObservableObject {
     
     func resetActivation() {
         isLyoActivated = false
+    }
+    
+    // MARK: - Avatar Companion Integration
+    
+    func configure(appState: AppState, webSocketService: LyoWebSocketService) {
+        self.appState = appState
+        self.webSocketService = webSocketService
+    }
+    
+    private func getCurrentScreen() -> String {
+        guard let appState = appState else { return "unknown" }
+        return appState.selectedTab.rawValue.lowercased()
+    }
+    
+    // MARK: - Enhanced Voice Processing
+    
+    func processVoiceInput(_ transcript: String) {
+        // Process continuous voice input for contextual awareness
+        if transcript.lowercased().contains("hey lyo") || transcript.lowercased().contains("lyo") {
+            handleLyoActivation()
+        } else if !transcript.isEmpty {
+            // Send contextual transcript to WebSocket
+            webSocketService?.sendLiveTranscript(transcript)
+        }
+    }
+    
+    func handleVoiceError(_ error: Error) {
+        print("🎤 Voice activation error: \(error)")
+        appState?.handleError(error)
+        isListening = false
     }
 }
