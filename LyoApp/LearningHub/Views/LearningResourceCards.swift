@@ -11,11 +11,21 @@ struct LearningResourceFeaturedCard: View {
         VStack(alignment: .leading) {
             // Image with overlay
             ZStack(alignment: .bottomLeading) {
-                Image(resource.imageName)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(height: 180)
-                    .clipped()
+                AsyncImage(url: resource.thumbnailURL) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .overlay(
+                            Image(systemName: resource.contentType.icon)
+                                .font(.system(size: 40))
+                                .foregroundColor(.gray)
+                        )
+                }
+                .frame(height: 180)
+                .clipped()
                 
                 LinearGradient(
                     gradient: Gradient(colors: [.clear, .black.opacity(0.8)]),
