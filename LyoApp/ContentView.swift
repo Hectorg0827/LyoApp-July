@@ -9,31 +9,10 @@ struct ContentView: View {
     var body: some View {
         TikTokStyleHomeView()
             .onAppear {
-                // Setup mock user for development
-                if appState.currentUser == nil {
-                    setupMockUser()
-                }
+                // Initialize app without mock data
+                // User authentication should happen through proper login flow
+                print("📱 LyoApp initialized - waiting for user authentication")
             }
-    }
-    
-    private func setupMockUser() {
-        let mockUser = User(
-            username: "testuser",
-            email: "test@example.com",
-            fullName: "Test User",
-            bio: "Learning with Lyo",
-            profileImageURL: nil,
-            followers: 0,
-            following: 0,
-            posts: 0,
-            badges: [],
-            level: 1,
-            experience: 100,
-            joinDate: Date(),
-            isVerified: false
-        )
-        appState.currentUser = mockUser
-        appState.isAuthenticated = true
     }
 }
 
@@ -342,10 +321,14 @@ class VideoFeedViewModel: ObservableObject {
     func loadVideos() {
         isLoading = true
         
-        // Simulate API call
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.videos = VideoPost.sampleVideos
-            self.isLoading = false
+        // Load real data using UserDataManager
+        Task {
+            await MainActor.run {
+                // TODO: Implement getUserVideos() in UserDataManager
+                // self.videos = UserDataManager.shared.getUserVideos()
+                self.videos = [] // Empty until real data loading is implemented
+                self.isLoading = false
+            }
         }
     }
 }
@@ -364,41 +347,9 @@ struct VideoPost: Identifiable {
     let hashtags: [String]
     let createdAt: Date
     
-    static let sampleVideos: [VideoPost] = [
-        VideoPost(
-            author: User(username: "techguru", email: "tech@example.com", fullName: "Tech Guru"),
-            title: "Quick tip that will save you hours of debugging 🔧",
-            videoURL: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-            thumbnailURL: "https://picsum.photos/300/400?random=1",
-            likes: 33700,
-            comments: 297,
-            shares: 178,
-            hashtags: ["AI", "MachineLearning", "Python"],
-            createdAt: Date().addingTimeInterval(-3600)
-        ),
-        VideoPost(
-            author: User(username: "designpro", email: "design@example.com", fullName: "Design Pro"),
-            title: "SwiftUI animation tricks that will blow your mind ✨",
-            videoURL: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-            thumbnailURL: "https://picsum.photos/300/400?random=2",
-            likes: 28500,
-            comments: 156,
-            shares: 89,
-            hashtags: ["SwiftUI", "iOS", "Animation"],
-            createdAt: Date().addingTimeInterval(-7200)
-        ),
-        VideoPost(
-            author: User(username: "codewiz", email: "code@example.com", fullName: "Code Wizard"),
-            title: "Building a neural network from scratch in 60 seconds 🧠",
-            videoURL: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-            thumbnailURL: "https://picsum.photos/300/400?random=3",
-            likes: 45200,
-            comments: 432,
-            shares: 267,
-            hashtags: ["NeuralNetwork", "DeepLearning", "AI"],
-            createdAt: Date().addingTimeInterval(-10800)
-        )
-    ]
+    // MARK: - Sample Data Removed
+    // All sample videos moved to UserDataManager for real data management
+    // static let sampleVideos = [] // Use UserDataManager.shared.getUserVideos()
 }
 
 #Preview {
