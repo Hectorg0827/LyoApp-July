@@ -142,11 +142,21 @@ struct LearningResourceRow: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            Image(resource.imageName)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 100, height: 80)
-                .cornerRadius(10)
+            AsyncImage(url: resource.thumbnailURL) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } placeholder: {
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .overlay(
+                        Image(systemName: resource.contentType.icon)
+                            .font(.system(size: 24))
+                            .foregroundColor(.gray)
+                    )
+            }
+            .frame(width: 100, height: 80)
+            .cornerRadius(10)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(resource.title)
