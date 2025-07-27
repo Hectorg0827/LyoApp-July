@@ -213,20 +213,51 @@ struct AIAvatarView: View {
     private var quickActionsView: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: DesignTokens.Spacing.sm) {
-                QuickActionButton(title: "Create Lesson", icon: "book.fill") {
-                    messageText = "Create a lesson about Swift programming"
-                }
-                
-                QuickActionButton(title: "Generate Quiz", icon: "questionmark.circle.fill") {
-                    messageText = "Generate a quiz about iOS development"
-                }
-                
-                QuickActionButton(title: "Explain Concept", icon: "lightbulb.fill") {
-                    messageText = "Explain how SwiftUI works"
-                }
-                
-                QuickActionButton(title: "Study Plan", icon: "calendar.circle.fill") {
-                    messageText = "Create a study plan for learning iOS development"
+                // Dynamic quick actions based on user context and history
+                if let context = avatarService.currentContext {
+                    // Show context-aware quick actions
+                    if context.topicsCovered.contains("Programming") {
+                        AIQuickActionButton(title: "Code Review", icon: "doc.text.magnifyingglass") {
+                            messageText = "Help me review my Swift code for best practices"
+                        }
+                    }
+                    
+                    if context.topicsCovered.contains("Design") {
+                        AIQuickActionButton(title: "UI Feedback", icon: "paintbrush.pointed") {
+                            messageText = "Give me feedback on my app's user interface design"
+                        }
+                    }
+                    
+                    // Always available actions
+                    AIQuickActionButton(title: "Continue Learning", icon: "book.fill") {
+                        if let currentModule = context.currentModule {
+                            messageText = "Continue with \(currentModule)"
+                        } else {
+                            messageText = "What should I learn next?"
+                        }
+                    }
+                    
+                    AIQuickActionButton(title: "Quiz Me", icon: "questionmark.circle.fill") {
+                        let topics = context.topicsCovered.joined(separator: ", ")
+                        messageText = "Create a quiz about \(topics)"
+                    }
+                } else {
+                    // Default quick actions for new users
+                    AIQuickActionButton(title: "Start Learning", icon: "book.fill") {
+                        messageText = "I'm new to programming. Where should I start?"
+                    }
+                    
+                    AIQuickActionButton(title: "Explore Topics", icon: "lightbulb.fill") {
+                        messageText = "What programming topics can you help me with?"
+                    }
+                    
+                    AIQuickActionButton(title: "Learning Goals", icon: "target") {
+                        messageText = "Help me set up my learning goals"
+                    }
+                    
+                    AIQuickActionButton(title: "Study Plan", icon: "calendar.circle.fill") {
+                        messageText = "Create a personalized study plan for me"
+                    }
                 }
             }
             .padding(.horizontal, DesignTokens.Spacing.lg)
@@ -240,14 +271,34 @@ struct AIAvatarView: View {
         avatarService.startNewSession()
         appState.updateAvatarState(.idle)
         
-        // Check connection and authenticate if needed
+        // Check connection and load context if authenticated
         if !avatarService.isConnected {
             isConnecting = true
             Task {
                 let healthCheck = await avatarService.checkBackendHealth()
-                if healthCheck && !APIClient.shared.hasAuthToken() {
-                    await avatarService.authenticateWithTestCredentials()
+                
+                if healthCheck {
+                    // If user is already authenticated, load context
+                    if avatarService.hasValidAuthToken() {
+                        await avatarService.loadAvatarContext()
+                    } else {
+                        // If no authentication and backend is available, 
+                        // try to authenticate with stored credentials or prompt for login
+                        if appState.isAuthenticated, let user = appState.currentUser {
+                            // Use actual user credentials for authentication
+                            let success = await avatarService.authenticateWithUserCredentials(
+                                email: user.email,
+                                // In a real app, this would come from secure storage
+                                password: "user_password" // TODO: Implement secure credential storage
+                            )
+                            
+                            if success {
+                                await avatarService.loadAvatarContext()
+                            }
+                        }
+                    }
                 }
+                
                 await MainActor.run {
                     isConnecting = false
                 }
@@ -264,7 +315,7 @@ struct AIAvatarView: View {
         appState.updateAvatarState(.thinking)
         
         Task {
-            await avatarService.sendMessage(message)
+            _ = await avatarService.sendMessage(message)
             await MainActor.run {
                 appState.updateAvatarState(.idle)
             }
@@ -400,8 +451,8 @@ struct TypingIndicatorView: View {
     }
 }
 
-// MARK: - Quick Action Button
-struct QuickActionButton: View {
+// MARK: - AI Quick Action Button
+struct AIQuickActionButton: View {
     let title: String
     let icon: String
     let action: () -> Void
