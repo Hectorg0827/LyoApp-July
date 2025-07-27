@@ -35,21 +35,25 @@ extension AppState {
     }
     
     // MARK: - Enhanced Authentication
-    @MainActor
+        @MainActor
     func authenticateUser(email: String, password: String) async {
         isLoading = true
         
-        do {
-            // In a real app, authenticate with backend
-            try await Task.sleep(nanoseconds: 1_000_000_000) // Simulate network delay
-            
-            // Create mock user
+        // Use real backend authentication
+        let success = await AIAvatarService.shared.authenticateWithUserCredentials(
+            email: email, 
+            password: password
+        )
+        
+        if success {
+            // Create user from real authentication response
+            // TODO: Get actual user data from backend response
             let user = User(
                 id: UUID(),
                 username: email.components(separatedBy: "@").first ?? "User",
                 email: email,
-                fullName: "Demo User",
-                bio: "Welcome to LyoApp!",
+                fullName: "User", // TODO: Get from backend
+                bio: "Learning with Lyo!",
                 profileImageURL: nil,
                 followers: 0,
                 following: 0,
@@ -71,9 +75,9 @@ extension AppState {
             StorageManager.shared.saveUserPreference(true, forKey: "isAuthenticated")
             StorageManager.shared.saveUserPreference(user, forKey: "currentUser")
             
-        } catch {
-            ErrorTracker.shared.trackError(error, context: "Authentication")
-            // Handle error
+            print("✅ User authenticated successfully: \(email)")
+        } else {
+            print("❌ Authentication failed for: \(email)")
         }
         
         isLoading = false
