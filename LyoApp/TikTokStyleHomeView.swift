@@ -370,7 +370,8 @@ class VideoFeedViewModel: ObservableObject {
         
         // Simulate API call
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.videos = VideoPost.sampleVideos
+            // TODO: Integrate with UserDataManager.shared.getUserVideos()
+            self.videos = [] // Empty array until real data integration
             self.isLoading = false
         }
     }
@@ -399,41 +400,9 @@ struct VideoPost: Identifiable {
     let hashtags: [String]
     let createdAt: Date
     
-    static let sampleVideos: [VideoPost] = [
-        VideoPost(
-            author: User(username: "techguru", email: "tech@example.com", fullName: "Tech Guru"),
-            title: "Quick tip that will save you hours of debugging 🔧",
-            videoURL: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-            thumbnailURL: "https://picsum.photos/300/400?random=1",
-            likes: 33700,
-            comments: 297,
-            shares: 178,
-            hashtags: ["AI", "MachineLearning", "Python"],
-            createdAt: Date().addingTimeInterval(-3600)
-        ),
-        VideoPost(
-            author: User(username: "designpro", email: "design@example.com", fullName: "Design Pro"),
-            title: "SwiftUI animation tricks that will blow your mind ✨",
-            videoURL: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-            thumbnailURL: "https://picsum.photos/300/400?random=2",
-            likes: 28500,
-            comments: 156,
-            shares: 89,
-            hashtags: ["SwiftUI", "iOS", "Animation"],
-            createdAt: Date().addingTimeInterval(-7200)
-        ),
-        VideoPost(
-            author: User(username: "codewiz", email: "code@example.com", fullName: "Code Wizard"),
-            title: "Building a neural network from scratch in 60 seconds 🧠",
-            videoURL: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-            thumbnailURL: "https://picsum.photos/300/400?random=3",
-            likes: 45200,
-            comments: 432,
-            shares: 267,
-            hashtags: ["NeuralNetwork", "DeepLearning", "AI"],
-            createdAt: Date().addingTimeInterval(-10800)
-        )
-    ]
+    // MARK: - Sample Data Removed
+    // All sample videos moved to UserDataManager for real data management
+    // static let sampleVideos = [] // Use UserDataManager.shared.getUserVideos()
 }
 
 #Preview {
