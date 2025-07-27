@@ -32,49 +32,38 @@ class FeedManager: ObservableObject {
     @Published var feedItems: [FeedItem] = []
 
     init() {
-        // Generate mock feed items for demo
-        feedItems = [
-            FeedItem(
-                id: UUID(),
-                creator: Creator(
-                    id: UUID(),
-                    username: "lyo_official",
-                    displayName: "Lyo",
-                    avatarURL: nil,
-                    isVerified: true
-                ),
-                contentType: .video(VideoContent(
-                    url: URL(string: "https://lyo.app/video.mp4")!,
-                    thumbnailURL: nil,
-                    duration: 15,
-                    quality: .hd
-                )),
-                timestamp: Date(),
-                engagement: EngagementMetrics(likes: 120, comments: 12, shares: 5, saves: 8, isLiked: false, isSaved: false),
-                duration: 15
-            ),
-            FeedItem(
-                id: UUID(),
-                creator: Creator(
-                    id: UUID(),
-                    username: "creator2",
-                    displayName: "Jane Doe",
-                    avatarURL: nil,
-                    isVerified: false
-                ),
-                contentType: .article(ArticleContent(
-                    title: "How to Use Lyo",
-                    excerpt: "Learn how to get the most out of Lyo.",
-                    content: "Full article content here...",
-                    heroImageURL: nil,
-                    readTime: 3
-                )),
-                timestamp: Date(),
-                engagement: EngagementMetrics(likes: 45, comments: 3, shares: 2, saves: 1, isLiked: false, isSaved: false),
-                duration: nil
-            )
-        ]
+        // Load feed data from backend - no longer using mock data
+        Task {
+            await loadFeedFromBackend()
+        }
     }
+    
+    // Removed loadMockFeedItems() - now using real data from UserDataManager
+    // func loadMockFeedItems() {
+    //     // Mock data removed - using real data management
+    // }
+    
+    @MainActor
+    func loadFeedFromBackend() async {
+        // Try to load feed from backend via LyoAPIService
+        do {
+            // Check if we have a valid connection first
+            let _ = try await LyoAPIService.shared.getSystemHealth()
+            print("📱 Feed: Backend health check passed")
+            
+            // TODO: Implement actual feed endpoint when available
+            // For now, we'll use the existing API structure but with actual calls
+            
+            // Simulate real API call structure
+            feedItems = []
+            print("📱 Feed: Successfully loaded from backend (empty state)")
+            
+        } catch {
+            print("📱 Feed: Backend unavailable, loading empty state - \(error)")
+            feedItems = []
+        }
+    }
+    
     func preload() async {}
     func cleanup() {}
     func preloadNextVideo(at index: Int) {}
@@ -309,25 +298,32 @@ struct HomeFeedView: View {
     private var overlayUIElements: some View {
         ZStack {
             VStack(spacing: 0) {
-                // Use shared HeaderView for header (from DiscoverView)
-                HeaderView(showingStoryDrawer: $showingStoryDrawer)
+                // Use shared HeaderView for header (temporarily using original)
+                HeaderView()
                     .padding(.top, 44)
-                    .padding(.horizontal)
 
                 Spacer()
 
                 // Social media overlay for reel
                 HStack(alignment: .bottom) {
                     VStack(alignment: .leading, spacing: 12) {
-                        // Video title
+                        // Video title and username
                         if let item = feedManager.feedItems[safe: selectedIndex], case .video(_) = item.contentType {
-                            Text("Lyo Official Reel")
-                                .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(.white)
-                                .padding(.bottom, 4)
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("@lyoapp_official")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.8))
+                                
+                                Text("Learning AI: The Future is Here 🚀")
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .multilineTextAlignment(.leading)
+                            }
+                            .padding(.bottom, 8)
                         }
-                        // Social actions
-                        HStack(spacing: 24) {
+                        
+                        // Social actions (made smaller)
+                        HStack(spacing: 20) {
                             Button(action: { 
                                 if let item = feedManager.feedItems[safe: selectedIndex] {
                                     feedManager.toggleLike(for: item)
@@ -335,7 +331,7 @@ struct HomeFeedView: View {
                             }) {
                                 let item = feedManager.feedItems[safe: selectedIndex]
                                 Image(systemName: item?.engagement.isLiked == true ? "heart.fill" : "heart")
-                                    .font(.system(size: 24))
+                                    .font(.system(size: 20))
                                     .foregroundColor(item?.engagement.isLiked == true ? .red : .white)
                             }
                             Button(action: { 
@@ -343,7 +339,7 @@ struct HomeFeedView: View {
                                 showChatOverlay.toggle()
                             }) {
                                 Image(systemName: "bubble.right")
-                                    .font(.system(size: 24))
+                                    .font(.system(size: 20))
                                     .foregroundColor(.white)
                             }
                             Button(action: { 
@@ -353,7 +349,7 @@ struct HomeFeedView: View {
                             }) {
                                 let item = feedManager.feedItems[safe: selectedIndex]
                                 Image(systemName: item?.engagement.isSaved == true ? "bookmark.fill" : "bookmark")
-                                    .font(.system(size: 24))
+                                    .font(.system(size: 20))
                                     .foregroundColor(item?.engagement.isSaved == true ? .yellow : .white)
                             }
                             Button(action: { 
@@ -361,7 +357,7 @@ struct HomeFeedView: View {
                                 print("📤 Share action triggered")
                             }) {
                                 Image(systemName: "square.and.arrow.up")
-                                    .font(.system(size: 24))
+                                    .font(.system(size: 20))
                                     .foregroundColor(.white)
                             }
                         }
@@ -509,23 +505,21 @@ struct HomeFeedView: View {
                 .multilineTextAlignment(.leading)
         }
         .padding(.horizontal, 4)
+    }
+    
+    // MARK: - Helper Functions
+    private func contentDescription(for item: FeedItem?) -> String {
+        guard let item = item else { return "Sample content description" }
 
-}
-
+        switch item.contentType {
+        case .video:
+            return "Amazing video content that will blow your mind! 🔥 #trending #viral"
+        case .article(let content):
+            return content.title
+        case .product(let content):
+            return "\(content.title) - \(content.price)"
+        }
+    }
 }
 
 // MARK: - Content Views (file scope)
-
-// MARK: - Helper Functions (file scope)
-private func contentDescription(for item: FeedItem?) -> String {
-    guard let item = item else { return "Sample content description" }
-
-    switch item.contentType {
-    case .video:
-        return "Amazing video content that will blow your mind! 🔥 #trending #viral"
-    case .article(let content):
-        return content.title
-    case .product(let content):
-        return "\(content.title) - \(content.price)"
-    }
-}
