@@ -1,77 +1,148 @@
 import SwiftUI
 
 struct AISearchView: View {
-    @State private var query = ""
-    @State private var results: [AISearchResult] = []
-    @State private var isLoading = false
-    @State private var errorMessage: String? = nil
-
+    @State private var searchText = ""
+    @State private var isSearching = false
+    
     var body: some View {
-        VStack(spacing: DesignTokens.Spacing.md) {
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(DesignTokens.Colors.neonBlue)
-                TextField("Search topics, courses, or resources...", text: $query)
-                    .textFieldStyle(PlainTextFieldStyle())
-                    .onSubmit { performSearch() }
-            }
-            .padding(DesignTokens.Spacing.sm)
-            .background(RoundedRectangle(cornerRadius: DesignTokens.Radius.lg).fill(DesignTokens.Colors.glassBg))
-            .overlay(RoundedRectangle(cornerRadius: DesignTokens.Radius.lg).stroke(DesignTokens.Colors.glassBorder))
-            .padding(.horizontal)
-
-            if isLoading {
-                ProgressView().padding()
-            } else if let error = errorMessage {
-                Text(error)
-                    .foregroundColor(.red)
-            } else if results.isEmpty && !query.isEmpty {
-                Text("No results found.")
-                    .foregroundColor(DesignTokens.Colors.gray400)
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: DesignTokens.Spacing.md) {
-                        ForEach(results) { result in
-                            VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-                                Text(result.title)
-                                    .font(DesignTokens.Typography.body)
-                                    .foregroundColor(DesignTokens.Colors.primary)
-                                Text(result.summary)
-                                    .font(DesignTokens.Typography.caption)
-                                    .foregroundColor(DesignTokens.Colors.secondary)
+        NavigationStack {
+            ZStack {
+                // Background
+                Color.black.edgesIgnoringSafeArea(.all)
+                
+                VStack(spacing: 16) {
+                    // Search bar
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(.gray)
+                        
+                        TextField("Search courses, topics...", text: $searchText)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .onSubmit {
+                                performSearch()
                             }
-                            .padding()
-                            .background(DesignTokens.Colors.glassOverlay)
-                            .cornerRadius(DesignTokens.Radius.md)
+                        
+                        if !searchText.isEmpty {
+                            Button("Clear") {
+                                searchText = ""
+                            }
+                            .foregroundColor(.blue)
                         }
                     }
                     .padding(.horizontal)
+                    
+                    // Content
+                    if isSearching {
+                        VStack {
+                            ProgressView()
+                            Text("Searching...")
+                                .foregroundColor(.white)
+                                .padding(.top, 8)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else if searchText.isEmpty {
+                        SearchSuggestionsViewSimple()
+                    } else {
+                        SearchResultsViewSimple()
+                    }
+                    
+                    Spacer()
                 }
+                .navigationTitle("Search")
             }
         }
-        .background(DesignTokens.Colors.primaryBg)
-        .onAppear { results = [] }
     }
-
-    func performSearch() {
-        guard !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-        isLoading = true
-        errorMessage = nil
-        // Simulate async search
+    
+    private func performSearch() {
+        isSearching = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            // Replace with real API call
-            if query.lowercased().contains("swift") {
-                self.results = [AISearchResult(id: UUID(), title: "SwiftUI Basics", summary: "Learn to build modern iOS apps with SwiftUI.")]
-            } else {
-                self.results = []
-            }
-            self.isLoading = false
+            isSearching = false
         }
     }
 }
 
-struct AISearchResult: Identifiable {
-    let id: UUID
+struct SearchSuggestionsViewSimple: View {
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("Popular Topics")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            
+            LazyVGrid(columns: [
+                GridItem(.flexible()),
+                GridItem(.flexible())
+            ], spacing: 12) {
+                ForEach(["SwiftUI", "iOS Development", "Design", "Animation"], id: \.self) { topic in
+                    Button(action: {
+                        print("Selected topic: \(topic)")
+                    }) {
+                        Text(topic)
+                            .font(.subheadline)
+                            .foregroundColor(.white)
+                            .frame(height: 44)
+                            .frame(maxWidth: .infinity)
+                            .background(Color.blue.opacity(0.3))
+                            .cornerRadius(8)
+                    }
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+}
+
+struct SearchResultsViewSimple: View {
+    var body: some View {
+        ScrollView {
+            LazyVStack(spacing: 12) {
+                ForEach(0..<5) { index in
+                    SearchResultCardSimple(title: "Result \(index + 1)")
+                }
+            }
+            .padding()
+        }
+    }
+}
+
+struct SearchResultCardSimple: View {
     let title: String
-    let summary: String
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(.white)
+                
+                Text("Course description here")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            }
+            
+            Spacer()
+            
+            Button(action: {
+                print("View button tapped for \(title)")
+            }) {
+                Text("View")
+                    .font(.caption)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+            }
+        }
+        .padding()
+        .background(Color.gray.opacity(0.2))
+        .cornerRadius(12)
+    }
+}
+
+struct AISearchView_Previews: PreviewProvider {
+    static var previews: some View {
+        AISearchView()
+            .preferredColorScheme(.dark)
+    }
 }
