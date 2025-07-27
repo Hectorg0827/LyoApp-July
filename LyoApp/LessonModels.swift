@@ -493,76 +493,12 @@ enum ColorContrast: String, Codable {
     case aaa = "aaa"
 }
 
-// MARK: - Sample Data and Utilities
+// MARK: - Sample Data Removed and Utilities
 
 extension LessonContent {
-    /// Create a sample lesson for testing
-    static func sampleLesson() -> LessonContent {
-        let blocks: [LessonBlock] = [
-            LessonBlock(
-                type: .heading,
-                data: .heading(HeadingData(text: "Introduction to Machine Learning", level: 1, style: .normal)),
-                order: 0
-            ),
-            LessonBlock(
-                type: .paragraph,
-                data: .paragraph(ParagraphData(text: "Machine learning is a subset of artificial intelligence that focuses on the development of algorithms that can learn and make decisions from data.", style: .normal)),
-                order: 1
-            ),
-            LessonBlock(
-                type: .bulletList,
-                data: .bulletList(BulletListData(
-                    items: [
-                        ListItem(text: "Supervised Learning", subItems: nil),
-                        ListItem(text: "Unsupervised Learning", subItems: nil),
-                        ListItem(text: "Reinforcement Learning", subItems: nil)
-                    ],
-                    style: .bullet
-                )),
-                order: 2
-            ),
-            LessonBlock(
-                type: .callout,
-                data: .callout(CalloutData(
-                    text: "This is just the beginning of your ML journey!",
-                    type: .tip,
-                    title: "Pro Tip",
-                    icon: "lightbulb"
-                )),
-                order: 3
-            )
-        ]
-        
-        let metadata = LessonMetadata(
-            difficulty: .beginner,
-            estimatedDuration: 600, // 10 minutes
-            tags: ["machine-learning", "ai", "introduction"],
-            prerequisites: ["basic-programming", "mathematics"],
-            learningObjectives: [
-                "Understand what machine learning is",
-                "Identify different types of machine learning",
-                "Recognize real-world applications"
-            ],
-            createdAt: Date(),
-            lastModified: Date(),
-            version: "1.0",
-            language: "en",
-            accessibility: AccessibilityInfo(
-                hasAltText: true,
-                hasTranscripts: true,
-                hasSubtitles: true,
-                readingLevel: .college,
-                colorContrast: .aa
-            )
-        )
-        
-        return LessonContent(
-            title: "Introduction to Machine Learning",
-            description: "Learn the basics of machine learning and its applications",
-            blocks: blocks,
-            metadata: metadata
-        )
-    }
+    // MARK: - Sample Data Removed
+    // Sample lesson function removed - use UserDataManager for real lesson content
+    // static func sampleLesson() -> LessonContent { ... } // Use UserDataManager.shared.getLessons()
 }
 
 // MARK: - Extensions for SwiftUI Integration
