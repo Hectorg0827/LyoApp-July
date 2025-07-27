@@ -7,7 +7,11 @@ class LyoWebSocketService: NSObject, ObservableObject {
     static let shared = LyoWebSocketService()
     
     // MARK: - Configuration
-    private let baseURL = LyoConfiguration.getWebSocketURL()
+    #if DEBUG
+    private let baseURL = "ws://localhost:8000/api/v1/ws"
+    #else
+    private let baseURL = "wss://api.lyoapp.com/api/v1/ws"
+    #endif
     private var webSocketTask: URLSessionWebSocketTask?
     private var urlSession: URLSession
     
@@ -556,30 +560,18 @@ extension LyoWebSocketService {
     }
 }
 
-// MARK: - Mock Data for Testing
+// MARK: - Real Message Management (No Mock Data)
 
 extension LyoWebSocketService {
-    /// Add mock messages for testing
-    func addMockMessages() {
-        let mockMessages = [
-            WebSocketMessage(
-                type: .mentorResponse,
-                content: "Hello! I'm Lyo, your AI learning companion. What would you like to learn today?",
-                timestamp: Date().timeIntervalSince1970 - 300
-            ),
-            WebSocketMessage(
-                type: .mentorMessage,
-                content: "I want to learn about machine learning",
-                timestamp: Date().timeIntervalSince1970 - 250
-            ),
-            WebSocketMessage(
-                type: .mentorResponse,
-                content: "Great choice! Machine learning is fascinating. Let me help you break this down into manageable topics. Are you interested in the theoretical foundations or practical applications?",
-                timestamp: Date().timeIntervalSince1970 - 200
-            )
-        ]
-        
-        messages.append(contentsOf: mockMessages)
-        lastMessage = mockMessages.last
+    /// Clear old messages to manage memory
+    func cleanupOldMessages() {
+        let oneDayAgo = Date().timeIntervalSince1970 - 86400 // 24 hours
+        messages.removeAll { $0.timestamp < oneDayAgo }
+    }
+    
+    /// Get conversation summary for AI context
+    func getConversationSummary() -> String {
+        let recentMessages = messages.suffix(10) // Last 10 messages
+        return recentMessages.map { "\($0.type.rawValue): \($0.content)" }.joined(separator: "\n")
     }
 }
