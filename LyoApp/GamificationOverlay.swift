@@ -92,10 +92,10 @@ struct AchievementNotification: View {
                     RoundedRectangle(cornerRadius: DesignTokens.Radius.card)
                         .fill(DesignTokens.Colors.background)
                         .shadow(
-                            color: DesignTokens.Shadows.large.color,
-                            radius: DesignTokens.Shadows.large.radius,
-                            x: DesignTokens.Shadows.large.x,
-                            y: DesignTokens.Shadows.large.y
+                            color: DesignTokens.Shadows.elevation4.color,
+                            radius: DesignTokens.Shadows.elevation4.radius,
+                            x: DesignTokens.Shadows.elevation4.x,
+                            y: DesignTokens.Shadows.elevation4.y
                         )
                 )
                 .scaleEffect(isVisible ? 1.0 : 0.8)
