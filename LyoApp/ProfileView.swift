@@ -264,7 +264,8 @@ struct ProfileView: View {
     
     private var coursesTab: some View {
         LazyVStack(spacing: DesignTokens.Spacing.md) {
-            ForEach(LibraryCourse.sampleCompleted) { course in
+            // TODO: Replace with real data from UserDataManager
+            ForEach([], id: \.id) { (course: LibraryCourse) in
                 CompletedCourseCard(course: course)
             }
         }
@@ -276,7 +277,8 @@ struct ProfileView: View {
             GridItem(.flexible()),
             GridItem(.flexible())
         ], spacing: DesignTokens.Spacing.md) {
-            ForEach(Achievement.sampleAchievements) { achievement in
+            // TODO: Integrate with UserDataManager.shared.getUserAchievements()
+            ForEach([Achievement]()) { achievement in
                 AchievementCard(achievement: achievement)
             }
         }
@@ -443,14 +445,9 @@ struct Achievement: Identifiable {
     let isUnlocked: Bool
     let unlockedDate: Date?
     
-    static let sampleAchievements: [Achievement] = [
-        Achievement(title: "First Steps", description: "Complete your first course", icon: "star.fill", isUnlocked: true, unlockedDate: Date().addingTimeInterval(-86400 * 30)),
-        Achievement(title: "AI Explorer", description: "Complete 5 AI courses", icon: "brain.head.profile", isUnlocked: true, unlockedDate: Date().addingTimeInterval(-86400 * 15)),
-        Achievement(title: "Community Helper", description: "Help 10 community members", icon: "person.3.fill", isUnlocked: true, unlockedDate: Date().addingTimeInterval(-86400 * 7)),
-        Achievement(title: "Streak Master", description: "Maintain 30-day learning streak", icon: "flame.fill", isUnlocked: false, unlockedDate: nil),
-        Achievement(title: "Knowledge Seeker", description: "Complete 25 courses", icon: "book.fill", isUnlocked: false, unlockedDate: nil),
-        Achievement(title: "Mentor", description: "Create 5 helpful posts", icon: "graduationcap.fill", isUnlocked: false, unlockedDate: nil)
-    ]
+    // MARK: - Sample Data Removed
+    // All sample achievements moved to UserDataManager for real data management
+    // static let sampleAchievements = [] // Use UserDataManager.shared.getUserAchievements()
 }
 
 #Preview {
