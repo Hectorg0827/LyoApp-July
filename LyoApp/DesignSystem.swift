@@ -13,7 +13,7 @@ struct DesignSystem {
                 self.isLoading = isLoading
             }
             
-            func makeBody(configuration: Configuration) -> some View {
+            func makeBody(configuration: ButtonStyle.Configuration) -> some View {
                 configuration.label
                     .font(DesignTokens.Typography.buttonLabel)
                     .foregroundColor(.white)
@@ -40,7 +40,7 @@ struct DesignSystem {
         }
         
         struct SecondaryButtonStyle: ButtonStyle {
-            func makeBody(configuration: Configuration) -> some View {
+            func makeBody(configuration: ButtonStyle.Configuration) -> some View {
                 configuration.label
                     .font(DesignTokens.Typography.buttonLabel)
                     .foregroundColor(DesignTokens.Colors.primary)
@@ -60,7 +60,7 @@ struct DesignSystem {
         }
         
         struct FloatingActionButtonStyle: ButtonStyle {
-            func makeBody(configuration: Configuration) -> some View {
+            func makeBody(configuration: ButtonStyle.Configuration) -> some View {
                 configuration.label
                     .font(.title2)
                     .foregroundColor(.white)
@@ -99,10 +99,10 @@ struct DesignSystem {
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .fill(DesignTokens.Colors.background)
                         .shadow(
-                            color: DesignTokens.Shadows.card.color,
-                            radius: DesignTokens.Shadows.card.radius,
-                            x: DesignTokens.Shadows.card.x,
-                            y: DesignTokens.Shadows.card.y
+                            color: DesignTokens.Shadows.elevation2.color,
+                            radius: DesignTokens.Shadows.elevation2.radius,
+                            x: DesignTokens.Shadows.elevation2.x,
+                            y: DesignTokens.Shadows.elevation2.y
                         )
                 )
         }
