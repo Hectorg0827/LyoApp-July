@@ -199,70 +199,94 @@ struct AuthenticationView: View {
         isLoading = true
         
         Task {
-            await MainActor.run {
-                // Simulate API call
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            do {
+                if isLoginMode {
+                    try await performLogin()
+                } else {
+                    try await performRegistration()
+                }
+            } catch {
+                await MainActor.run {
                     isLoading = false
-                    
-                    if isLoginMode {
-                        performLogin()
-                    } else {
-                        performRegistration()
-                    }
+                    alertMessage = error.localizedDescription
+                    showAlert = true
                 }
             }
         }
     }
     
-    private func performLogin() {
-        // Simulate login logic
-        if email.lowercased() == "demo@lyoapp.com" && password == "password" {
-            let user = User(
-                username: "demo_user",
-                email: email,
-                fullName: "Demo User",
-                bio: "Welcome to LyoApp!",
-                followers: 150,
-                following: 200,
-                posts: 25,
-                isVerified: true
-            )
-            
-            Task { @MainActor in
-                appState.currentUser = user
-                appState.isAuthenticated = true
+    private func performLogin() async throws {
+        // Use real backend authentication
+        try await LyoAPIService.shared.login(email: email, password: password)
+        
+        await MainActor.run {
+            isLoading = false
+            // Get authenticated user from API service
+            if let apiUser = LyoAPIService.shared.currentUser {
+                let user = User(
+                    username: apiUser.name,
+                    email: apiUser.email,
+                    fullName: apiUser.name,
+                    bio: "Welcome to LyoApp!",
+                    followers: 0,
+                    following: 0,
+                    posts: 0,
+                    isVerified: false
+                )
+                
+                // Use AppState's new method for proper user management
+                appState.setAuthenticatedUser(user)
+                
+                NotificationCenter.default.post(
+                    name: .userDidLogin,
+                    object: user
+                )
             }
-            
-            NotificationCenter.default.post(
-                name: .userDidLogin,
-                object: user
-            )
-        } else {
-            alertMessage = "Invalid credentials. Use demo@lyoapp.com / password"
-            showAlert = true
         }
     }
     
-    private func performRegistration() {
-        // Simulate registration logic
-        let user = User(
+    private func performRegistration() async throws {
+        // Use real backend registration
+        try await LyoAPIService.shared.register(
+            fullName: fullName,
             username: username,
             email: email,
-            fullName: fullName,
-            bio: "New to LyoApp!"
+            password: password
         )
         
-        Task { @MainActor in
-            Task { @MainActor in
-                appState.currentUser = user
-                appState.isAuthenticated = true
+        await MainActor.run {
+            isLoading = false
+            // Get authenticated user from API service
+            if let apiUser = LyoAPIService.shared.currentUser {
+                let user = User(
+                    username: apiUser.name,
+                    email: apiUser.email,
+                    fullName: apiUser.name,
+                    bio: "Welcome to LyoApp!",
+                    followers: 0,
+                    following: 0,
+                    posts: 0,
+                    isVerified: false
+                )
+                
+                // Use AppState's new method for proper user management
+                appState.setAuthenticatedUser(user)
+                
+                // TODO: Integrate badge awarding with UserDataManager.shared.awardBadge()
+                // Award welcome badge for new users (currently disabled until UserDataManager integration)
+                // UserDataManager.shared.awardBadge(
+                //     name: "Welcome",
+                //     description: "Welcome to LyoApp!",
+                //     iconName: "hands.clap.fill",
+                //     rarity: Badge.Rarity.common
+                // )
+                
+                NotificationCenter.default.post(
+                    name: .userDidLogin,
+                    object: user
+                )
             }
         }
-        
-        NotificationCenter.default.post(
-            name: .userDidLogin,
-            object: user
-        )
     }
 }
 
