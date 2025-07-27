@@ -4,11 +4,53 @@
 		{
 			"type": "shell",
 			"label": "Build Xcode Project",
-			"command": "xcodebuild -scheme LyoApp -workspace LyoApp.xcworkspace build",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5'",
 			"group": "build",
 			"problemMatcher": [
 				"$xcodebuild"
-			]
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			}
+		},
+		{
+			"type": "shell",
+			"label": "Start Backend Server",
+			"command": "python",
+			"args": ["simple_backend.py"],
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": {
+				"pattern": {
+					"regexp": "."
+				},
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": ".*Started server process.*",
+					"endsPattern": ".*Application startup complete.*"
+				}
+			},
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "new",
+				"showReuseMessage": true,
+				"clear": false
+			}
+		},
+		{
+			"type": "shell",
+			"label": "Test Backend Health",
+			"command": "curl",
+			"args": ["-s", "http://localhost:8000/api/v1/health"],
+			"group": "test",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			}
 		}
 	]
 }
