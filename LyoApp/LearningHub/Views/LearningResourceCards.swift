@@ -89,12 +89,22 @@ struct LearningResourceCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Image(resource.imageName)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(height: 100)
-                .clipped()
-                .cornerRadius(15)
+            AsyncImage(url: resource.thumbnailURL) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } placeholder: {
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .overlay(
+                        Image(systemName: resource.contentType.icon)
+                            .font(.system(size: 20))
+                            .foregroundColor(.gray)
+                    )
+            }
+            .frame(height: 100)
+            .clipped()
+            .cornerRadius(15)
             
             Text(resource.title)
                 .font(.subheadline)
