@@ -18,7 +18,8 @@ class DiscoverManager: ObservableObject {
         isLoading = true
         // Simulate loading
         try? await Task.sleep(nanoseconds: 500_000_000)
-        feedPosts = Post.samplePosts.shuffled()
+        // TODO: Replace with real data from UserDataManager
+        feedPosts = [] // Post.samplePosts.shuffled() - using empty array until real data integration
         isLoading = false
     }
     
@@ -31,11 +32,8 @@ class DiscoverManager: ObservableObject {
         isSearching = true
         // Simulate search
         try? await Task.sleep(nanoseconds: 300_000_000)
-        // Filter content based on query
-        content = DiscoverContent.sampleContent.filter { item in
-            item.title.localizedCaseInsensitiveContains(query) ||
-            item.description.localizedCaseInsensitiveContains(query)
-        }
+        // TODO: Integrate with UserDataManager.shared.searchDiscoverContent(query)
+        content = [] // Empty array until real data integration
         isSearching = false
     }
     
@@ -43,13 +41,8 @@ class DiscoverManager: ObservableObject {
         isLoading = true
         // Simulate category filtering
         try? await Task.sleep(nanoseconds: 300_000_000)
-        if category == "All" {
-            content = DiscoverContent.sampleContent
-        } else {
-            content = DiscoverContent.sampleContent.filter { item in
-                item.title.contains(category)
-            }
-        }
+        // TODO: Integrate with UserDataManager.shared.getDiscoverContentByCategory(category)
+        content = [] // Empty array until real data integration
         isLoading = false
     }
     
@@ -64,14 +57,9 @@ struct DiscoverContent: Identifiable {
     let title: String
     let description: String
     
-    static let sampleContent = [
-        DiscoverContent(title: "Programming Basics", description: "Learn the fundamentals of programming"),
-        DiscoverContent(title: "Design Principles", description: "Master the art of visual design"),
-        DiscoverContent(title: "Technology Trends", description: "Stay updated with latest tech trends"),
-        DiscoverContent(title: "Business Strategy", description: "Build successful business strategies"),
-        DiscoverContent(title: "Art & Creativity", description: "Explore your creative potential"),
-        DiscoverContent(title: "Photography Skills", description: "Capture stunning photographs")
-    ]
+    // MARK: - Sample Data Removed
+    // All sample content moved to UserDataManager for real data management
+    // static let sampleContent = [] // Use UserDataManager.shared.getDiscoverContent()
 }
 
 struct DiscoverView: View {
@@ -81,40 +69,99 @@ struct DiscoverView: View {
     @State private var isSearchFocused = false
     @FocusState private var searchFieldFocused: Bool
     @State private var showingStoryDrawer = false
+    @State private var scrollOffset: CGFloat = 0
     
     private let categories = ["All", "Programming", "Design", "Technology", "Business", "Art", "Photography"]
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 0) {
-                // Header with AI search integration
-                HeaderView(showingStoryDrawer: $showingStoryDrawer)
+            ZStack {
+                DesignTokens.Colors.primaryBg.ignoresSafeArea()
                 
-                // Search and Categories (Fixed at top)
-                VStack(spacing: DesignTokens.Spacing.md) {
-                    // Search Section
-                    searchSection
+                VStack(spacing: 0) {
+                    // Header with integrated search
+                    ZStack {
+                        // Header with drawer button
+                        HeaderView()
+                        
+                        // Inline search bar positioned next to drawer button
+                        HStack {
+                            // Compact search bar
+                            compactSearchBar
+                                .opacity(showingStoryDrawer ? 0 : 1)
+                                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: showingStoryDrawer)
+                            
+                            Spacer()
+                        }
+                        .padding(.horizontal, DesignTokens.Spacing.lg)
+                        .padding(.top, 8)
+                    }
                     
-                    // Category Filter
-                    categorySection
-                }
-                .padding(DesignTokens.Spacing.md)
-                .background(DesignTokens.Colors.primaryBg)
-                
-                // Content based on search state
-                if discoverManager.isSearching {
-                    searchLoadingView
-                } else if !searchText.isEmpty {
-                    searchResultsView
-                } else if discoverManager.isLoading {
-                    DesignSystem.LoadingStateView(message: "Loading content...")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    // Main Discovery Feed
-                    discoveryFeedView
+                    // Scrollable content
+                    GeometryReader { geometry in
+                        ScrollView(.vertical, showsIndicators: true) {
+                            VStack(alignment: .center, spacing: 0) {
+                                // Search suggestions and categories (hide on scroll)
+                                VStack(spacing: DesignTokens.Spacing.md) {
+                                    // AI-powered Search Suggestions
+                                    if isSearchFocused && !searchText.isEmpty {
+                                        aiSearchSuggestions
+                                            .padding(.horizontal, DesignTokens.Spacing.md)
+                                    }
+                                    
+                                    // Category Filter
+                                    categorySection
+                                }
+                                .padding(.top, DesignTokens.Spacing.md)
+                                .offset(y: min(0, scrollOffset))
+                                .opacity(1.0 - min(1.0, max(0.0, scrollOffset / 100.0)))
+                                
+                                // Content based on search state
+                                if discoverManager.isSearching {
+                                    searchLoadingView
+                                        .padding(.top, 50)
+                                } else if !searchText.isEmpty {
+                                    searchResultsView
+                                        .padding(.top, 50)
+                                } else if discoverManager.isLoading {
+                                    DesignSystem.LoadingStateView(message: "Loading content...")
+                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                        .padding(.top, 50)
+                                } else {
+                                    // Main Discovery Feed
+                                    LazyVStack(spacing: DesignTokens.Spacing.lg) {
+                                        ForEach(discoverManager.feedPosts) { post in
+                                            InstagramStylePostCard(post: post)
+                                        }
+                                        
+                                        if discoverManager.feedPosts.count > 10 {
+                                            LoadMoreView()
+                                                .onTapGesture {
+                                                    loadMorePosts()
+                                                }
+                                        }
+                                    }
+                                    .padding(DesignTokens.Spacing.md)
+                                    .padding(.top, 20)
+                                }
+                            }
+                            .background(
+                                GeometryReader { scrollGeometry in
+                                    Color.clear
+                                        .preference(key: ScrollOffsetPreferenceKey.self, value: scrollGeometry.frame(in: .named("scroll")).minY)
+                                }
+                            )
+                        }
+                        .coordinateSpace(name: "scroll")
+                        .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+                            scrollOffset = value
+                        }
+                        .refreshable {
+                            await refreshFeed()
+                        }
+                    }
                 }
             }
-            .background(DesignTokens.Colors.primaryBg.ignoresSafeArea())
             .navigationTitle("Discover")
             .navigationBarHidden(true)
             .task {
@@ -123,19 +170,59 @@ struct DiscoverView: View {
             .onDisappear {
                 discoverManager.cleanup()
             }
-            .onChange(of: searchText) { _, newValue in
-                Task {
-                    await discoverManager.search(query: newValue)
-                }
+            .task(id: searchText) {
+                await discoverManager.search(query: searchText)
             }
-            .onChange(of: selectedCategory) { _, newCategory in
-                Task {
-                    await discoverManager.filterByCategory(newCategory)
-                }
+            .task(id: selectedCategory) {
+                await discoverManager.filterByCategory(selectedCategory)
             }
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Discover feed")
+    }
+    
+    // MARK: - Compact Search Bar
+    private var compactSearchBar: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(DesignTokens.Colors.textSecondary)
+                .font(.system(size: 14, weight: .medium))
+            
+            TextField("Search...", text: $searchText)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(DesignTokens.Colors.textPrimary)
+                .focused($searchFieldFocused)
+                .onChange(of: searchFieldFocused) { _, focused in
+                    withAnimation(DesignTokens.Animations.quick) {
+                        isSearchFocused = focused
+                    }
+                }
+            
+            if !searchText.isEmpty {
+                Button {
+                    searchText = ""
+                    searchFieldFocused = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(DesignTokens.Colors.textSecondary)
+                        .font(.system(size: 12))
+                }
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .frame(maxWidth: 200) // Limit width to fit inline
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(DesignTokens.Colors.glassBg)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .strokeBorder(
+                            isSearchFocused ? DesignTokens.Colors.primary : DesignTokens.Colors.glassBorder,
+                            lineWidth: isSearchFocused ? 1.5 : 1
+                        )
+                )
+        )
     }
     
     private var searchSection: some View {
@@ -279,44 +366,25 @@ struct DiscoverView: View {
                 }
             }
             .padding(DesignTokens.Spacing.md)
-        }
-        .background(DesignTokens.Colors.primaryBg)
-    }
-    
-    private var discoveryFeedView: some View {
-        ScrollView {
-            LazyVStack(spacing: DesignTokens.Spacing.lg) {
-                ForEach(discoverManager.feedPosts) { post in
-                    InstagramStylePostCard(post: post)
-                }
-                
-                if discoverManager.feedPosts.count > 10 {
-                    LoadMoreView()
-                        .onTapGesture {
-                            loadMorePosts()
-                        }
-                }
-            }
-            .padding(DesignTokens.Spacing.md)
-        }
-        .background(DesignTokens.Colors.primaryBg)
-        .refreshable {
-            await refreshFeed()
+            .background(DesignTokens.Colors.primaryBg)
         }
     }
     
     private func loadMorePosts() {
+        // TODO: Implement real data loading from UserDataManager
         // Simulate loading more posts
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            let newPosts = Post.samplePosts.shuffled().prefix(3)
-            discoverManager.feedPosts.append(contentsOf: newPosts)
+            // let newPosts = Post.samplePosts.shuffled().prefix(3)
+            // discoverManager.feedPosts.append(contentsOf: newPosts)
+            // Using empty array until real data integration
         }
     }
     
     private func refreshFeed() async {
         discoverManager.refreshing = true
         try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
-        discoverManager.feedPosts = Post.samplePosts.shuffled()
+        // TODO: Replace with real data from UserDataManager
+        discoverManager.feedPosts = [] // Post.samplePosts.shuffled() - using empty array
         discoverManager.refreshing = false
     }
 }
@@ -743,17 +811,11 @@ struct InstagramStyleDiscoverView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Header with AI integration
-            HeaderView(showingStoryDrawer: $showingStoryDrawer)
+            HeaderView()
             
             // Main Feed Content
             ScrollView {
                 LazyVStack(spacing: DesignTokens.Spacing.lg) {
-                    // Story strip when drawer is open
-                    if showingStoryDrawer {
-                        StoryStrip()
-                            .transition(.move(edge: .top).combined(with: .opacity))
-                    }
-                    
                     // Feed content
                     ForEach(feedViewModel.posts) { post in
                         InstagramPostCard(post: post)
@@ -1049,9 +1111,10 @@ class InstagramFeedViewModel: ObservableObject {
     func loadPosts() {
         isLoading = true
         
+        // TODO: Implement real data loading from UserDataManager
         // Simulate API call
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.posts = InstagramPost.samplePosts
+            self.posts = [] // InstagramPost.samplePosts - using empty array until real data integration
             self.isLoading = false
         }
     }
@@ -1059,7 +1122,8 @@ class InstagramFeedViewModel: ObservableObject {
     func refreshFeed() async {
         isLoading = true
         try? await Task.sleep(nanoseconds: 1_000_000_000)
-        posts = InstagramPost.samplePosts.shuffled()
+        // TODO: Replace with real data from UserDataManager
+        posts = [] // InstagramPost.samplePosts.shuffled() - using empty array
         isLoading = false
     }
 }
@@ -1078,32 +1142,9 @@ struct InstagramPost: Identifiable {
     let createdAt: Date
     let aiInsight: String?
     
-    static let samplePosts: [InstagramPost] = [
-        InstagramPost(
-            author: User(username: "techguru", email: "tech@example.com", fullName: "Tech Guru", isVerified: true),
-            content: "Quick tip that will save you hours of debugging 🔧\nAlways check your edge cases and validate your inputs before processing!",
-            imageURLs: [],
-            likes: 33700,
-            comments: 297,
-            shares: 178,
-            hashtags: ["AI", "MachineLearning", "Python", "Debugging"],
-            location: nil,
-            createdAt: Date().addingTimeInterval(-3600),
-            aiInsight: "This debugging tip can reduce development time by up to 40%"
-        ),
-        InstagramPost(
-            author: User(username: "designpro", email: "design@example.com", fullName: "Design Pro", isVerified: false),
-            content: "New SwiftUI animation tutorial is live! 🎥 Check out these smooth transitions that will make your app feel premium.",
-            imageURLs: ["https://picsum.photos/400/400?random=1", "https://picsum.photos/400/400?random=2"],
-            likes: 28500,
-            comments: 156,
-            shares: 89,
-            hashtags: ["SwiftUI", "iOS", "Animation", "Tutorial"],
-            location: "San Francisco, CA",
-            createdAt: Date().addingTimeInterval(-7200),
-            aiInsight: nil
-        )
-    ]
+    // static let samplePosts: [InstagramPost] = [
+    //     // Sample posts moved to UserDataManager for real data management
+    // ]
 }
 
 // MARK: - Comments View
@@ -1173,6 +1214,15 @@ struct CommentRow: View {
                     .foregroundColor(DesignTokens.Colors.textPrimary)
             }
         }
+    }
+}
+
+// MARK: - Scroll Offset Preference Key
+struct ScrollOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
 
