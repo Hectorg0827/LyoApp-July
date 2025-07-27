@@ -13,8 +13,8 @@ struct APIConfig {
 struct DevelopmentConfig {
     static let useMockData = false
     static let enableDebugLogging = true
-    static let testEmail = "admin@lyo.ai"
-    static let testPassword = "admin123"
+    // Authentication credentials should come from user input or secure storage
+    // not hardcoded for security reasons
 }
 
 // MARK: - API Error Types
@@ -63,8 +63,6 @@ enum APIError: Error, LocalizedError {
 struct ErrorResponse: Codable {
     let detail: String
 }
-
-struct EmptyResponse: Codable {}
 
 struct HealthResponse: Codable {
     let status: String
@@ -241,9 +239,9 @@ struct AIChatMessage: Identifiable {
     }
 }
 
-// MARK: - API Client
-class APIClient: ObservableObject {
-    static let shared = APIClient()
+// MARK: - AI Avatar API Client
+class AIAvatarAPIClient: ObservableObject {
+    static let shared = AIAvatarAPIClient()
     
     private let session: URLSession
     private let logger = Logger(subsystem: "com.lyo.app", category: "APIClient")
@@ -360,6 +358,10 @@ class APIClient: ObservableObject {
     func hasAuthToken() -> Bool {
         return authToken != nil
     }
+    
+    func getHealth() async throws -> HealthResponse {
+        return try await get(endpoint: "health")
+    }
 }
 
 // MARK: - AI Avatar Service
@@ -367,7 +369,7 @@ class APIClient: ObservableObject {
 class AIAvatarService: ObservableObject {
     static let shared = AIAvatarService()
     
-    private let apiClient = APIClient.shared
+    private let apiClient = AIAvatarAPIClient.shared
     private let logger = Logger(subsystem: "com.lyo.app", category: "AIAvatarService")
     
     @Published var isConnected = false
@@ -390,6 +392,37 @@ class AIAvatarService: ObservableObject {
                 self?.handleAuthenticationChange()
             }
             .store(in: &cancellables)
+            
+        // Check connection status on initialization
+        Task {
+            await checkBackendConnection()
+        }
+    }
+    
+    private func checkBackendConnection() async {
+        do {
+            // Try to connect to backend health endpoint
+            let health = try await apiClient.getHealth()
+            await MainActor.run {
+                self.isConnected = true
+                print("✅ Backend health check passed: \(health.status) - \(health.message)")
+                self.loadAvatarContextIfAuthenticated()
+            }
+        } catch {
+            await MainActor.run {
+                self.isConnected = false
+                self.lastError = error
+                print("⚠️ Backend connection failed: \(error)")
+            }
+        }
+    }
+    
+    private func loadAvatarContextIfAuthenticated() {
+        if apiClient.hasAuthToken() {
+            Task {
+                await loadAvatarContext()
+            }
+        }
     }
     
     private func handleAuthenticationChange() {
@@ -525,9 +558,8 @@ class AIAvatarService: ObservableObject {
     }
     
     func endSession() {
+        messages = []
         currentSessionId = nil
-        isTyping = false
-        logger.info("🔚 Avatar session ended")
     }
     
     func checkBackendHealth() async -> Bool {
@@ -547,10 +579,10 @@ class AIAvatarService: ObservableObject {
         }
     }
     
-    func authenticateWithTestCredentials() async -> Bool {
+    func authenticateWithUserCredentials(email: String, password: String) async -> Bool {
         let loginRequest = LoginRequest(
-            email: DevelopmentConfig.testEmail,
-            password: DevelopmentConfig.testPassword
+            email: email,
+            password: password
         )
         
         do {
@@ -563,7 +595,7 @@ class AIAvatarService: ObservableObject {
             
             await MainActor.run {
                 self.isConnected = true
-                self.logger.info("✅ Authentication successful")
+                self.logger.info("✅ Authentication successful for \(email)")
             }
             
             await loadAvatarContext()
@@ -573,11 +605,15 @@ class AIAvatarService: ObservableObject {
         } catch {
             await MainActor.run {
                 self.lastError = error
-                self.logger.error("❌ Authentication failed: \(error.localizedDescription)")
+                self.logger.error("❌ Authentication failed for \(email): \(error.localizedDescription)")
             }
             
             return false
         }
+    }
+    
+    func hasValidAuthToken() -> Bool {
+        return apiClient.hasAuthToken()
     }
 }
 
