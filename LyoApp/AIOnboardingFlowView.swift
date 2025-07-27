@@ -48,7 +48,9 @@ struct AIOnboardingFlowView: View {
                         },
                         onCancel: {
                             dismiss()
-                        }
+                        },
+                        generateCourse: generateCourse,
+                        generateMockCourse: generateMockCourse
                     )
                     
                 case .classroomActive:
@@ -206,6 +208,8 @@ struct GenesisScreenView: View {
     @Binding var error: String?
     let onCourseGenerated: (CourseOutline) -> Void
     let onCancel: () -> Void
+    let generateCourse: () -> Void
+    let generateMockCourse: () -> Void
     
     @State private var animationStep = 0
     @State private var pulseAnimation = false
@@ -220,17 +224,20 @@ struct GenesisScreenView: View {
                 ZStack {
                     // Outer rings
                     ForEach(0..<3) { index in
+                        let ringSize = 100 + CGFloat(index * 40)
+                        let animationDelay = Double(index) * 0.3
+                        
                         Circle()
                             .strokeBorder(
                                 DesignTokens.Colors.primary.opacity(0.3),
                                 lineWidth: 2
                             )
-                            .frame(width: 100 + CGFloat(index * 40), height: 100 + CGFloat(index * 40))
+                            .frame(width: ringSize, height: ringSize)
                             .scaleEffect(pulseAnimation ? 1.2 : 1.0)
                             .animation(
                                 .easeInOut(duration: 2.0)
                                     .repeatForever(autoreverses: true)
-                                    .delay(Double(index) * 0.3),
+                                    .delay(animationDelay),
                                 value: pulseAnimation
                             )
                     }
@@ -256,10 +263,40 @@ struct GenesisScreenView: View {
                         .multilineTextAlignment(.center)
                     
                     if let error = error {
-                        Text("Error: \(error)")
-                            .font(DesignTokens.Typography.body)
-                            .foregroundColor(DesignTokens.Colors.error)
-                            .multilineTextAlignment(.center)
+                        VStack(spacing: 16) {
+                            Image(systemName: "wifi.slash")
+                                .font(.system(size: 48))
+                                .foregroundColor(.orange)
+                            
+                            Text("Backend Unavailable")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(DesignTokens.Colors.textPrimary)
+                            
+                            Text("Cannot connect to the backend server")
+                                .font(.body)
+                                .foregroundColor(DesignTokens.Colors.textSecondary)
+                                .multilineTextAlignment(.center)
+                            
+                            Text(error)
+                                .font(.caption)
+                                .foregroundColor(.orange)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal)
+                            
+                            HStack(spacing: 12) {
+                                Button("Retry") {
+                                    generateCourse()
+                                }
+                                .buttonStyle(.borderedProminent)
+                                
+                                Button("Use Mock Data") {
+                                    generateMockCourse()
+                                }
+                                .buttonStyle(.bordered)
+                            }
+                        }
+                        .padding()
                     } else {
                         Text(getCurrentStatusMessage())
                             .font(DesignTokens.Typography.body)
@@ -273,9 +310,13 @@ struct GenesisScreenView: View {
             
             // Progress indicators
             VStack(spacing: DesignTokens.Spacing.md) {
-                Text("AI Agents at Work")
-                    .font(DesignTokens.Typography.caption)
-                    .foregroundColor(DesignTokens.Colors.textSecondary)
+                HStack {
+                    Text("AI Agents at Work")
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundColor(DesignTokens.Colors.textSecondary)
+                    
+                    Spacer()
+                }
                 
                 VStack(spacing: DesignTokens.Spacing.sm) {
                     AgentStatusRow(
@@ -476,7 +517,9 @@ struct AIClassroomView: View {
     private func loadFirstLesson() {
         guard let course = course,
               let firstLesson = course.lessons.first else {
-            currentLesson = LessonContent.sampleLesson()
+            // TODO: Replace with UserDataManager lesson loading
+            // currentLesson = UserDataManager.shared.getDefaultLesson()
+            currentLesson = nil // No lesson until real data integration
             currentLessonIndex = 0
             return
         }
@@ -500,15 +543,17 @@ struct AIClassroomView: View {
                     currentLesson = lessonContent
                     currentLessonIndex = 0
                 } else {
-                    // Fallback to sample lesson
-                    currentLesson = LessonContent.sampleLesson()
+                    // TODO: Replace with UserDataManager fallback lesson
+                    // currentLesson = UserDataManager.shared.getDefaultLesson()
+                    currentLesson = nil // No lesson until real data integration
                     currentLessonIndex = 0
                 }
                 
             } catch {
                 print("⚠️ Failed to load lesson content: \(error)")
-                // Fallback to sample lesson
-                currentLesson = LessonContent.sampleLesson()
+                // TODO: Replace with UserDataManager fallback lesson
+                // currentLesson = UserDataManager.shared.getDefaultLesson()
+                currentLesson = nil // No lesson until real data integration
                 currentLessonIndex = 0
             }
         }
