@@ -1,4 +1,5 @@
 import SwiftUI
+
 // MARK: - StoryCircle Component
 struct StoryCircle: View {
     let story: Story
@@ -342,4 +343,395 @@ struct StoryViewerView: View {
     }
 }
 
+// MARK: - Enhanced Story Viewer
+struct EnhancedStoryViewer: View {
+    let story: Story
+    @Binding var isPresented: Bool
+    let stories: [Story]
+    @State private var currentIndex: Int = 0
+    @State private var progress: Double = 0
+    @State private var timer: Timer?
+    @State private var isPlaying: Bool = true
+    @State private var showReactionOptions: Bool = false
+    @State private var selectedReaction: String?
+    @State private var dragOffset: CGSize = .zero
+    @State private var isDragging: Bool = false
+    
+    private let storyDuration: Double = 5.0
+    private let reactions = ["❤️", "😍", "😂", "😮", "😢", "🔥"]
+    
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            GeometryReader { geometry in
+                ZStack {
+                    // Story Content
+                    if let currentStory = stories[safe: currentIndex] {
+                        AsyncImage(url: URL(string: currentStory.mediaURL)) { image in
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: geometry.size.width, height: geometry.size.height)
+                                .clipped()
+                        } placeholder: {
+                            Rectangle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            DesignTokens.Colors.primaryBg,
+                                            DesignTokens.Colors.secondaryBg
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .overlay(
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                        .scaleEffect(1.5)
+                                )
+                        }
+                        .onTapGesture { location in
+                            let tapLocation = location.x
+                            let screenWidth = geometry.size.width
+                            
+                            if tapLocation < screenWidth / 3 {
+                                // Previous story
+                                previousStory()
+                            } else if tapLocation > (screenWidth * 2) / 3 {
+                                // Next story
+                                nextStory()
+                            } else {
+                                // Toggle play/pause
+                                togglePlayPause()
+                            }
+                        }
+                        .onLongPressGesture(minimumDuration: 0.1) {
+                            pauseStory()
+                        } onPressingChanged: { pressing in
+                            if !pressing {
+                                resumeStory()
+                            }
+                        }
+                        
+                        // Story Overlays
+                        VStack {
+                            // Top overlay with progress and controls
+                            topOverlay(currentStory: currentStory)
+                            
+                            Spacer()
+                            
+                            // Bottom overlay with user info and actions
+                            bottomOverlay(currentStory: currentStory)
+                        }
+                        .padding()
+                    }
+                    
+                    // Reaction Options Overlay
+                    if showReactionOptions {
+                        reactionOptionsView
+                            .transition(.scale.combined(with: .opacity))
+                    }
+                    
+                    // Selected Reaction Animation
+                    if let reaction = selectedReaction {
+                        Text(reaction)
+                            .font(.system(size: 60))
+                            .scaleEffect(1.5)
+                            .opacity(0.8)
+                            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: selectedReaction)
+                    }
+                }
+                .offset(x: dragOffset.width)
+                .scaleEffect(isDragging ? 0.95 : 1.0)
+                .gesture(
+                    DragGesture()
+                        .onChanged { value in
+                            dragOffset = value.translation
+                            isDragging = true
+                            
+                            if abs(value.translation.height) > 50 {
+                                pauseStory()
+                            }
+                        }
+                        .onEnded { value in
+                            isDragging = false
+                            
+                            if value.translation.height > 150 {
+                                // Swipe down to close
+                                closeViewer()
+                            } else if value.translation.width > 100 {
+                                // Swipe right for previous
+                                previousStory()
+                            } else if value.translation.width < -100 {
+                                // Swipe left for next
+                                nextStory()
+                            } else {
+                                resumeStory()
+                            }
+                            
+                            withAnimation(.spring()) {
+                                dragOffset = .zero
+                            }
+                        }
+                )
+            }
+        }
+        .onAppear {
+            setupViewer()
+        }
+        .onDisappear {
+            stopTimer()
+        }
+        .statusBarHidden()
+    }
+    
+    private func topOverlay(currentStory: Story) -> some View {
+        VStack(spacing: 12) {
+            // Progress bars
+            HStack(spacing: 4) {
+                ForEach(0..<stories.count, id: \.self) { index in
+                    ProgressBar(
+                        progress: index < currentIndex ? 1.0 : 
+                                 index == currentIndex ? progress : 0.0
+                    )
+                }
+            }
+            .frame(height: 3)
+            
+            // User info and controls
+            HStack {
+                AsyncImage(url: URL(string: currentStory.author.profileImageURL ?? "")) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    Circle()
+                        .fill(Color.gray.opacity(0.3))
+                }
+                .frame(width: 32, height: 32)
+                .clipShape(Circle())
+                .overlay(
+                    Circle()
+                        .stroke(Color.white, lineWidth: 2)
+                )
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(currentStory.author.username)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white)
+                    
+                    Text(timeAgo(from: currentStory.createdAt))
+                        .font(.system(size: 12))
+                        .foregroundColor(.white.opacity(0.8))
+                }
+                
+                Spacer()
+                
+                Button(action: togglePlayPause) {
+                    Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(width: 32, height: 32)
+                        .background(Color.black.opacity(0.3))
+                        .clipShape(Circle())
+                }
+                
+                Button(action: closeViewer) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(width: 32, height: 32)
+                        .background(Color.black.opacity(0.3))
+                        .clipShape(Circle())
+                }
+            }
+        }
+    }
+    
+    private func bottomOverlay(currentStory: Story) -> some View {
+        HStack(alignment: .bottom) {
+            VStack(alignment: .leading, spacing: 12) {
+                if currentStory.mediaType == .video {
+                    HStack {
+                        Image(systemName: "play.circle.fill")
+                            .foregroundColor(.white)
+                        Text("Tap to view")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.white)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.black.opacity(0.5))
+                    .clipShape(Capsule())
+                }
+                
+                // Story content description (if any)
+                Text("Learning moment captured 📚")
+                    .font(.system(size: 14))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Color.black.opacity(0.3))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            
+            Spacer()
+            
+            // Action buttons
+            VStack(spacing: 16) {
+                Button(action: {
+                    withAnimation(.spring()) {
+                        showReactionOptions.toggle()
+                    }
+                }) {
+                    Image(systemName: "heart")
+                        .font(.system(size: 24, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(width: 48, height: 48)
+                        .background(Color.black.opacity(0.3))
+                        .clipShape(Circle())
+                }
+                
+                Button(action: {}) {
+                    Image(systemName: "message")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(width: 48, height: 48)
+                        .background(Color.black.opacity(0.3))
+                        .clipShape(Circle())
+                }
+                
+                Button(action: {}) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(width: 48, height: 48)
+                        .background(Color.black.opacity(0.3))
+                        .clipShape(Circle())
+                }
+            }
+        }
+    }
+    
+    private var reactionOptionsView: some View {
+        VStack {
+            Spacer()
+            
+            HStack(spacing: 20) {
+                ForEach(reactions, id: \.self) { reaction in
+                    Button(action: {
+                        selectReaction(reaction)
+                    }) {
+                        Text(reaction)
+                            .font(.system(size: 32))
+                            .frame(width: 60, height: 60)
+                            .background(Color.black.opacity(0.3))
+                            .clipShape(Circle())
+                    }
+                }
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 100)
+        }
+    }
+    
+    // MARK: - Story Control Functions
+    private func setupViewer() {
+        if let index = stories.firstIndex(where: { $0.id == story.id }) {
+            currentIndex = index
+        }
+        startTimer()
+    }
+    
+    private func startTimer() {
+        stopTimer()
+        timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+            if isPlaying {
+                progress += 0.1 / storyDuration
+                if progress >= 1.0 {
+                    nextStory()
+                }
+            }
+        }
+    }
+    
+    private func stopTimer() {
+        timer?.invalidate()
+        timer = nil
+    }
+    
+    private func nextStory() {
+        if currentIndex < stories.count - 1 {
+            currentIndex += 1
+            progress = 0
+            startTimer()
+        } else {
+            closeViewer()
+        }
+    }
+    
+    private func previousStory() {
+        if currentIndex > 0 {
+            currentIndex -= 1
+            progress = 0
+            startTimer()
+        }
+    }
+    
+    private func togglePlayPause() {
+        isPlaying.toggle()
+    }
+    
+    private func pauseStory() {
+        isPlaying = false
+    }
+    
+    private func resumeStory() {
+        isPlaying = true
+    }
+    
+    private func closeViewer() {
+        withAnimation(.spring()) {
+            isPresented = false
+        }
+    }
+    
+    private func selectReaction(_ reaction: String) {
+        selectedReaction = reaction
+        
+        withAnimation(.spring()) {
+            showReactionOptions = false
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            selectedReaction = nil
+        }
+    }
+    
+    private func timeAgo(from date: Date) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .abbreviated
+        return formatter.localizedString(for: date, relativeTo: Date())
+    }
+}
 
+// MARK: - Progress Bar Component
+struct ProgressBar: View {
+    let progress: Double
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack(alignment: .leading) {
+                Rectangle()
+                    .fill(Color.white.opacity(0.3))
+                
+                Rectangle()
+                    .fill(Color.white)
+                    .frame(width: geometry.size.width * progress)
+            }
+        }
+        .clipShape(Capsule())
+    }
+}
