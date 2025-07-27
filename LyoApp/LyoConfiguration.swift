@@ -28,6 +28,13 @@ struct LyoConfiguration {
     static let defaultLanguage = "en"
     static let defaultLearningStyle = "adaptive"
     static let maxLearningObjectives = 5
+    
+    // MARK: - OpenAI API Configuration
+    // Add your OpenAI API key here after obtaining it from https://platform.openai.com/api-keys
+    static let openAIAPIKey = "YOUR_OPENAI_API_KEY_HERE"
+    static let openAIBaseURL = "https://api.openai.com/v1"
+    static let openAIModel = "gpt-4"
+    static let maxTokensPerRequest = 2000
     static let maxCourseHours = 12
     
     // MARK: - UI Configuration
