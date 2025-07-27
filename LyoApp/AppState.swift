@@ -99,6 +99,10 @@ class AppState: ObservableObject {
     @Published var alertMessage = ""
     @Published var alertActions: [AlertAction] = []
     
+    // MARK: - User Data Manager Integration
+    // TODO: Re-enable UserDataManager integration after compilation issues resolved
+    // private let userDataManager = UserDataManager.shared
+    
     // MARK: - Lyo AI State
     @Published var isLyoAwake = false
     @Published var isListeningForWakeWord = true
@@ -134,6 +138,57 @@ class AppState: ObservableObject {
         
         // Set up user session monitoring
         setupSessionMonitoring()
+        
+        // Sync with UserDataManager
+        setupUserDataManagerSync()
+    }
+    
+    private func setupUserDataManagerSync() {
+        // TODO: Re-enable UserDataManager sync after compilation issues resolved
+        // Sync current user from UserDataManager
+        // currentUser = userDataManager.currentUser
+        // isAuthenticated = currentUser != nil
+        
+        // Listen for user data changes
+        // userDataManager.$currentUser
+        //     .receive(on: DispatchQueue.main)
+        //     .sink { [weak self] user in
+        //         self?.currentUser = user
+        //         self?.isAuthenticated = user != nil
+        //     }
+        //     .store(in: &cancellables)
+    }
+    
+    // MARK: - User Management
+    
+    /// Set authenticated user and sync with data manager
+    func setAuthenticatedUser(_ user: User) {
+        // TODO: Re-enable UserDataManager sync after compilation issues resolved
+        // userDataManager.setCurrentUser(user)
+        currentUser = user
+        isAuthenticated = true
+        setupAPIAuthentication(for: user)
+        saveUserPreferences()
+    }
+    
+    /// Log out current user
+    func logoutUser() {
+        // TODO: Re-enable UserDataManager sync after compilation issues resolved
+        // userDataManager.clearUserData()
+        currentUser = nil
+        isAuthenticated = false
+        clearAPIAuthentication()
+        
+        // Clear session state
+        hasActiveSession = false
+        currentLearningPath = nil
+        currentTopic = nil
+        pathProgress = 0.0
+        currentStepIndex = 0
+        
+        saveUserPreferences()
+        
+        NotificationCenter.default.post(name: .userDidLogout, object: nil)
     }
     
     // initializeServices is defined in AppStateExtensions.swift
@@ -437,7 +492,7 @@ enum MainTab: String, CaseIterable {
         switch self {
         case .home: return "house.fill"
         case .discover: return "safari.fill"
-        case .ai: return "lightbulb.circle.fill"
+        case .ai: return "graduationcap.fill"
         case .post: return "plus"
         case .more: return "ellipsis.circle.fill"
         }
@@ -451,7 +506,7 @@ extension MainTab {
         switch self {
         case .home: return "Home Feed"
         case .discover: return "Discover"
-        case .ai: return "Lyo AI Learning Assistant"
+        case .ai: return "Learning Hub - AI Learning Assistant"
         case .post: return "Create Post"
         case .more: return "More Options"
         }
@@ -471,7 +526,7 @@ extension MainTab {
         switch self {
         case .home: return "View your personalized home feed with posts and updates"
         case .discover: return "Explore new content and trending topics"
-        case .ai: return "Chat with Lyo, your AI learning companion"
+        case .ai: return "Access your personalized learning hub with courses, videos, and AI assistance"
         case .post: return "Create and share new content"
         case .more: return "Access profile, settings, and additional options"
         }
