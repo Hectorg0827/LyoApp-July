@@ -9,7 +9,7 @@ struct InstagramStyleDiscoverView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Header with AI integration
-            HeaderView(showingStoryDrawer: $showingStoryDrawer)
+            HeaderView()
             
             // Main Feed Content
             ScrollView {
@@ -322,9 +322,10 @@ class InstagramFeedViewModel: ObservableObject {
     func loadPosts() {
         isLoading = true
         
+        // TODO: Implement real data loading from UserDataManager
         // Simulate API call
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.posts = InstagramPost.samplePosts
+            self.posts = [] // InstagramPost.samplePosts - using empty array until real data integration
             self.isLoading = false
         }
     }
@@ -332,7 +333,8 @@ class InstagramFeedViewModel: ObservableObject {
     func refreshFeed() async {
         isLoading = true
         try? await Task.sleep(nanoseconds: 1_000_000_000)
-        posts = InstagramPost.samplePosts.shuffled()
+        // TODO: Replace with real data from UserDataManager
+        posts = [] // InstagramPost.samplePosts.shuffled() - using empty array
         isLoading = false
     }
 }
@@ -351,68 +353,9 @@ struct InstagramPost: Identifiable {
     let createdAt: Date
     let aiInsight: String?
     
-    static let samplePosts: [InstagramPost] = [
-        InstagramPost(
-            author: User(username: "techguru", email: "tech@example.com", fullName: "Tech Guru", isVerified: true),
-            content: "Quick tip that will save you hours of debugging 🔧\nAlways check your edge cases and validate your inputs before processing!",
-            imageURLs: [],
-            likes: 33700,
-            comments: 297,
-            shares: 178,
-            hashtags: ["AI", "MachineLearning", "Python", "Debugging"],
-            location: nil,
-            createdAt: Date().addingTimeInterval(-3600),
-            aiInsight: "This debugging tip can reduce development time by up to 40%"
-        ),
-        InstagramPost(
-            author: User(username: "designpro", email: "design@example.com", fullName: "Design Pro", isVerified: false),
-            content: "New SwiftUI animation tutorial is live! 🎥 Check out these smooth transitions that will make your app feel premium.",
-            imageURLs: ["https://picsum.photos/400/400?random=1", "https://picsum.photos/400/400?random=2"],
-            likes: 28500,
-            comments: 156,
-            shares: 89,
-            hashtags: ["SwiftUI", "iOS", "Animation", "Tutorial"],
-            location: "San Francisco, CA",
-            createdAt: Date().addingTimeInterval(-7200),
-            aiInsight: nil
-        ),
-        InstagramPost(
-            author: User(username: "codewiz", email: "code@example.com", fullName: "Code Wizard", isVerified: true),
-            content: "Building neural networks from scratch might seem daunting, but breaking it down into these simple steps makes it accessible to everyone!",
-            imageURLs: ["https://picsum.photos/400/400?random=3"],
-            likes: 45200,
-            comments: 432,
-            shares: 267,
-            hashtags: ["NeuralNetwork", "DeepLearning", "AI", "Education"],
-            location: "New York, NY",
-            createdAt: Date().addingTimeInterval(-10800),
-            aiInsight: nil
-        ),
-        InstagramPost(
-            author: User(username: "uxdesigner", email: "ux@example.com", fullName: "UX Designer", isVerified: false),
-            content: "The future of design is here! AI-powered tools are revolutionizing how we create user experiences. What's your favorite AI design tool?",
-            imageURLs: [],
-            likes: 19800,
-            comments: 123,
-            shares: 67,
-            hashtags: ["UX", "AI", "Design", "Future"],
-            location: nil,
-            createdAt: Date().addingTimeInterval(-14400),
-            aiInsight: "AI tools can increase design productivity by 60% while maintaining quality"
-        ),
-        InstagramPost(
-            author: User(username: "dataanalyst", email: "data@example.com", fullName: "Data Analyst", isVerified: true),
-            content: "Visualization is key to understanding complex data patterns. Here's how I analyze user behavior using modern tools.",
-            imageURLs: ["https://picsum.photos/400/400?random=4", "https://picsum.photos/400/400?random=5", "https://picsum.photos/400/400?random=6"],
-            likes: 22100,
-            comments: 89,
-            shares: 134,
-            hashtags: ["DataScience", "Analytics", "Visualization", "Python"],
-            location: "Austin, TX",
-            createdAt: Date().addingTimeInterval(-18000),
-            aiInsight: nil
-        )
-    ]
+    // MARK: - Sample Data Removed
+    // All sample posts moved to UserDataManager for real data management
+    // static let samplePosts = [] // Use UserDataManager.shared.getUserPosts()
 }
 
 // MARK: - Comments View
