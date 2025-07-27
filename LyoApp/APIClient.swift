@@ -7,14 +7,25 @@ protocol APIClientProtocol {
     func post<T: Codable, U: Codable>(endpoint: String, body: U) async throws -> T
     func put<T: Codable, U: Codable>(endpoint: String, body: U) async throws -> T
     func delete(endpoint: String) async throws
+    
+    // Authentication methods
+    func login(email: String, password: String) async throws -> LoginResponse
+    func logout() async throws
+    func refreshToken() async throws -> LoginResponse
+    
+    // Health check
+    func healthCheck() async throws -> HealthResponse
 }
 
 // MARK: - Real API Client
-class APIClient: APIClientProtocol {
+class APIClient: APIClientProtocol, ObservableObject {
     static let shared = APIClient()
     
     private let session: URLSession
     private let logger = Logger(subsystem: "com.lyo.app", category: "APIClient")
+    
+    @Published var isConnected = false
+    @Published var lastConnectionCheck = Date()
     
     // Token storage (you might want to use Keychain for production)
     private var authToken: String? {
@@ -31,6 +42,25 @@ class APIClient: APIClientProtocol {
         config.timeoutIntervalForRequest = APIConfig.requestTimeout
         config.timeoutIntervalForResource = APIConfig.uploadTimeout
         self.session = URLSession(configuration: config)
+        
+        // Check connection on initialization
+        Task {
+            await checkBackendConnection()
+        }
+    }
+    
+    // MARK: - Connection Management
+    @MainActor
+    func checkBackendConnection() async {
+        do {
+            let _: HealthResponse = try await healthCheck()
+            isConnected = true
+            lastConnectionCheck = Date()
+            logger.info("✅ Backend connection established")
+        } catch {
+            isConnected = false
+            logger.error("❌ Backend connection failed: \(error.localizedDescription)")
+        }
     }
     
     // MARK: - Generic Request Method
@@ -153,10 +183,79 @@ class APIClient: APIClientProtocol {
     func hasAuthToken() -> Bool {
         return authToken != nil
     }
+    
+    // MARK: - Authentication Methods
+    func login(email: String, password: String) async throws -> LoginResponse {
+        let loginRequest = LoginRequest(email: email, password: password)
+        let response: LoginResponse = try await post(endpoint: "auth/login", body: loginRequest)
+        
+        // Store the token
+        setAuthToken(response.token)
+        logger.info("🔐 User logged in successfully")
+        
+        return response
+    }
+    
+    func logout() async throws {
+        // Call backend logout endpoint if available
+        do {
+            let _: EmptyResponse = try await post(endpoint: "auth/logout", body: EmptyRequest())
+        } catch {
+            // Continue with local logout even if backend call fails
+            logger.warning("⚠️ Backend logout failed, continuing with local logout")
+        }
+        
+        // Clear local token
+        clearAuthToken()
+        logger.info("🔓 User logged out")
+    }
+    
+    func refreshToken() async throws -> LoginResponse {
+        guard hasAuthToken() else {
+            throw APIError.unauthorized
+        }
+        
+        let response: LoginResponse = try await post(endpoint: "auth/refresh", body: EmptyRequest())
+        setAuthToken(response.token)
+        logger.info("🔄 Token refreshed successfully")
+        
+        return response
+    }
+    
+    // MARK: - Health Check
+    func healthCheck() async throws -> HealthResponse {
+        // Use direct HTTP request for health check to avoid token requirements
+        guard let url = URL(string: "http://localhost:8000/health") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.timeoutInterval = 5.0 // Short timeout for health checks
+        
+        do {
+            let (data, response) = try await session.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw APIError.networkError(NSError(domain: "Invalid response", code: 0))
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                throw APIError.serverError(httpResponse.statusCode, "Health check failed")
+            }
+            
+            return try JSONDecoder().decode(HealthResponse.self, from: data)
+        } catch {
+            throw APIError.networkError(error)
+        }
+    }
 }
 
+// MARK: - Request/Response Models
+struct EmptyRequest: Codable {}
+
 // MARK: - HTTP Methods
-// HTTPMethod is defined in AIAvatarIntegration.swift to avoid duplication
+// HTTPMethod is defined in NetworkLayer.swift to avoid duplication
 
 // MARK: - Response Models
 // ErrorResponse is defined in AIAvatarIntegration.swift to avoid duplication
