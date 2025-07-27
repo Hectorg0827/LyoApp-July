@@ -174,8 +174,8 @@ struct Course: Codable, Identifiable {
     let difficulty: Difficulty
     let category: String
     let lessons: [Lesson]
-    let progress: Double
-    let isEnrolled: Bool
+    var progress: Double
+    var isEnrolled: Bool
     let rating: Double
     let studentsCount: Int
     
@@ -189,6 +189,36 @@ struct Course: Codable, Identifiable {
             case .advanced: return .red
             }
         }
+    }
+    
+    init(
+        id: UUID = UUID(),
+        title: String,
+        description: String,
+        instructor: String,
+        thumbnailURL: String,
+        duration: TimeInterval,
+        difficulty: Difficulty,
+        category: String,
+        lessons: [Lesson] = [],
+        progress: Double = 0.0,
+        isEnrolled: Bool = false,
+        rating: Double = 0.0,
+        studentsCount: Int = 0
+    ) {
+        self.id = id
+        self.title = title
+        self.description = description
+        self.instructor = instructor
+        self.thumbnailURL = thumbnailURL
+        self.duration = duration
+        self.difficulty = difficulty
+        self.category = category
+        self.lessons = lessons
+        self.progress = progress
+        self.isEnrolled = isEnrolled
+        self.rating = rating
+        self.studentsCount = studentsCount
     }
 }
 
@@ -239,44 +269,6 @@ struct ChatConversation: Codable, Identifiable {
     let updatedAt: Date
 }
 
-// MARK: - Library Item Models
-struct LibraryItem: Codable, Identifiable {
-    var id: UUID = UUID()
-    let title: String
-    let type: LibraryItemType
-    let thumbnailURL: String?
-    let url: String
-    let author: String
-    let duration: TimeInterval?
-    let savedAt: Date
-    let progress: Double? // For courses and videos
-    
-    enum LibraryItemType: String, Codable, CaseIterable {
-        case course = "course"
-        case book = "book"
-        case video = "video"
-        case podcast = "podcast"
-        
-        var icon: String {
-            switch self {
-            case .course: return "graduationcap.fill"
-            case .book: return "book.fill"
-            case .video: return "play.rectangle.fill"
-            case .podcast: return "mic.fill"
-            }
-        }
-        
-        var displayName: String {
-            switch self {
-            case .course: return "Courses"
-            case .book: return "Books"
-            case .video: return "Videos"
-            case .podcast: return "Podcasts"
-            }
-        }
-    }
-}
-
 // MARK: - Community Models
 struct Community: Identifiable, Codable {
     let id: UUID
@@ -322,16 +314,9 @@ struct Community: Identifiable, Codable {
         try container.encode(category, forKey: .category)
     }
     
-    static let sampleCommunities = [
-        Community(name: "SwiftUI Developers", description: "Everything about SwiftUI development", icon: "swift", memberCount: 2500, isPrivate: false, category: "Programming"),
-        Community(name: "iOS Design", description: "Mobile app design and UX", icon: "paintbrush.fill", memberCount: 1800, isPrivate: false, category: "Design"),
-        Community(name: "Tech Startups", description: "Startup founders and entrepreneurs", icon: "rocket.fill", memberCount: 3200, isPrivate: false, category: "Business"),
-        Community(name: "AI & Machine Learning", description: "ML enthusiasts and researchers", icon: "brain.head.profile", memberCount: 4100, isPrivate: false, category: "Technology"),
-        Community(name: "Photography", description: "Share your best shots", icon: "camera.fill", memberCount: 2800, isPrivate: false, category: "Art"),
-        Community(name: "Digital Marketing", description: "Marketing strategies and tips", icon: "megaphone.fill", memberCount: 1900, isPrivate: false, category: "Business"),
-        Community(name: "Music Production", description: "Producers and audio engineers", icon: "music.note", memberCount: 1500, isPrivate: false, category: "Music"),
-        Community(name: "Game Development", description: "Indie game developers", icon: "gamecontroller.fill", memberCount: 2200, isPrivate: false, category: "Programming")
-    ]
+    // static let sampleCommunities = [
+    //     // Sample communities moved to UserDataManager for real data management
+    // ]
 }
 
 struct Discussion: Identifiable, Codable {
@@ -386,38 +371,9 @@ struct Discussion: Identifiable, Codable {
         try container.encode(createdAt, forKey: .createdAt)
     }
     
-    static let sampleDiscussions = [
-        Discussion(
-            title: "Best practices for SwiftUI state management",
-            content: "I've been working with SwiftUI for a while now and I'm curious about the best practices for managing state in complex applications. What are your thoughts on using @StateObject vs @ObservedObject?",
-            author: User.sampleUsers[0],
-            community: Community.sampleCommunities[0],
-            tags: ["SwiftUI", "StateManagement", "iOS"],
-            likes: 45,
-            replies: 12,
-            createdAt: Date().addingTimeInterval(-3600)
-        ),
-        Discussion(
-            title: "iOS 17 New Features Discussion",
-            content: "What are your thoughts on the new iOS 17 features? Interactive widgets look amazing!",
-            author: User.sampleUsers[1],
-            community: Community.sampleCommunities[0],
-            tags: ["iOS17", "Features", "Widgets"],
-            likes: 78,
-            replies: 23,
-            createdAt: Date().addingTimeInterval(-7200)
-        ),
-        Discussion(
-            title: "Design System Implementation",
-            content: "How do you approach building a scalable design system for a large iOS app?",
-            author: User.sampleUsers[2],
-            community: Community.sampleCommunities[1],
-            tags: ["DesignSystem", "iOS", "UI"],
-            likes: 34,
-            replies: 8,
-            createdAt: Date().addingTimeInterval(-10800)
-        )
-    ]
+    // static let sampleDiscussions = [
+    //     // Sample discussions moved to UserDataManager for real data management
+    // ]
 }
 
 struct CommunityEvent: Identifiable, Codable {
@@ -468,35 +424,9 @@ struct CommunityEvent: Identifiable, Codable {
         try container.encode(attendeesCount, forKey: .attendeesCount)
     }
     
-    static let sampleEvents = [
-        CommunityEvent(
-            title: "SwiftUI Workshop: Building Modern UIs",
-            description: "Join us for a hands-on workshop where we'll build a complete SwiftUI app from scratch",
-            imageURL: "https://picsum.photos/400/200",
-            date: Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date(),
-            location: "Virtual Event",
-            community: Community.sampleCommunities[0],
-            attendeesCount: 145
-        ),
-        CommunityEvent(
-            title: "Design System Meetup",
-            description: "Learn how to create and maintain design systems for mobile applications",
-            imageURL: "https://picsum.photos/400/200",
-            date: Calendar.current.date(byAdding: .day, value: 14, to: Date()) ?? Date(),
-            location: "San Francisco, CA",
-            community: Community.sampleCommunities[1],
-            attendeesCount: 89
-        ),
-        CommunityEvent(
-            title: "AI in Mobile Apps Conference",
-            description: "Exploring the future of AI integration in mobile applications",
-            imageURL: "https://picsum.photos/400/200",
-            date: Calendar.current.date(byAdding: .day, value: 21, to: Date()) ?? Date(),
-            location: "New York, NY",
-            community: Community.sampleCommunities[3],
-            attendeesCount: 267
-        )
-    ]
+    // static let sampleEvents = [
+    //     // Sample events moved to UserDataManager for real data management
+    // ]
 }
 
 // MARK: - Helper Functions
@@ -512,101 +442,18 @@ func formatDuration(_ duration: TimeInterval) -> String {
 }
 
 // MARK: - Sample Data
-extension User {
-    static let sampleUsers = [
-        User(username: "johndoe", email: "john@example.com", fullName: "John Doe", 
-             bio: "Tech enthusiast and learner", followers: 1250, following: 850, posts: 42, isVerified: true),
-        User(username: "janedoe", email: "jane@example.com", fullName: "Jane Doe", 
-             bio: "Designer & Creative", followers: 980, following: 650, posts: 28),
-        User(username: "alexsmith", email: "alex@example.com", fullName: "Alex Smith", 
-             bio: "Student and aspiring developer", followers: 450, following: 320, posts: 15)
-    ]
-}
+// Note: Sample data has been removed to use real data from UserDataManager
+// extension User {
+//     // All sample users moved to UserDataManager for real data management
+// }
 
-extension Post {
-    static let samplePosts = [
-        Post(author: User.sampleUsers[0], content: "Just completed my first SwiftUI course! 🎉 The declarative syntax is amazing and makes UI development so much more intuitive. Can't wait to build more apps!", 
-             likes: 234, comments: 18, tags: ["SwiftUI", "iOS", "Learning"]),
-        Post(author: User.sampleUsers[1], content: "Working on some new design concepts for mobile interfaces. Love how minimalism can create such powerful user experiences ✨", 
-             likes: 156, comments: 12, tags: ["Design", "UX", "Mobile"]),
-        Post(author: User.sampleUsers[2], content: "Had an amazing study session with Lyo today! The AI learning companion really helped me understand complex programming concepts through thoughtful questions. This platform is incredible! 🚀", 
-             likes: 89, comments: 7, tags: ["AI", "Learning", "Programming"])
-    ]
-}
+// extension Post {
+//     // Sample posts moved to UserDataManager for real data management
+// }
 
-extension Story {
-    static let sampleStories = [
-        Story(
-            author: User.sampleUsers[0],
-            mediaURL: "https://picsum.photos/400/600?random=1",
-            mediaType: .image,
-            isViewed: false,
-            createdAt: Date().addingTimeInterval(-3600), // 1 hour ago
-            expiresAt: Date().addingTimeInterval(82800) // 23 hours from now
-        ),
-        Story(
-            author: User.sampleUsers[1],
-            mediaURL: "https://picsum.photos/400/600?random=2",
-            mediaType: .video,
-            isViewed: true,
-            createdAt: Date().addingTimeInterval(-7200), // 2 hours ago
-            expiresAt: Date().addingTimeInterval(79200) // 22 hours from now
-        ),
-        Story(
-            author: User.sampleUsers[2],
-            mediaURL: "https://picsum.photos/400/600?random=3",
-            mediaType: .image,
-            isViewed: false,
-            createdAt: Date().addingTimeInterval(-1800), // 30 minutes ago
-            expiresAt: Date().addingTimeInterval(84600) // 23.5 hours from now
-        )
-    ]
-}
-
-extension LibraryItem {
-    static let sampleLibraryItems = [
-        LibraryItem(
-            title: "Complete SwiftUI Course",
-            type: .course,
-            thumbnailURL: "https://picsum.photos/200/150?random=10",
-            url: "course://swiftui-complete",
-            author: "John Smith",
-            duration: 18000, // 5 hours
-            savedAt: Date().addingTimeInterval(-86400), // 1 day ago
-            progress: 0.65
-        ),
-        LibraryItem(
-            title: "Design Thinking Fundamentals",
-            type: .book,
-            thumbnailURL: "https://picsum.photos/200/150?random=11",
-            url: "book://design-thinking",
-            author: "Sarah Johnson",
-            duration: nil,
-            savedAt: Date().addingTimeInterval(-172800), // 2 days ago
-            progress: 0.3
-        ),
-        LibraryItem(
-            title: "iOS Architecture Patterns",
-            type: .video,
-            thumbnailURL: "https://picsum.photos/200/150?random=12",
-            url: "video://ios-patterns",
-            author: "Mike Chen",
-            duration: 2700, // 45 minutes
-            savedAt: Date().addingTimeInterval(-259200), // 3 days ago
-            progress: 1.0
-        ),
-        LibraryItem(
-            title: "Tech Talk: The Future of AI",
-            type: .podcast,
-            thumbnailURL: "https://picsum.photos/200/150?random=13",
-            url: "podcast://ai-future",
-            author: "AI Insights Podcast",
-            duration: 3600, // 1 hour
-            savedAt: Date().addingTimeInterval(-345600), // 4 days ago
-            progress: 0.75
-        )
-    ]
-}
+// extension Story {
+//     // Sample stories moved to UserDataManager for real data management
+// }
 
 // MARK: - Learning Models for AI-Powered Course Experience
 
@@ -757,3 +604,242 @@ let sampleChapter = LyoCourseChapter(
     difficulty: .beginner,
     concepts: ["UI Framework", "Declarative Programming", "Cross-platform Development"]
 )
+
+// MARK: - Educational Content Models
+
+// Enhanced Educational Video Model
+struct EducationalVideo: Codable, Identifiable {
+    let id: UUID
+    let title: String
+    let description: String
+    let thumbnailURL: String
+    let videoURL: String
+    let duration: TimeInterval
+    let instructor: String
+    let category: String
+    let difficulty: Course.Difficulty
+    let tags: [String]
+    let rating: Double
+    let viewCount: Int
+    let isBookmarked: Bool
+    let watchProgress: Double // 0.0 to 1.0
+    let publishedDate: Date
+    let language: String
+    
+    init(
+        id: UUID = UUID(),
+        title: String,
+        description: String,
+        thumbnailURL: String,
+        videoURL: String,
+        duration: TimeInterval,
+        instructor: String,
+        category: String,
+        difficulty: Course.Difficulty = .beginner,
+        tags: [String] = [],
+        rating: Double = 0.0,
+        viewCount: Int = 0,
+        isBookmarked: Bool = false,
+        watchProgress: Double = 0.0,
+        publishedDate: Date = Date(),
+        language: String = "English"
+    ) {
+        self.id = id
+        self.title = title
+        self.description = description
+        self.thumbnailURL = thumbnailURL
+        self.videoURL = videoURL
+        self.duration = duration
+        self.instructor = instructor
+        self.category = category
+        self.difficulty = difficulty
+        self.tags = tags
+        self.rating = rating
+        self.viewCount = viewCount
+        self.isBookmarked = isBookmarked
+        self.watchProgress = watchProgress
+        self.publishedDate = publishedDate
+        self.language = language
+    }
+}
+
+// Enhanced Ebook Model
+struct Ebook: Codable, Identifiable {
+    let id: UUID
+    let title: String
+    let author: String
+    let description: String
+    let coverImageURL: String
+    let pdfURL: String
+    let category: String
+    let pages: Int
+    let fileSize: String
+    let rating: Double
+    let downloadCount: Int
+    let isBookmarked: Bool
+    let readProgress: Double // 0.0 to 1.0
+    let publishedDate: Date
+    let language: String
+    let tags: [String]
+    
+    init(
+        id: UUID = UUID(),
+        title: String,
+        author: String,
+        description: String,
+        coverImageURL: String,
+        pdfURL: String,
+        category: String,
+        pages: Int,
+        fileSize: String,
+        rating: Double = 0.0,
+        downloadCount: Int = 0,
+        isBookmarked: Bool = false,
+        readProgress: Double = 0.0,
+        publishedDate: Date = Date(),
+        language: String = "English",
+        tags: [String] = []
+    ) {
+        self.id = id
+        self.title = title
+        self.author = author
+        self.description = description
+        self.coverImageURL = coverImageURL
+        self.pdfURL = pdfURL
+        self.category = category
+        self.pages = pages
+        self.fileSize = fileSize
+        self.rating = rating
+        self.downloadCount = downloadCount
+        self.isBookmarked = isBookmarked
+        self.readProgress = readProgress
+        self.publishedDate = publishedDate
+        self.language = language
+        self.tags = tags
+    }
+}
+
+// Educational Content Type Enum
+enum EducationalContentType: String, CaseIterable {
+    case course = "course"
+    case video = "video"
+    case ebook = "ebook"
+    case podcast = "podcast"
+    case article = "article"
+    
+    var icon: String {
+        switch self {
+        case .course: return "graduationcap.fill"
+        case .video: return "play.rectangle.fill"
+        case .ebook: return "book.fill"
+        case .podcast: return "mic.fill"
+        case .article: return "doc.text.fill"
+        }
+    }
+    
+    var displayName: String {
+        switch self {
+        case .course: return "Courses"
+        case .video: return "Videos"
+        case .ebook: return "E-Books"
+        case .podcast: return "Podcasts"
+        case .article: return "Articles"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .course: return .blue
+        case .video: return .red
+        case .ebook: return .green
+        case .podcast: return .purple
+        case .article: return .orange
+        }
+    }
+}
+
+// MARK: - Podcast Episode Model
+struct PodcastEpisode: Identifiable, Codable {
+    let id: UUID
+    let title: String
+    let description: String
+    let audioURL: String
+    let thumbnailURL: String
+    let duration: TimeInterval
+    let showName: String
+    let publishedDate: Date
+    let category: String
+    let difficulty: Course.Difficulty
+    let tags: [String]
+    let transcript: String?
+    let isBookmarked: Bool
+    let playProgress: Double // 0.0 to 1.0
+    let rating: Double
+    
+    init(id: UUID = UUID(),
+         title: String,
+         description: String,
+         audioURL: String,
+         thumbnailURL: String,
+         duration: TimeInterval,
+         showName: String,
+         publishedDate: Date = Date(),
+         category: String,
+         difficulty: Course.Difficulty = .beginner,
+         tags: [String] = [],
+         transcript: String? = nil,
+         isBookmarked: Bool = false,
+         playProgress: Double = 0.0,
+         rating: Double = 4.0) {
+        self.id = id
+        self.title = title
+        self.description = description
+        self.audioURL = audioURL
+        self.thumbnailURL = thumbnailURL
+        self.duration = duration
+        self.showName = showName
+        self.publishedDate = publishedDate
+        self.category = category
+        self.difficulty = difficulty
+        self.tags = tags
+        self.transcript = transcript
+        self.isBookmarked = isBookmarked
+        self.playProgress = playProgress
+        self.rating = rating
+    }
+}
+
+// Learning Section Type for tabs
+enum LearningSectionType: String, CaseIterable {
+    case recentlyViewed = "recently_viewed"
+    case favorites = "favorites"
+    case watchLater = "watch_later"
+    case downloaded = "downloaded"
+    
+    var displayName: String {
+        switch self {
+        case .recentlyViewed: return "Recently Viewed"
+        case .favorites: return "Favorites"
+        case .watchLater: return "Watch Later"
+        case .downloaded: return "Downloaded"
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .recentlyViewed: return "clock.fill"
+        case .favorites: return "heart.fill"
+        case .watchLater: return "bookmark.fill"
+        case .downloaded: return "arrow.down.circle.fill"
+        }
+    }
+}
+
+// Sample data for testing
+// extension EducationalVideo {
+//     // Sample videos moved to UserDataManager for real data management
+// }
+
+// extension Ebook {
+//     // Sample ebooks moved to UserDataManager for real data management
+// }
