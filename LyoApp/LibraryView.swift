@@ -409,12 +409,12 @@ class LibraryViewModel: ObservableObject {
     @Published var saved: [SavedItem] = []
     
     func loadLibrary() {
-        // Simulate API call
+        // TODO: Replace with real API call to UserDataManager
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.aiRecommended = LibraryCourse.sampleRecommended
-            self.inProgress = LibraryCourse.sampleInProgress
-            self.completed = LibraryCourse.sampleCompleted
-            self.saved = SavedItem.sampleSaved
+            self.aiRecommended = [] // Use UserDataManager.shared.getRecommendedCourses()
+            self.inProgress = [] // Use UserDataManager.shared.getInProgressCourses()
+            self.completed = [] // Use UserDataManager.shared.getCompletedCourses()
+            self.saved = [] // Use UserDataManager.shared.getSavedItems()
         }
     }
 }
@@ -430,21 +430,11 @@ struct LibraryCourse: Identifiable {
     let progress: Double
     let completedDate: String?
     
-    static let sampleRecommended: [LibraryCourse] = [
-        LibraryCourse(title: "Advanced SwiftUI Animations", instructor: "John Doe", thumbnailURL: "https://picsum.photos/160/90?random=1", rating: 4.8, duration: "3h 45m", progress: 0.0, completedDate: nil),
-        LibraryCourse(title: "Machine Learning Fundamentals", instructor: "Jane Smith", thumbnailURL: "https://picsum.photos/160/90?random=2", rating: 4.9, duration: "8h 30m", progress: 0.0, completedDate: nil),
-        LibraryCourse(title: "iOS App Design Patterns", instructor: "Mike Johnson", thumbnailURL: "https://picsum.photos/160/90?random=3", rating: 4.7, duration: "5h 20m", progress: 0.0, completedDate: nil)
-    ]
-    
-    static let sampleInProgress: [LibraryCourse] = [
-        LibraryCourse(title: "Building AI-Powered Apps", instructor: "Sarah Wilson", thumbnailURL: "https://picsum.photos/160/90?random=4", rating: 4.9, duration: "12h 15m", progress: 0.65, completedDate: nil),
-        LibraryCourse(title: "SwiftUI Mastery", instructor: "David Brown", thumbnailURL: "https://picsum.photos/160/90?random=5", rating: 4.8, duration: "6h 45m", progress: 0.32, completedDate: nil)
-    ]
-    
-    static let sampleCompleted: [LibraryCourse] = [
-        LibraryCourse(title: "iOS Development Basics", instructor: "Emily Davis", thumbnailURL: "https://picsum.photos/160/90?random=6", rating: 4.6, duration: "4h 30m", progress: 1.0, completedDate: "2 weeks ago"),
-        LibraryCourse(title: "Git & GitHub Essentials", instructor: "Tom Anderson", thumbnailURL: "https://picsum.photos/160/90?random=7", rating: 4.7, duration: "2h 15m", progress: 1.0, completedDate: "1 month ago")
-    ]
+    // MARK: - Sample Data Removed
+    // All sample courses moved to UserDataManager for real data management
+    // static let sampleRecommended = [] // Use UserDataManager.shared.getRecommendedCourses()
+    // static let sampleInProgress = [] // Use UserDataManager.shared.getInProgressCourses()
+    // static let sampleCompleted = [] // Use UserDataManager.shared.getCompletedCourses()
 }
 
 struct SavedItem: Identifiable {
@@ -461,10 +451,8 @@ struct SavedItem: Identifiable {
         case post
     }
     
-    static let sampleSaved: [SavedItem] = [
-        SavedItem(title: "10 SwiftUI Tips Every Developer Should Know", author: "Code Master", thumbnailURL: "https://picsum.photos/160/90?random=8", type: .video, savedDate: "Yesterday"),
-        SavedItem(title: "The Future of AI in Mobile Development", author: "Tech Insider", thumbnailURL: "https://picsum.photos/160/90?random=9", type: .article, savedDate: "3 days ago"),
-        SavedItem(title: "Building Responsive UIs with SwiftUI", author: "UI Expert", thumbnailURL: "https://picsum.photos/160/90?random=10", type: .post, savedDate: "1 week ago")
-    ]
+    // MARK: - Sample Data Removed
+    // All sample saved items moved to UserDataManager for real data management
+    // static let sampleSaved = [] // Use UserDataManager.shared.getSavedItems()
 }
 
