@@ -235,14 +235,10 @@ struct SettingsView: View {
     }
     
     private func signOut() {
-        appState.currentUser = nil
-        appState.isAuthenticated = false
+        // Use AppState's proper logout method
+        appState.logoutUser()
         
-        NotificationCenter.default.post(
-            name: .userDidLogout,
-            object: nil
-        )
-        
+        // Dismiss settings view
         dismiss()
     }
 }
