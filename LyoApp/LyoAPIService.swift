@@ -1,15 +1,56 @@
 import Foundation
 import Combine
+import SwiftUI
 
-/// API service for Lyo AI Learn Buddy backend integration
+// Local HTTPMethod enum for LyoAPIService
+enum LyoHTTPMethod: String {
+    case GET = "GET"
+    case POST = "POST"
+    case PUT = "PUT"
+    case DELETE = "DELETE"
+    case PATCH = "PATCH"
+}
+
+// Empty response for endpoints that don't return data
+struct EmptyResponse: Codable {}
+
+/// Enhanced API service for Lyo AI Learn Buddy backend integration
 @MainActor
 class LyoAPIService: ObservableObject {
+    // Singleton instance
     static let shared = LyoAPIService()
     
     // MARK: - Configuration
-    private let baseURL = LyoConfiguration.getBackendURL()
+    #if DEBUG
+    private let baseURL = "http://localhost:8000"
+    #else
+    private let baseURL = "https://api.lyoapp.com"
+    #endif
     private let session = URLSession.shared
-    private var cancellables = Set<AnyCancellable>()
+    
+    // MARK: - Authentication Storage
+    private var authToken: String? {
+        get {
+            UserDefaults.standard.string(forKey: "lyo_auth_token")
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "lyo_auth_token")
+        }
+    }
+    
+    private var currentUserId: Int? {
+        get {
+            let id = UserDefaults.standard.integer(forKey: "lyo_current_user_id")
+            return id > 0 ? id : nil
+        }
+        set {
+            if let value = newValue {
+                UserDefaults.standard.set(value, forKey: "lyo_current_user_id")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "lyo_current_user_id")
+            }
+        }
+    }
     
     // MARK: - Published State
     @Published var isConnected = false
@@ -17,38 +58,288 @@ class LyoAPIService: ObservableObject {
     @Published var isLoading = false
     
     // MARK: - Authentication
-    private var authToken: String?
-    private var currentUserId: Int?
+    @Published var isAuthenticated = false
+    @Published var currentUser: APIUser?
     
+    // Private initializer to enforce singleton pattern
     private init() {
+        // Initialize without APIClient dependency for now
+        // Will implement backend integration methods directly
+        checkAuthentication()
         checkConnection()
     }
+    
+    private func checkAuthentication() {
+        if let _ = authToken, let _ = currentUserId {
+            isAuthenticated = true
+            // TODO: Fetch current user data from backend
+        }
+    }
+    
+    private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Connection Management
     
     func checkConnection() {
-        guard let url = URL(string: "\(baseURL)/api/v1/health") else { return }
+        Task {
+            // Direct health check implementation
+            do {
+                let _ = try await performHealthCheck()
+                await MainActor.run {
+                    self.isConnected = true
+                }
+            } catch {
+                await MainActor.run {
+                    self.isConnected = false
+                }
+            }
+            
+            // Also check legacy endpoints
+            await checkLegacyConnection()
+        }
+    }
+    
+    private func performHealthCheck() async throws -> [String: Any] {
+        guard let url = URL(string: "\(baseURL)/health") else {
+            throw APIError.invalidURL
+        }
         
         var request = URLRequest(url: url)
+        request.httpMethod = "GET"
         request.timeoutInterval = 5.0
         
-        session.dataTask(with: request) { [weak self] data, response, error in
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.networkError(NSError(domain: "Invalid response", code: 0))
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.serverError(httpResponse.statusCode, "Health check failed")
+        }
+        
+        return try JSONSerialization.jsonObject(with: data) as? [String: Any] ?? [:]
+    }
+    
+    @MainActor
+    private func checkLegacyConnection() async {
+        let healthEndpoints = ["/health", "/api/health", "/api/v1/health"]
+        tryNextHealthEndpoint(endpoints: healthEndpoints, index: 0)
+    }
+    
+    // MARK: - Authentication Methods
+    
+    func login(email: String, password: String) async throws {
+        isLoading = true
+        defer { isLoading = false }
+        
+        do {
+            let response = try await performLogin(email: email, password: password)
+            currentUser = response.user
+            isAuthenticated = true
+            lastError = nil
+            
+            // Store additional auth info for legacy endpoints
+            authToken = response.token
+            if let userId = Int(response.user.id) {
+                currentUserId = userId
+            }
+        } catch let error as APIError {
+            lastError = error
+            throw error
+        } catch {
+            let apiError = APIError.networkError(error)
+            lastError = apiError
+            throw apiError
+        }
+    }
+    
+    private func performLogin(email: String, password: String) async throws -> LoginResponse {
+        guard let url = URL(string: "\(baseURL)/api/v1/auth/login") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let loginData = ["email": email, "password": password]
+        request.httpBody = try JSONSerialization.data(withJSONObject: loginData)
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.networkError(NSError(domain: "Invalid response", code: 0))
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.serverError(httpResponse.statusCode, "Login failed")
+        }
+        
+        return try JSONDecoder().decode(LoginResponse.self, from: data)
+    }
+    
+    func logout() async {
+        isLoading = true
+        defer { isLoading = false }
+        
+        do {
+            try await performLogout()
+        } catch {
+            print("⚠️ Logout error: \(error)")
+        }
+        
+        currentUser = nil
+        isAuthenticated = false
+        lastError = nil
+        authToken = nil
+        currentUserId = nil
+    }
+    
+    private func performLogout() async throws {
+        guard let url = URL(string: "\(baseURL)/api/v1/auth/logout") else {
+            return // Not critical if logout endpoint fails
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        if let token = authToken {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let (_, response) = try await session.data(for: request)
+        
+        // Don't throw error if logout fails - always clear local state
+        if let httpResponse = response as? HTTPURLResponse,
+           httpResponse.statusCode != 200 {
+            print("⚠️ Backend logout failed with status: \(httpResponse.statusCode)")
+        }
+    }
+    
+    func register(fullName: String, username: String, email: String, password: String) async throws {
+        isLoading = true
+        defer { isLoading = false }
+        
+        do {
+            let response = try await performRegistration(
+                fullName: fullName,
+                username: username, 
+                email: email,
+                password: password
+            )
+            
+            currentUser = response.user
+            isAuthenticated = true
+            lastError = nil
+            
+            // Store auth info
+            authToken = response.token
+            if let userId = Int(response.user.id) {
+                currentUserId = userId
+            }
+        } catch let error as APIError {
+            lastError = error
+            throw error
+        } catch {
+            let apiError = APIError.networkError(error)
+            lastError = apiError
+            throw apiError
+        }
+    }
+    
+    private func performRegistration(fullName: String, username: String, email: String, password: String) async throws -> LoginResponse {
+        guard let url = URL(string: "\(baseURL)/api/v1/auth/register") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let registrationData = [
+            "full_name": fullName,
+            "username": username,
+            "email": email,
+            "password": password
+        ]
+        request.httpBody = try JSONSerialization.data(withJSONObject: registrationData)
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.networkError(NSError(domain: "Invalid response", code: 0))
+        }
+        
+        guard httpResponse.statusCode == 201 || httpResponse.statusCode == 200 else {
+            // Try to parse error message from response
+            if let errorData = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let message = errorData["message"] as? String {
+                throw APIError.serverError(httpResponse.statusCode, message)
+            }
+            throw APIError.serverError(httpResponse.statusCode, "Registration failed")
+        }
+        
+        return try JSONDecoder().decode(LoginResponse.self, from: data)
+    }
+
+    private func tryNextHealthEndpoint(endpoints: [String], index: Int) {
+        guard index < endpoints.count else {
+            // All endpoints failed
             DispatchQueue.main.async {
-                if let httpResponse = response as? HTTPURLResponse,
-                   httpResponse.statusCode == 200 {
-                    self?.isConnected = true
-                    self?.lastError = nil
-                } else {
-                    self?.isConnected = false
-                    self?.lastError = .networkError(NSError(domain: "ConnectionError", code: 0))
+                self.isConnected = false
+                self.lastError = .networkError(NSError(
+                    domain: "ConnectionError",
+                    code: 0,
+                    userInfo: [NSLocalizedDescriptionKey: "Backend server not reachable at \(self.baseURL). Please start your backend server."]
+                ))
+                print("❌ Backend server not running at \(self.baseURL)")
+                print("🔧 To fix: Start your backend server on port 8000")
+            }
+            return
+        }
+        
+        let endpoint = endpoints[index]
+        guard let url = URL(string: "\(baseURL)\(endpoint)") else {
+            tryNextHealthEndpoint(endpoints: endpoints, index: index + 1)
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 3.0
+        
+        session.dataTask(with: request) { [weak self] (data: Data?, response: URLResponse?, error: Error?) in
+            guard let self = self else { return }
+            if let httpResponse = response as? HTTPURLResponse,
+               httpResponse.statusCode == 200 {
+                DispatchQueue.main.async {
+                    self.isConnected = true
+                    self.lastError = nil
+                    print("✅ Connected to backend at: \(url.absoluteString)")
+                }
+            } else {
+                // Try next endpoint on main actor
+                Task { @MainActor in
+                    self.tryNextHealthEndpoint(endpoints: endpoints, index: index + 1)
                 }
             }
         }.resume()
     }
     
+    // Set auth token for compatibility with AppState
     func setAuthToken(_ token: String, userId: Int) {
         authToken = token
         currentUserId = userId
+    }
+    
+    func clearAuthToken() {
+        authToken = nil
+        currentUserId = nil
+    }
+    
+    func hasAuthToken() -> Bool {
+        return authToken != nil
     }
     
     // MARK: - API Methods
@@ -138,11 +429,40 @@ class LyoAPIService: ObservableObject {
     /// Get AI system health status
     func getSystemHealth() async throws -> AIHealthResponse {
         return try await performRequest(
-            endpoint: "/api/v1/health",
+            endpoint: "/health",
             method: .GET,
             body: nil as EmptyRequest?,
             responseType: AIHealthResponse.self
         )
+    }
+    
+    /// Get feed content for home screen
+    func getFeedContent(page: Int = 0, limit: Int = 20) async throws -> FeedResponse {
+        let endpoint = "/api/v1/feed?page=\(page)&limit=\(limit)"
+        
+        return try await performRequest(
+            endpoint: endpoint,
+            method: .GET,
+            body: nil as EmptyRequest?,
+            responseType: FeedResponse.self
+        )
+    }
+    
+    /// Get user posts for profile
+    func getUserPosts(userId: String, page: Int = 0, limit: Int = 20) async throws -> UserPostsResponse {
+        let endpoint = "/api/v1/users/\(userId)/posts?page=\(page)&limit=\(limit)"
+        
+        return try await performRequest(
+            endpoint: endpoint,
+            method: .GET,
+            body: nil as EmptyRequest?,
+            responseType: UserPostsResponse.self
+        )
+    }
+    
+    /// Returns backend health status for ErrorHandlingService
+    public func getLegacySystemHealth() async throws -> [String: Any] {
+        return try await self.performHealthCheck()
     }
     
     /// Rate an interaction
@@ -164,7 +484,7 @@ class LyoAPIService: ObservableObject {
     
     private func performRequest<T: Codable, R: Codable>(
         endpoint: String,
-        method: HTTPMethod,
+        method: LyoHTTPMethod,
         body: T? = nil,
         responseType: R.Type
     ) async throws -> R {
@@ -513,7 +833,85 @@ struct PerformanceData: Codable {
     }
 }
 
-// EmptyResponse is defined in AIAvatarIntegration.swift to avoid duplication
+// MARK: - Feed API Response Models
+
+struct FeedResponse: Codable {
+    let items: [FeedItemResponse]
+    let page: Int
+    let totalPages: Int
+    let hasMore: Bool
+    
+    enum CodingKeys: String, CodingKey {
+        case items
+        case page
+        case totalPages = "total_pages"
+        case hasMore = "has_more"
+    }
+}
+
+struct FeedItemResponse: Codable {
+    let id: String
+    let type: String // "video", "article", "post"
+    let title: String
+    let content: String?
+    let mediaUrl: String?
+    let thumbnailUrl: String?
+    let author: FeedAuthor
+    let engagement: FeedEngagement
+    let createdAt: String
+    let tags: [String]?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, type, title, content, tags
+        case mediaUrl = "media_url"
+        case thumbnailUrl = "thumbnail_url"
+        case author, engagement
+        case createdAt = "created_at"
+    }
+}
+
+struct FeedAuthor: Codable {
+    let id: String
+    let username: String
+    let displayName: String
+    let avatarUrl: String?
+    let isVerified: Bool
+    
+    enum CodingKeys: String, CodingKey {
+        case id, username
+        case displayName = "display_name"
+        case avatarUrl = "avatar_url"
+        case isVerified = "is_verified"
+    }
+}
+
+struct FeedEngagement: Codable {
+    let likes: Int
+    let comments: Int
+    let shares: Int
+    let saves: Int
+    let isLiked: Bool
+    let isSaved: Bool
+    
+    enum CodingKeys: String, CodingKey {
+        case likes, comments, shares, saves
+        case isLiked = "is_liked"
+        case isSaved = "is_saved"
+    }
+}
+
+struct UserPostsResponse: Codable {
+    let posts: [FeedItemResponse]
+    let page: Int
+    let totalPages: Int
+    let hasMore: Bool
+    
+    enum CodingKeys: String, CodingKey {
+        case posts, page
+        case totalPages = "total_pages"
+        case hasMore = "has_more"
+    }
+}
 
 // MARK: - API Service Extensions
 
@@ -525,6 +923,7 @@ extension LyoAPIService {
         
         // Add title as heading
         blocks.append(LessonBlock(
+            id: UUID(),
             type: .heading,
             data: .heading(HeadingData(text: lessonData.title, level: 1, style: .normal)),
             order: order
@@ -533,6 +932,7 @@ extension LyoAPIService {
         
         // Add description as paragraph
         blocks.append(LessonBlock(
+            id: UUID(),
             type: .paragraph,
             data: .paragraph(ParagraphData(text: lessonData.description, style: .normal)),
             order: order
@@ -543,6 +943,7 @@ extension LyoAPIService {
         if !lessonData.topics.isEmpty {
             let listItems = lessonData.topics.map { ListItem(text: $0, subItems: nil) }
             blocks.append(LessonBlock(
+                id: UUID(),
                 type: .bulletList,
                 data: .bulletList(BulletListData(items: listItems, style: .bullet)),
                 order: order
@@ -554,6 +955,7 @@ extension LyoAPIService {
         if !lessonData.activities.isEmpty {
             let listItems = lessonData.activities.map { ListItem(text: $0, subItems: nil) }
             blocks.append(LessonBlock(
+                id: UUID(),
                 type: .numberedList,
                 data: .numberedList(NumberedListData(items: listItems, startNumber: 1, style: .decimal)),
                 order: order
@@ -565,6 +967,7 @@ extension LyoAPIService {
         if !lessonData.outcomes.isEmpty {
             let outcomesText = lessonData.outcomes.joined(separator: "\n• ")
             blocks.append(LessonBlock(
+                id: UUID(),
                 type: .callout,
                 data: .callout(CalloutData(
                     text: "Learning Outcomes:\n• \(outcomesText)",
@@ -598,6 +1001,7 @@ extension LyoAPIService {
         )
         
         return LessonContent(
+            id: UUID(),
             title: lessonData.title,
             description: lessonData.description,
             blocks: blocks,
