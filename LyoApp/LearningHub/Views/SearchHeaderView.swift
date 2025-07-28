@@ -20,7 +20,9 @@ struct SearchHeaderView: View {
                     .foregroundColor(.gray)
                 
                 TextField("Search courses, topics, etc.", text: $searchText)
-                    .onChange(of: searchText, perform: onTextChange)
+                    .onChange(of: searchText) { oldValue, newValue in
+                        onTextChange(newValue)
+                    }
                     .foregroundColor(.white)
                 
                 if !searchText.isEmpty {
