@@ -92,7 +92,7 @@ class AnalyticsManager: ObservableObject {
         ))
     }
     
-    func trackLearningProgress(_ progress: LearningProgress) {
+    func trackLearningProgress(_ progress: CoreLearningProgress) {
         trackEvent(AnalyticsEvent(
             name: "learning_progress",
             parameters: [
@@ -112,7 +112,7 @@ struct AnalyticsEvent {
     let timestamp = Date()
 }
 
-struct LearningProgress: Codable {
+struct CoreLearningProgress: Codable {
     let courseId: String
     let lessonId: String
     let percentage: Double
@@ -188,7 +188,7 @@ class NotificationManager: ObservableObject {
         )
     }
     
-    func scheduleAchievementNotification(for badge: Badge) async {
+    func scheduleAchievementNotification(for badge: UserBadge) async {
         await scheduleNotification(
             title: "Achievement Unlocked! 🏆",
             body: "You earned the \(badge.name) badge!",
