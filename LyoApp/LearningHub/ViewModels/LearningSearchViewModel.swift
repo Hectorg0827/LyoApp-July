@@ -53,6 +53,11 @@ class LearningSearchViewModel: ObservableObject {
         saveRecentSearches()
     }
     
+    func removeFromRecentSearches(_ searchText: String) {
+        recentSearches.removeAll { $0 == searchText }
+        saveRecentSearches()
+    }
+    
     // MARK: - Private Methods
     private func setupDebounce() {
         $searchText
