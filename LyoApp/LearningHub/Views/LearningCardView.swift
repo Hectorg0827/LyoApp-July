@@ -279,32 +279,44 @@ private extension LearningCardView {
     
     @ViewBuilder
     func thumbnailImage(height: CGFloat) -> some View {
-        AsyncImage(url: resource.thumbnailURL) { image in
-            image
-                .resizable()
-                .aspectRatio(16/9, contentMode: .fill)
-                .onAppear {
-                    imageLoaded = true
-                }
-        } placeholder: {
-            Rectangle()
-                .fill(LinearGradient(
-                    colors: [
-                        DesignTokens.Colors.glassBg,
-                        DesignTokens.Colors.glassBg.opacity(0.5)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ))
-                .overlay(
-                    Image(systemName: resource.contentType.icon)
-                        .font(.system(size: height * 0.3))
-                        .foregroundColor(DesignTokens.Colors.textSecondary)
-                )
-        }
-        .frame(height: height)
-        .background(DesignTokens.Colors.glassBg)
-        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.sm))
+        if let thumbnailURL = resource.thumbnailURL {
+            AsyncImage(url: thumbnailURL) { image in
+                image
+                    .resizable()
+                    .aspectRatio(16/9, contentMode: .fill)
+                    .onAppear {
+                        imageLoaded = true
+                    }
+            } placeholder: {
+                placeholderImage(height: height)
+            }
+            .frame(height: height)
+            .clipped()
+    } else {
+        placeholderImage(height: height)
+            .frame(height: height)
+    }
+}
+
+    @ViewBuilder
+    func placeholderImage(height: CGFloat) -> some View {
+        Rectangle()
+            .fill(LinearGradient(
+                colors: [
+                    DesignTokens.Colors.glassBg,
+                    DesignTokens.Colors.glassBg.opacity(0.5)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ))
+            .overlay(
+                Image(systemName: resource.contentType.icon)
+                    .font(.system(size: height * 0.3))
+                    .foregroundColor(DesignTokens.Colors.textSecondary)
+            )
+            .frame(height: height)
+            .background(DesignTokens.Colors.glassBg)
+            .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.sm))
     }
     
     var contentTypeBadge: some View {
