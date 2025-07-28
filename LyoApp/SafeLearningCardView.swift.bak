@@ -1,0 +1,188 @@
+import SwiftUI
+
+// MARK: - Learning Card View
+/// Reusable card component for displaying learning resources
+/// Implements safe image loading and error handling as recommended in the error guide
+struct LearningCardView: View {
+    let resource: LearningResource
+    
+    enum CardStyle {
+        case compact      // For grid views
+        case detailed     // For list views
+        case featured     // For hero sections
+    }
+    
+    let style: CardStyle
+    let onTap: (() -> Void)?
+    
+    init(resource: LearningResource, style: CardStyle = .compact, onTap: (() -> Void)? = nil) {
+        self.resource = resource
+        self.style = style
+        self.onTap = onTap
+    }
+    
+    var body: some View {
+        Button(action: { onTap?() }) {
+            VStack(alignment: .leading, spacing: 8) {
+                // Safe image loading with proper error handling
+                AsyncImage(url: resource.thumbnailURL) { phase in
+                    switch phase {
+                    case .empty:
+                        // Placeholder view while the image is loading
+                        ProgressView()
+                            .frame(height: imageHeight)
+                            .frame(maxWidth: .infinity)
+                            .background(Color.gray.opacity(0.2))
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(height: imageHeight)
+                            .clipped()
+                    case .failure:
+                        // View to show if the image fails to load
+                        VStack {
+                            Image(systemName: "photo")
+                                .font(.largeTitle)
+                                .foregroundColor(.gray)
+                            Text("Image unavailable")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                        .frame(height: imageHeight)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.gray.opacity(0.1))
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+                .frame(height: imageHeight)
+                .cornerRadius(8)
+                
+                // Content information
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(resource.title)
+                        .font(titleFont)
+                        .fontWeight(.bold)
+                        .lineLimit(2)
+                        .foregroundColor(.primary)
+                    
+                    // Safe optional unwrapping for author
+                    if let author = resource.authorCreator {
+                        Text(author)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                    }
+                    
+                    // Difficulty and rating info
+                    HStack {
+                        if let difficulty = resource.difficultyLevel {
+                            DifficultyBadge(level: difficulty)
+                        }
+                        
+                        Spacer()
+                        
+                        if let rating = resource.rating {
+                            HStack(spacing: 2) {
+                                Image(systemName: "star.fill")
+                                    .font(.caption)
+                                    .foregroundColor(.yellow)
+                                Text(String(format: "%.1f", rating))
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                    
+                    // Duration
+                    if let duration = resource.estimatedDuration {
+                        Text(duration)
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .padding(.horizontal, 4)
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+        .background(Color(UIColor.systemBackground))
+        .cornerRadius(12)
+        .shadow(radius: 2)
+    }
+    
+    // MARK: - Style-specific properties
+    private var imageHeight: CGFloat {
+        switch style {
+        case .compact: return 120
+        case .detailed: return 150
+        case .featured: return 200
+        }
+    }
+    
+    private var titleFont: Font {
+        switch style {
+        case .compact: return .subheadline
+        case .detailed: return .headline
+        case .featured: return .title3
+        }
+    }
+}
+
+// MARK: - Difficulty Badge Component
+struct DifficultyBadge: View {
+    let level: LearningResource.DifficultyLevel
+    
+    var body: some View {
+        Text(level.displayName)
+            .font(.caption2)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(level.color.opacity(0.2))
+            .foregroundColor(level.color)
+            .cornerRadius(4)
+    }
+}
+
+// MARK: - Difficulty Level Extension
+extension LearningResource.DifficultyLevel {
+    var displayName: String {
+        switch self {
+        case .beginner: return "Beginner"
+        case .intermediate: return "Intermediate"
+        case .advanced: return "Advanced"
+        case .expert: return "Expert"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .beginner: return .green
+        case .intermediate: return .blue
+        case .advanced: return .orange
+        case .expert: return .red
+        }
+    }
+}
+
+// MARK: - Preview
+#Preview {
+    VStack(spacing: 16) {
+        LearningCardView(
+            resource: LearningResource.sampleResources[0],
+            style: .compact
+        )
+        
+        LearningCardView(
+            resource: LearningResource.sampleResources[1],
+            style: .detailed
+        )
+        
+        LearningCardView(
+            resource: LearningResource.sampleResources[2],
+            style: .featured
+        )
+    }
+    .padding()
+    .background(Color.gray.opacity(0.1))
+}
