@@ -1,8 +1,8 @@
 import SwiftUI
 
-// MARK: - Search Header View
-/// Enhanced search bar with animations and voice input
-struct SearchHeaderView: View {
+// MARK: - Search Header View (Alternative)
+/// Alternative implementation - consider consolidating with SearchHeaderView.swift
+struct SearchHeaderViewAlt: View {
     @Binding var searchText: String
     @Binding var isActive: Bool
     let onTextChange: (String) -> Void
@@ -39,7 +39,7 @@ struct SearchHeaderView: View {
                     .font(.subheadline)
                     .foregroundColor(.white)
                     .focused($isSearchFocused)
-                    .onChange(of: searchText) { newValue in
+                    .onChange(of: searchText) { oldValue, newValue in
                         onTextChange(newValue)
                     }
                     .onSubmit {
@@ -97,182 +97,6 @@ struct SearchHeaderView: View {
         } else {
             // Stop voice recording
             print("🎙️ VOICE: Stopping voice recording")
-        }
-    }
-}
-
-// MARK: - Search Suggestions View
-/// Displays recent searches, popular topics, and AI-powered suggestions
-struct SearchSuggestionsView: View {
-    let recentSearches: [String]
-    let popularTopics: [String]
-    let suggestions: [LearningSearchViewModel.SearchSuggestionsViewModel.SearchSuggestion]
-    let onSearchTap: (String) -> Void
-    let onRemoveRecent: (String) -> Void
-    
-    var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            LazyVStack(alignment: .leading, spacing: 24) {
-                // Recent Searches Section
-                if !recentSearches.isEmpty {
-                    recentSearchesSection
-                }
-                
-                // Popular Topics Section
-                popularTopicsSection
-                
-                // AI Suggestions Section
-                if !suggestions.isEmpty {
-                    aiSuggestionsSection
-                }
-                
-                // Quick Actions Section
-                quickActionsSection
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 20)
-        }
-    }
-    
-    // MARK: - Recent Searches Section
-    private var recentSearchesSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: "clock.arrow.circlepath")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                
-                Text("Recent Searches")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                
-                Spacer()
-                
-                Button("Clear All") {
-                    // Clear recent searches
-                }
-                .font(.caption)
-                .foregroundColor(.cyan)
-            }
-            
-            LazyVStack(spacing: 8) {
-                ForEach(recentSearches, id: \.self) { search in
-                    RecentSearchRow(
-                        searchText: search,
-                        onTap: { onSearchTap(search) },
-                        onRemove: { onRemoveRecent(search) }
-                    )
-                }
-            }
-        }
-    }
-    
-    // MARK: - Popular Topics Section
-    private var popularTopicsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: "flame.fill")
-                    .font(.subheadline)
-                    .foregroundColor(.orange)
-                
-                Text("Popular Topics")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-            }
-            
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ], spacing: 8) {
-                ForEach(popularTopics, id: \.self) { topic in
-                    PopularTopicChip(topic: topic) {
-                        onSearchTap(topic)
-                    }
-                }
-            }
-        }
-    }
-    
-    // MARK: - AI Suggestions Section
-    private var aiSuggestionsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: "brain.head.profile")
-                    .font(.subheadline)
-                    .foregroundColor(.cyan)
-                
-                Text("AI Suggestions")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-            }
-            
-            LazyVStack(spacing: 8) {
-                ForEach(suggestions) { suggestion in
-                    AISuggestionRow(suggestion: suggestion) {
-                        onSearchTap(suggestion.text)
-                    }
-                }
-            }
-        }
-    }
-    
-    // MARK: - Quick Actions Section
-    private var quickActionsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: "bolt.fill")
-                    .font(.subheadline)
-                    .foregroundColor(.yellow)
-                
-                Text("Quick Actions")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-            }
-            
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ], spacing: 12) {
-                QuickActionCard(
-                    icon: "book.fill",
-                    title: "Browse All",
-                    subtitle: "Explore everything",
-                    color: .blue
-                ) {
-                    onSearchTap("")
-                }
-                
-                QuickActionCard(
-                    icon: "star.fill",
-                    title: "Bookmarks",
-                    subtitle: "Saved content",
-                    color: .yellow
-                ) {
-                    // Navigate to bookmarks
-                }
-                
-                QuickActionCard(
-                    icon: "chart.line.uptrend.xyaxis",
-                    title: "Progress",
-                    subtitle: "Your learning path",
-                    color: .green
-                ) {
-                    // Navigate to progress
-                }
-                
-                QuickActionCard(
-                    icon: "person.2.fill",
-                    title: "Community",
-                    subtitle: "Join discussions",
-                    color: .purple
-                ) {
-                    // Navigate to community
-                }
-            }
         }
     }
 }
@@ -344,7 +168,7 @@ struct PopularTopicChip: View {
 
 // MARK: - AI Suggestion Row
 struct AISuggestionRow: View {
-    let suggestion: LearningSearchViewModel.SearchSuggestionsViewModel.SearchSuggestion
+    let suggestion: SearchSuggestion
     let action: () -> Void
     
     var body: some View {
@@ -417,6 +241,14 @@ struct AISuggestionRow: View {
     }
 }
 
+// MARK: - Search Suggestion Model
+struct SearchSuggestion: Identifiable {
+    let id = UUID()
+    let text: String
+    let category: String
+    let popularity: Int
+}
+
 // MARK: - Quick Action Card
 struct QuickActionCard: View {
     let icon: String
@@ -454,9 +286,9 @@ struct QuickActionCard: View {
     }
 }
 
-// MARK: - Search Results View
-/// Displays search results with multiple view modes
-struct SearchResultsView: View {
+// MARK: - Search Results View (Alternative)
+/// Alternative implementation - consider consolidating with SearchResultsView.swift
+struct SearchResultsViewAlt: View {
     let results: [LearningResource]
     let isSearching: Bool
     let query: String
@@ -574,21 +406,42 @@ struct SearchResultsView: View {
                     GridItem(.flexible())
                 ], spacing: 16) {
                     ForEach(results) { resource in
-                        LearningCardView(resource: resource, style: .compact)
+                        LearningCardView(
+                            resource: resource,
+                            cardStyle: .compact,
+                            onTap: {
+                                // Handle resource selection
+                                print("📱 SEARCH: Selected resource \(resource.title)")
+                            }
+                        )
                     }
                 }
                 
             case .list:
                 LazyVStack(spacing: 12) {
                     ForEach(results) { resource in
-                        LearningCardView(resource: resource, style: .list)
+                        LearningCardView(
+                            resource: resource,
+                            cardStyle: .wide,
+                            onTap: {
+                                // Handle resource selection
+                                print("📱 SEARCH: Selected resource \(resource.title)")
+                            }
+                        )
                     }
                 }
                 
             case .card:
                 LazyVStack(spacing: 16) {
                     ForEach(results) { resource in
-                        LearningCardView(resource: resource, style: .detailed)
+                        LearningCardView(
+                            resource: resource,
+                            cardStyle: .standard,
+                            onTap: {
+                                // Handle resource selection
+                                print("📱 SEARCH: Selected resource \(resource.title)")
+                            }
+                        )
                     }
                 }
             }
@@ -599,20 +452,12 @@ struct SearchResultsView: View {
 // MARK: - Preview
 #Preview {
     VStack {
-        SearchHeaderView(
+        SearchHeaderViewAlt(
             searchText: .constant("SwiftUI"),
             isActive: .constant(true),
             onTextChange: { _ in }
         )
         .padding()
-        
-        SearchSuggestionsView(
-            recentSearches: ["SwiftUI", "iOS Development", "Machine Learning"],
-            popularTopics: ["Programming", "Design", "Business"],
-            suggestions: [],
-            onSearchTap: { _ in },
-            onRemoveRecent: { _ in }
-        )
     }
     .background(Color.black)
     .preferredColorScheme(.dark)
