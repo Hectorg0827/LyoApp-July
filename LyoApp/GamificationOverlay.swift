@@ -334,7 +334,7 @@ class GamificationService: ObservableObject {
     
     private init() {}
     
-    func showAchievement(_ badge: Badge) {
+    func showAchievement(_ badge: UserBadge) {
         let notification = AchievementData(
             id: UUID(),
             badge: badge,
@@ -381,9 +381,9 @@ class GamificationService: ObservableObject {
         
         // Sometimes show achievement
         if Bool.random() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
                 let sampleBadges = [
-                    Badge(
+                    UserBadge(
                         id: UUID(),
                         name: "First Steps",
                         description: "Completed your first lesson",
@@ -392,7 +392,7 @@ class GamificationService: ObservableObject {
                         rarity: .common,
                         earnedAt: Date()
                     ),
-                    Badge(
+                    UserBadge(
                         id: UUID(),
                         name: "Knowledge Seeker",
                         description: "Read 10 articles",
@@ -401,7 +401,7 @@ class GamificationService: ObservableObject {
                         rarity: .rare,
                         earnedAt: Date()
                     ),
-                    Badge(
+                    UserBadge(
                         id: UUID(),
                         name: "AI Explorer",
                         description: "Used AI chat feature",
@@ -412,14 +412,14 @@ class GamificationService: ObservableObject {
                     )
                 ]
                 let badge = sampleBadges.randomElement()!
-                self.showAchievement(badge)
+                self?.showAchievement(badge)
             }
         }
         
         // Rarely show level up
         if Int.random(in: 1...10) == 1 {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                self.showLevelUp(
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+                self?.showLevelUp(
                     newLevel: Int.random(in: 2...10),
                     unlockedFeatures: ["New Course Categories", "Advanced AI Features"]
                 )
@@ -431,7 +431,7 @@ class GamificationService: ObservableObject {
 // MARK: - Supporting Types
 struct AchievementData: Identifiable {
     let id: UUID
-    let badge: Badge
+    let badge: UserBadge
     let timestamp: Date
 }
 
