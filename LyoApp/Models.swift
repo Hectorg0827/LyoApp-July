@@ -12,7 +12,7 @@ struct User: Codable, Identifiable {
     var followers: Int
     var following: Int
     var posts: Int
-    var badges: [Badge]
+    var badges: [UserBadge]
     var level: Int
     var experience: Int
     var joinDate: Date
@@ -28,7 +28,7 @@ struct User: Codable, Identifiable {
         followers: Int = 0,
         following: Int = 0,
         posts: Int = 0,
-        badges: [Badge] = [],
+        badges: [UserBadge] = [],
         level: Int = 1,
         experience: Int = 0,
         joinDate: Date = Date(),
@@ -48,6 +48,13 @@ struct User: Codable, Identifiable {
         self.experience = experience
         self.joinDate = joinDate
         self.isVerified = isVerified
+    }
+    
+    // MARK: - Codable
+    enum CodingKeys: String, CodingKey {
+        case id, username, email, fullName, bio, profileImageURL
+        case followers, following, posts, badges, level, experience
+        case joinDate, isVerified
     }
 }
 
@@ -140,7 +147,7 @@ struct Location: Codable {
 }
 
 // MARK: - Badge Model
-struct Badge: Codable, Identifiable {
+struct UserBadge: Codable, Identifiable {
     let id: UUID
     let name: String
     let description: String
