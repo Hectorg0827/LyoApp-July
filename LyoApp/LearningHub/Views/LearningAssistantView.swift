@@ -207,7 +207,7 @@ struct LearningAssistantView: View {
                 .padding(.top, 12)
             
             LazyVStack(spacing: 8) {
-                ForEach(assistantViewModel.quickSuggestions, id: \.id) { suggestion in
+                ForEach(assistantViewModel.quickSuggestions, id: \.self) { suggestion in
                     SuggestionButton(suggestion: suggestion) {
                         assistantViewModel.selectSuggestion(suggestion)
                     }
@@ -272,6 +272,58 @@ struct LearningAssistantView: View {
         assistantViewModel.sendMessage(messageText)
         messageText = ""
         isMessageFieldFocused = false
+    }
+}
+
+// MARK: - Supporting Components
+
+struct SuggestionButton: View {
+    let suggestion: String
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Text(suggestion)
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+                Spacer()
+                Image(systemName: "arrow.up.circle.fill")
+                    .foregroundColor(.cyan)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color.white.opacity(0.1))
+            .cornerRadius(12)
+        }
+    }
+}
+
+struct AssistantMessageRow: View {
+    let message: LearningChatMessage
+    
+    var body: some View {
+        HStack {
+            if message.isUser {
+                Spacer()
+                Text(message.content)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color.cyan)
+                    .foregroundColor(.black)
+                    .cornerRadius(16)
+                    .frame(maxWidth: 250, alignment: .trailing)
+            } else {
+                Text(message.content)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color.white.opacity(0.1))
+                    .foregroundColor(.white)
+                    .cornerRadius(16)
+                    .frame(maxWidth: 250, alignment: .leading)
+                Spacer()
+            }
+        }
     }
 }
 
