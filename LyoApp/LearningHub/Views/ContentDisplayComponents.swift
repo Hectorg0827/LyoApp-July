@@ -1,8 +1,8 @@
 import SwiftUI
 
-// MARK: - Content Section View
-/// Reusable section for displaying different types of learning content
-struct ContentSection: View {
+// MARK: - Content Section View (Alternative)
+/// Alternative implementation of content section - consider consolidating with ContentSection.swift
+struct ContentSectionAlt: View {
     let title: String
     let subtitle: String
     let content: [LearningResource]
@@ -63,8 +63,14 @@ struct ContentSection: View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 16) {
                 ForEach(content) { resource in
-                    LearningCardView(resource: resource, style: .compact)
-                        .frame(width: 180)
+                    LearningCardView(
+                        resource: resource,
+                        cardStyle: .compact,
+                        onTap: {
+                            print("📱 NAVIGATION: Opening resource \(resource.title)")
+                        }
+                    )
+                    .frame(width: 180)
                 }
             }
             .padding(.horizontal, 20)
@@ -75,8 +81,14 @@ struct ContentSection: View {
     private var listContentView: some View {
         LazyVStack(spacing: 12) {
             ForEach(content.prefix(5)) { resource in
-                LearningCardView(resource: resource, style: .list)
-                    .padding(.horizontal, 20)
+                LearningCardView(
+                    resource: resource,
+                    cardStyle: .wide,
+                    onTap: {
+                        print("📱 NAVIGATION: Opening resource \(resource.title)")
+                    }
+                )
+                .padding(.horizontal, 20)
             }
         }
     }
@@ -86,8 +98,14 @@ struct ContentSection: View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 20) {
                 ForEach(content) { resource in
-                    LearningCardView(resource: resource, style: .detailed)
-                        .frame(width: 300)
+                    LearningCardView(
+                        resource: resource,
+                        cardStyle: .standard,
+                        onTap: {
+                            print("📱 NAVIGATION: Opening resource \(resource.title)")
+                        }
+                    )
+                    .frame(width: 300)
                 }
             }
             .padding(.horizontal, 20)
@@ -95,9 +113,9 @@ struct ContentSection: View {
     }
 }
 
-// MARK: - Featured Content Carousel
-/// Hero carousel for featured content with auto-scroll
-struct FeaturedContentCarousel: View {
+// MARK: - Featured Content Carousel (Alternative)
+/// Alternative implementation - consider consolidating with FeaturedContentCarousel.swift
+struct FeaturedContentCarouselAlt: View {
     let content: [LearningResource]
     
     @State private var currentIndex = 0
@@ -201,12 +219,12 @@ struct FeaturedContentCard: View {
                         
                         HStack {
                             // Duration
-                            if let duration = resource.duration {
+                            if let duration = resource.estimatedDuration {
                                 HStack(spacing: 4) {
                                     Image(systemName: "clock")
                                         .font(.caption)
                                     
-                                    Text(formatDuration(duration))
+                                    Text(duration)
                                         .font(.caption)
                                 }
                                 .foregroundColor(.white.opacity(0.7))
@@ -215,15 +233,17 @@ struct FeaturedContentCard: View {
                             Spacer()
                             
                             // Rating
-                            HStack(spacing: 4) {
-                                Image(systemName: "star.fill")
-                                    .font(.caption)
-                                    .foregroundColor(.yellow)
-                                
-                                Text(String(format: "%.1f", resource.rating))
-                                    .font(.caption)
-                                    .fontWeight(.medium)
-                                    .foregroundColor(.white)
+                            if let rating = resource.rating {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "star.fill")
+                                        .font(.caption)
+                                        .foregroundColor(.yellow)
+                                    
+                                    Text(String(format: "%.1f", rating))
+                                        .font(.caption)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.white)
+                                }
                             }
                         }
                     }
@@ -246,9 +266,9 @@ struct FeaturedContentCard: View {
     }
 }
 
-// MARK: - Enhanced Learning Card View
-/// Unified card component for all learning content with multiple styles
-struct LearningCardView: View {
+// MARK: - Enhanced Learning Card View (Alternative)
+/// Alternative implementation - use LearningCardView.swift for the main component
+struct LearningCardViewAlt: View {
     let resource: LearningResource
     let style: CardStyle
     
@@ -310,27 +330,31 @@ struct LearningCardView: View {
                     .foregroundColor(.white)
                     .lineLimit(2)
                 
-                Text(resource.author)
+                Text(resource.authorCreator ?? "Unknown Author")
                     .font(.caption)
                     .foregroundColor(.gray)
                     .lineLimit(1)
                 
                 HStack {
                     // Rating
-                    HStack(spacing: 2) {
-                        Image(systemName: "star.fill")
-                            .font(.caption2)
-                            .foregroundColor(.yellow)
-                        
-                        Text(String(format: "%.1f", resource.rating))
-                            .font(.caption2)
-                            .foregroundColor(.white)
+                    if let rating = resource.rating {
+                        HStack(spacing: 2) {
+                            Image(systemName: "star.fill")
+                                .font(.caption2)
+                                .foregroundColor(.yellow)
+                            
+                            Text(String(format: "%.1f", rating))
+                                .font(.caption2)
+                                .foregroundColor(.white)
+                        }
                     }
                     
                     Spacer()
                     
                     // Difficulty
-                    DifficultyIndicator(level: resource.difficultyLevel)
+                    if let difficultyLevel = resource.difficultyLevel {
+                        DifficultyIndicator(level: difficultyLevel)
+                    }
                 }
             }
         }
@@ -373,27 +397,29 @@ struct LearningCardView: View {
                     .foregroundColor(.white)
                     .lineLimit(2)
                 
-                Text(resource.author)
+                Text(resource.authorCreator ?? "Unknown Author")
                     .font(.caption)
                     .foregroundColor(.gray)
                 
                 HStack {
                     // Rating
-                    HStack(spacing: 2) {
-                        Image(systemName: "star.fill")
-                            .font(.caption2)
-                            .foregroundColor(.yellow)
-                        
-                        Text(String(format: "%.1f", resource.rating))
-                            .font(.caption2)
-                            .foregroundColor(.white)
+                    if let rating = resource.rating {
+                        HStack(spacing: 2) {
+                            Image(systemName: "star.fill")
+                                .font(.caption2)
+                                .foregroundColor(.yellow)
+                            
+                            Text(String(format: "%.1f", rating))
+                                .font(.caption2)
+                                .foregroundColor(.white)
+                        }
                     }
                     
                     Spacer()
                     
                     // Duration
-                    if let duration = resource.duration {
-                        Text(formatDuration(duration))
+                    if let duration = resource.estimatedDuration {
+                        Text(duration)
                             .font(.caption2)
                             .foregroundColor(.gray)
                     }
@@ -421,21 +447,23 @@ struct LearningCardView: View {
     
     // MARK: - Detailed Card View
     private var detailedCardView: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        let gradientColors = [
+            resource.contentType.color.opacity(0.4),
+            resource.contentType.color.opacity(0.2),
+            Color.black.opacity(0.3)
+        ]
+        
+        let backgroundGradient = LinearGradient(
+            gradient: Gradient(colors: gradientColors),
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        
+        return VStack(alignment: .leading, spacing: 16) {
             // Header with thumbnail
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(
-                        LinearGradient(
-                            gradient: Gradient(colors: [
-                                resource.contentType.color.opacity(0.4),
-                                resource.contentType.color.opacity(0.2),
-                                Color.black.opacity(0.3)
-                            ]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .fill(backgroundGradient)
                     .frame(height: 140)
                 
                 VStack {
@@ -462,18 +490,18 @@ struct LearningCardView: View {
                 
                 // Author and meta info
                 HStack {
-                    Text(resource.author)
+                    Text(resource.authorCreator ?? "Unknown Author")
                         .font(.caption)
                         .foregroundColor(.cyan)
                     
                     Spacer()
                     
-                    if let duration = resource.duration {
+                    if let duration = resource.estimatedDuration {
                         HStack(spacing: 4) {
                             Image(systemName: "clock")
                                 .font(.caption2)
                             
-                            Text(formatDuration(duration))
+                            Text(duration)
                                 .font(.caption)
                         }
                         .foregroundColor(.gray)
@@ -483,21 +511,25 @@ struct LearningCardView: View {
                 // Rating and difficulty
                 HStack {
                     // Rating
-                    HStack(spacing: 4) {
-                        ForEach(0..<5) { star in
-                            Image(systemName: star < Int(resource.rating) ? "star.fill" : "star")
+                    if let rating = resource.rating {
+                        HStack(spacing: 4) {
+                            ForEach(0..<5) { star in
+                                Image(systemName: star < Int(rating) ? "star.fill" : "star")
+                                    .font(.caption)
+                                    .foregroundColor(.yellow)
+                            }
+                            
+                            Text(String(format: "%.1f", rating))
                                 .font(.caption)
-                                .foregroundColor(.yellow)
+                                .foregroundColor(.white)
                         }
-                        
-                        Text(String(format: "%.1f", resource.rating))
-                            .font(.caption)
-                            .foregroundColor(.white)
                     }
                     
                     Spacer()
                     
-                    DifficultyIndicator(level: resource.difficultyLevel)
+                    if let difficultyLevel = resource.difficultyLevel {
+                        DifficultyIndicator(level: difficultyLevel)
+                    }
                 }
             }
             .padding(.horizontal, 16)
@@ -595,7 +627,7 @@ struct DifficultyIndicator: View {
         HStack(spacing: 2) {
             ForEach(0..<3) { index in
                 Circle()
-                    .fill(index < level.rawValue ? level.color : Color.gray.opacity(0.3))
+                    .fill(index < level.numericValue ? level.color : Color.gray.opacity(0.3))
                     .frame(width: 6, height: 6)
             }
         }
@@ -652,7 +684,7 @@ struct ContentSectionSkeleton: View {
     }
 }
 
-struct FeaturedContentSkeleton: View {
+struct FeaturedContentSkeletonAlt: View {
     var body: some View {
         VStack(spacing: 16) {
             RoundedRectangle(cornerRadius: 16)
@@ -728,45 +760,13 @@ struct SkeletonListItem: View {
     }
 }
 
-// Shimmer Effect
-extension View {
-    func shimmer() -> some View {
-        self.modifier(ShimmerModifier())
-    }
-}
-
-struct ShimmerModifier: ViewModifier {
-    @State private var phase: CGFloat = 0
-    
-    func body(content: Content) -> some View {
-        content
-            .overlay(
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color.clear,
-                        Color.white.opacity(0.1),
-                        Color.clear
-                    ]),
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-                .rotationEffect(.degrees(30))
-                .offset(x: phase)
-                .onAppear {
-                    withAnimation(Animation.linear(duration: 1.5).repeatForever(autoreverses: false)) {
-                        phase = 400
-                    }
-                }
-            )
-            .clipped()
-    }
-}
+// Note: Shimmer effect is defined in LearnView.swift
 
 // MARK: - Preview
 #Preview {
     ScrollView {
         VStack(spacing: 20) {
-            ContentSection(
+            ContentSectionAlt(
                 title: "Featured Content",
                 subtitle: "Hand-picked for you",
                 content: Array(LearningResource.sampleResources.prefix(5)),
