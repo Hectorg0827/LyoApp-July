@@ -80,6 +80,9 @@ struct DesignTokens {
         static let backgroundTertiary = Color(hex: "1E1E2E")   // Tertiary dark
         static let backgroundElevated = Color(hex: "252532")   // Elevated surfaces
         
+        // === CARD SYSTEM ===
+        static let cardBg = backgroundElevated               // Card background
+        
         // === TEXT SYSTEM ===
         static let textPrimary = neutral50      // Primary text (highest contrast)
         static let textSecondary = neutral300   // Secondary text
