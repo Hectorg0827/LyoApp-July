@@ -113,6 +113,6 @@ struct SearchSuggestionsView: View {
         onSearchTap: { _ in },
         onRemoveRecent: { _ in }
     )
-    .preferredColorScheme(.dark)
     .background(Color.black)
+    .preferredColorScheme(ColorScheme.dark)
 }
