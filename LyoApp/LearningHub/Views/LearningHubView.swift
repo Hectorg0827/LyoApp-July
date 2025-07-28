@@ -7,9 +7,10 @@ struct LearningHubView: View {
     
     // MARK: - Environment and State
     @EnvironmentObject var appState: AppState
-    @StateObject private var apiService = LearningAPIService.shared
     @StateObject private var searchViewModel = LearningSearchViewModel()
     @StateObject private var suggestionsViewModel = SearchSuggestionsViewModel()
+    
+    private let apiService = LearningAPIService.shared
     
     // MARK: - State Properties
     @State private var selectedCategory: LearningCategory = .all
@@ -322,7 +323,7 @@ struct LearningHubView: View {
                     onSearchTap: { query in
                         searchViewModel.performImmediateSearch(query)
                     },
-                    onRemoveRecent: searchViewModel.removeFromRecentSearches
+                    onRemoveRecent: searchViewModel.removeFromRecentSearches(_:)
                 )
             } else {
                 // Search Results
@@ -353,7 +354,7 @@ struct LearningHubView: View {
     private func loadFeaturedContent() async {
         do {
             isLoadingFeatured = true
-            let featured = try await apiService.fetchFeaturedResources(limit: 5)
+            let featured = try await apiService.fetchResources(for: "featured", limit: 5)
             
             await MainActor.run {
                 self.featuredContent = featured
@@ -371,7 +372,7 @@ struct LearningHubView: View {
     private func loadTrendingContent() async {
         do {
             isLoadingTrending = true
-            let trending = try await apiService.fetchTrendingResources(limit: 10)
+            let trending = try await apiService.fetchResources(for: "trending", limit: 10)
             
             await MainActor.run {
                 self.trendingContent = trending
@@ -389,7 +390,7 @@ struct LearningHubView: View {
     private func loadRecommendedContent() async {
         do {
             isLoadingRecommended = true
-            let recommended = try await apiService.fetchRecommendedResources(limit: 10)
+            let recommended = try await apiService.fetchResources(for: "recommended", limit: 10)
             
             await MainActor.run {
                 self.recommendedContent = recommended
@@ -416,7 +417,7 @@ struct LearningHubView: View {
     private func filterContentByCategory() {
         // Re-filter content based on selected category
         Task {
-            await loadInitialContent()
+            loadInitialContent()
         }
     }
     
