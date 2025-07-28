@@ -10,6 +10,12 @@ class LearningAssistantViewModel: ObservableObject {
     @Published var messages: [LearningChatMessage] = []
     @Published var isTyping: Bool = false
     @Published var quickActions: [QuickAction] = []
+    @Published var isPulsing: Bool = false
+    @Published var statusText: String = "Ready to help"
+    @Published var quickSuggestions: [String] = ["How to start coding?", "Best practices", "Debug tips"]
+    @Published var isListening: Bool = false
+    @Published var hasUnreadSuggestions: Bool = false
+    @Published var unreadCount: Int = 0
     
     // MARK: - Initialization
     init() {
@@ -41,6 +47,32 @@ class LearningAssistantViewModel: ObservableObject {
             self.isTyping = false
             let aiResponse = self.generateAIResponse(for: action.prompt)
             self.messages.append(aiResponse)
+        }
+    }
+    
+    func trackInteraction(_ interaction: AssistantInteraction) {
+        print("🤖 Assistant interaction: \(interaction)")
+    }
+    
+    func startPulsing() {
+        isPulsing = true
+    }
+    
+    func stopPulsing() {
+        isPulsing = false
+    }
+    
+    func selectSuggestion(_ suggestion: String) {
+        sendMessage(suggestion)
+    }
+    
+    func startVoiceInput() {
+        isListening = true
+        statusText = "Listening..."
+        // TODO: Implement voice recognition
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            self.isListening = false
+            self.statusText = "Ready to help"
         }
     }
     
@@ -94,4 +126,11 @@ struct QuickAction: Identifiable {
     let title: String
     let prompt: String
     let icon: String
+}
+
+enum AssistantInteraction {
+    case assistantOpened
+    case messagesSent
+    case voiceStarted
+    case suggestionSelected
 }
