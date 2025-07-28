@@ -54,7 +54,7 @@ extension AppState {
                 email: email,
                 fullName: "User", // TODO: Get from backend
                 bio: "Learning with Lyo!",
-                profileImageURL: nil,
+                profileImageURL: nil as String?,
                 followers: 0,
                 following: 0,
                 posts: 0,
@@ -152,7 +152,7 @@ extension AppState {
     
     // MARK: - Enhanced Learning Progress
     func trackLearningProgress(courseId: String, lessonId: String, timeSpent: TimeInterval) {
-        let progress = LearningProgress(
+        let progress = CoreLearningProgress(
             courseId: courseId,
             lessonId: lessonId,
             percentage: 100.0, // Assuming lesson completed
