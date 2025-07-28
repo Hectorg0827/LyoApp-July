@@ -4,13 +4,17 @@ import Combine
 // MARK: - Main Learn View
 /// Primary learning hub interface with search, filtering, and content discovery
 struct LearnView: View {
-    @StateObject private var learningService = LearningAPIService()
     @StateObject private var searchViewModel = SearchViewModel()
     @State private var selectedContentType: LearningResource.ContentType? = nil
     @State private var selectedDifficulty: LearningResource.DifficultyLevel? = nil
     @State private var viewMode: ViewMode = .grid
     @State private var showFilters = false
     @State private var searchText = ""
+    @State private var resources: [LearningResource] = []
+    @State private var trendingResources: [LearningResource] = []
+    @State private var isLoading = false
+    
+    private let learningService = LearningAPIService.shared
     
     // Layout configuration
     private let gridColumns = [
@@ -276,12 +280,12 @@ struct LearnView: View {
                 .foregroundColor(DesignTokens.Colors.primary)
             }
             
-            if learningService.isLoading && learningService.trendingResources.isEmpty {
+            if isLoading && trendingResources.isEmpty {
                 trendingLoadingView
             } else {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: DesignTokens.Spacing.md) {
-                        ForEach(learningService.trendingResources.prefix(5)) { resource in
+                        ForEach(trendingResources.prefix(5)) { resource in
                             LearningCardView(
                                 resource: resource,
                                 cardStyle: .standard,
@@ -325,9 +329,9 @@ struct LearnView: View {
             }
             
             // Content display
-            if learningService.isLoading && learningService.resources.isEmpty {
+            if isLoading && resources.isEmpty {
                 loadingView
-            } else if learningService.resources.isEmpty {
+            } else if resources.isEmpty {
                 emptyStateView
             } else {
                 contentGrid
@@ -344,7 +348,7 @@ struct LearnView: View {
             
             Spacer()
             
-            Text("\(learningService.resources.count) found")
+            Text("\(resources.count) found")
                 .font(DesignTokens.Typography.body)
                 .foregroundColor(DesignTokens.Colors.textSecondary)
         }
@@ -359,7 +363,7 @@ struct LearnView: View {
             
             Spacer()
             
-            Text("\(learningService.resources.count) items")
+            Text("\(resources.count) items")
                 .font(DesignTokens.Typography.body)
                 .foregroundColor(DesignTokens.Colors.textSecondary)
         }
@@ -403,7 +407,7 @@ struct LearnView: View {
         Group {
             if viewMode == .grid {
                 LazyVGrid(columns: gridColumns, spacing: DesignTokens.Spacing.md) {
-                    ForEach(learningService.resources) { resource in
+                    ForEach(resources) { resource in
                         LearningCardView(
                             resource: resource,
                             cardStyle: .standard,
@@ -416,7 +420,7 @@ struct LearnView: View {
                 }
             } else {
                 LazyVStack(spacing: DesignTokens.Spacing.md) {
-                    ForEach(learningService.resources) { resource in
+                    ForEach(resources) { resource in
                         LearningCardView(
                             resource: resource,
                             cardStyle: .wide,
@@ -485,14 +489,27 @@ private extension LearnView {
     
     func loadInitialContent() async {
         print("🚀 LEARN VIEW: Loading initial content")
+        isLoading = true
         
-        async let trendingTask = learningService.fetchTrendingResources(limit: 10)
-        async let resourcesTask = learningService.fetchResources(for: nil, limit: 20, offset: 0)
-        
-        await trendingTask
-        await resourcesTask
-        
-        print("✅ LEARN VIEW: Initial content loaded - \(learningService.resources.count) resources, \(learningService.trendingResources.count) trending")
+        do {
+            async let trendingTask = learningService.fetchResources(for: "trending", limit: 10)
+            async let resourcesTask = learningService.fetchResources(for: "general", limit: 20, offset: 0)
+            
+            let (trendingResults, resourceResults) = await (try trendingTask, try resourcesTask)
+            
+            await MainActor.run {
+                self.trendingResources = trendingResults
+                self.resources = resourceResults
+                self.isLoading = false
+            }
+            
+            print("✅ LEARN VIEW: Initial content loaded - \(resources.count) resources, \(trendingResources.count) trending")
+        } catch {
+            await MainActor.run {
+                self.isLoading = false
+            }
+            print("❌ LEARN VIEW: Failed to load content: \(error)")
+        }
     }
     
     func performSearch(_ query: String) async {
@@ -503,29 +520,43 @@ private extension LearnView {
         
         print("🔍 SEARCH: Performing search for '\(query)'")
         
-        let request = LearningResource.LearningSearchRequest(
+        let request = LearningSearchRequest(
             query: query,
-            contentType: selectedContentType,
-            difficultyLevel: selectedDifficulty,
+            contentTypes: selectedContentType != nil ? [selectedContentType!] : [],
+            difficultyLevels: selectedDifficulty != nil ? [selectedDifficulty!] : [],
             limit: 50,
             offset: 0
         )
         
-        await learningService.searchResources(request)
-        searchViewModel.updateSearchText(query)
-        
-        print("✅ SEARCH: Found \(learningService.resources.count) results for '\(query)'")
+        do {
+            let searchResponse = try await learningService.searchResources(request)
+            await MainActor.run {
+                self.resources = searchResponse.resources
+            }
+            searchViewModel.updateSearchText(query)
+            
+            print("✅ SEARCH: Found \(resources.count) results for '\(query)'")
+        } catch {
+            print("❌ SEARCH: Failed to search for '\(query)': \(error)")
+        }
     }
     
     func applyFilters() async {
         if !searchText.isEmpty {
             await performSearch(searchText)
         } else {
-            await learningService.fetchResources(
-                for: selectedContentType,
-                limit: 50,
-                offset: 0
-            )
+            do {
+                let filteredResults = try await learningService.fetchResources(
+                    for: selectedContentType?.rawValue ?? "general",
+                    limit: 50,
+                    offset: 0
+                )
+                await MainActor.run {
+                    self.resources = filteredResults
+                }
+            } catch {
+                print("❌ FILTERS: Failed to apply filters: \(error)")
+            }
         }
         
         print("🎯 FILTERS: Applied - ContentType: \(selectedContentType?.displayName ?? "All"), Difficulty: \(selectedDifficulty?.displayName ?? "All")")
