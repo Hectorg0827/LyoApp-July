@@ -34,7 +34,7 @@ struct LearningResourceFeaturedCard: View {
                 )
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(resource.category)
+                    Text(resource.category ?? "General")
                         .font(.caption)
                         .fontWeight(.bold)
                         .foregroundColor(.cyan)
@@ -59,9 +59,11 @@ struct LearningResourceFeaturedCard: View {
                     .lineLimit(2)
                 
                 HStack {
-                    Label(resource.duration, systemImage: "clock")
+                    Label(resource.estimatedDuration ?? "N/A", systemImage: "clock")
                     Spacer()
-                    Label("\(resource.rating, specifier: "%.1f")", systemImage: "star.fill")
+                    if let rating = resource.rating {
+                        Label("\(rating, specifier: "%.1f")", systemImage: "star.fill")
+                    }
                 }
                 .font(.caption)
                 .foregroundColor(.gray)
@@ -112,14 +114,16 @@ struct LearningResourceCard: View {
                 .foregroundColor(.white)
                 .lineLimit(2)
             
-            Text(resource.category)
+            Text(resource.category ?? "General")
                 .font(.caption2)
                 .foregroundColor(.cyan)
             
             HStack {
-                Label(resource.duration, systemImage: "clock")
+                Label(resource.estimatedDuration ?? "N/A", systemImage: "clock")
                 Spacer()
-                Label("\(resource.rating, specifier: "%.1f")", systemImage: "star.fill")
+                if let rating = resource.rating {
+                    Label("\(rating, specifier: "%.1f")", systemImage: "star.fill")
+                }
             }
             .font(.caption2)
             .foregroundColor(.gray)
@@ -170,11 +174,11 @@ struct LearningResourceRow: View {
                     .lineLimit(1)
                 
                 HStack {
-                    Text(resource.category)
+                    Text(resource.category ?? "General")
                         .font(.caption)
                         .foregroundColor(.cyan)
                     Spacer()
-                    Label(resource.duration, systemImage: "clock")
+                    Label(resource.estimatedDuration ?? "N/A", systemImage: "clock")
                         .font(.caption)
                         .foregroundColor(.gray)
                 }
