@@ -33,7 +33,7 @@ class LearningAPIService: ObservableObject {
     private var activeRequests: Set<UUID> = []
     
     // MARK: - Initialization
-    private init() {
+    public init() {
         #if DEBUG
         self.baseURL = "http://localhost:8000/api/v1/learning"
         #else
@@ -47,9 +47,32 @@ class LearningAPIService: ObservableObject {
         config.requestCachePolicy = .reloadIgnoringLocalCacheData
         self.session = URLSession(configuration: config)
         
-        // Configure JSON decoder
+        // Configure JSON decoder with safer strategies
         self.decoder = JSONDecoder()
-        self.decoder.dateDecodingStrategy = .iso8601
+        
+        // Handle different date formats from the backend safely
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
+        dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
+        
+        self.decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let dateString = try container.decode(String.self)
+            
+            // Try multiple date formats
+            let iso8601Formatter = ISO8601DateFormatter()
+            if let date = iso8601Formatter.date(from: dateString) {
+                return date
+            }
+            
+            if let date = dateFormatter.date(from: dateString) {
+                return date
+            }
+            
+            // Fallback to current date if parsing fails
+            print("⚠️ WARNING: Could not parse date '\(dateString)', using current date")
+            return Date()
+        }
         
         print("✅ LearningAPIService initialized with baseURL: \(baseURL)")
     }
@@ -176,7 +199,7 @@ class LearningAPIService: ObservableObject {
     
     /// Update learning progress
     func updateProgress(resourceId: String, progress: LearningProgress) async throws {
-        let _: EmptyAPIResponse = try await performRequest<EmptyAPIResponse, LearningProgress>(
+        let _: EmptyAPIResponse = try await performRequest(
             endpoint: "/progress/\(resourceId)",
             method: LearningHTTPMethod.PATCH,
             body: progress
@@ -352,19 +375,7 @@ enum LearningAPIError: Error, LocalizedError {
 }
 
 // MARK: - Request Models
-struct LearningSearchRequest: Codable {
-    let query: String
-    let limit: Int
-    let offset: Int
-    let filters: SearchFilters?
-    
-    init(query: String, limit: Int = 20, offset: Int = 0, filters: SearchFilters? = nil) {
-        self.query = query
-        self.limit = limit
-        self.offset = offset
-        self.filters = filters
-    }
-}
+// Note: LearningSearchRequest is defined in LearningResource.swift
 
 struct SearchFilters: Codable {
     let categories: [String]?
@@ -373,12 +384,7 @@ struct SearchFilters: Codable {
     let type: String?
 }
 
-struct LearningProgress: Codable {
-    let percentage: Double
-    let timeSpent: Int
-    let lastAccessed: Date
-    let completed: Bool
-}
+// Note: LearningProgress is defined in CoreServices.swift
 
 struct EmptyRequestBody: Codable {}
 
