@@ -11,11 +11,13 @@ struct LearningResource: Identifiable, Codable, Hashable {
     let sourcePlatform: SourcePlatform
     let authorCreator: String?
     let tags: [String]
-    let thumbnailURL: URL
-    let contentURL: URL
+    
+    // Safe URL handling - store as strings and provide computed properties
+    private let thumbnailURLString: String
+    private let contentURLString: String
     let publishedAt: Date?
     
-    // Enhanced Fields
+    // Enhanced Fields for rich user experience
     let difficultyLevel: DifficultyLevel?
     let estimatedDuration: String? // "1h 30m"
     let rating: Double?
@@ -25,9 +27,39 @@ struct LearningResource: Identifiable, Codable, Hashable {
     let isFavorite: Bool
     let progress: Double? // 0.0 to 1.0 for completed percentage
     
+    // Additional enhanced fields
+    let category: String?
+    let instructor: String?
+    let prerequisites: [String]?
+    let learningOutcomes: [String]?
+    let lastAccessedAt: Date?
+    let completionCertificate: Bool
+    let price: Double? // For paid content
+    let currency: String?
+    
     // Metadata
     let createdAt: Date
     let updatedAt: Date
+    
+    // MARK: - Safe URL Computed Properties
+    var thumbnailURL: URL? {
+        URL(string: thumbnailURLString)
+    }
+    
+    var contentURL: URL? {
+        URL(string: contentURLString)
+    }
+    
+    // MARK: - Coding Keys for JSON Mapping
+    private enum CodingKeys: String, CodingKey {
+        case id, title, description, contentType, sourcePlatform, authorCreator, tags, publishedAt
+        case thumbnailURLString = "thumbnailURL"
+        case contentURLString = "contentURL"
+        case difficultyLevel, estimatedDuration, rating, language, viewCount
+        case isBookmarked, isFavorite, progress, category, instructor
+        case prerequisites, learningOutcomes, lastAccessedAt, completionCertificate
+        case price, currency, createdAt, updatedAt
+    }
     
     init(
         id: UUID = UUID(),
@@ -48,6 +80,14 @@ struct LearningResource: Identifiable, Codable, Hashable {
         isBookmarked: Bool = false,
         isFavorite: Bool = false,
         progress: Double? = nil,
+        category: String? = nil,
+        instructor: String? = nil,
+        prerequisites: [String]? = nil,
+        learningOutcomes: [String]? = nil,
+        lastAccessedAt: Date? = nil,
+        completionCertificate: Bool = false,
+        price: Double? = nil,
+        currency: String? = nil,
         createdAt: Date = Date(),
         updatedAt: Date = Date()
     ) {
@@ -58,8 +98,8 @@ struct LearningResource: Identifiable, Codable, Hashable {
         self.sourcePlatform = sourcePlatform
         self.authorCreator = authorCreator
         self.tags = tags
-        self.thumbnailURL = thumbnailURL
-        self.contentURL = contentURL
+        self.thumbnailURLString = thumbnailURL.absoluteString
+        self.contentURLString = contentURL.absoluteString
         self.publishedAt = publishedAt
         self.difficultyLevel = difficultyLevel
         self.estimatedDuration = estimatedDuration
@@ -69,6 +109,14 @@ struct LearningResource: Identifiable, Codable, Hashable {
         self.isBookmarked = isBookmarked
         self.isFavorite = isFavorite
         self.progress = progress
+        self.category = category
+        self.instructor = instructor
+        self.prerequisites = prerequisites
+        self.learningOutcomes = learningOutcomes
+        self.lastAccessedAt = lastAccessedAt
+        self.completionCertificate = completionCertificate
+        self.price = price
+        self.currency = currency
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
@@ -148,6 +196,15 @@ extension LearningResource {
         
         var displayName: String {
             return rawValue.capitalized
+        }
+        
+        var numericValue: Int {
+            switch self {
+            case .beginner: return 1
+            case .intermediate: return 2
+            case .advanced: return 3
+            case .expert: return 3
+            }
         }
         
         var color: Color {
@@ -267,4 +324,22 @@ extension LearningResource {
             viewCount: 12000
         )
     ]
+}
+
+// MARK: - Learning Progress Model
+/// Represents progress for a specific learning resource
+struct LearningProgress: Codable {
+    let resourceId: String
+    let percentage: Double
+    let timeSpent: TimeInterval
+    let lastAccessed: Date
+    let completed: Bool
+    
+    init(resourceId: String, percentage: Double, timeSpent: TimeInterval, lastAccessed: Date = Date(), completed: Bool = false) {
+        self.resourceId = resourceId
+        self.percentage = percentage
+        self.timeSpent = timeSpent
+        self.lastAccessed = lastAccessed
+        self.completed = completed
+    }
 }
