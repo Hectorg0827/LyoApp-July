@@ -381,6 +381,285 @@ async def get_avatar_context():
         ]
     }
 
+# === AUTHENTICATION & USER MANAGEMENT ===
+
+@app.post("/api/v1/auth/register")
+async def register_user(user_data: dict):
+    # Simple registration for demo purposes
+    user_id = str(len(users_db) + 1)
+    new_user = {
+        "id": user_id,
+        "username": user_data.get("username", f"user_{user_id}"),
+        "email": user_data.get("email", f"user{user_id}@example.com"),
+        "name": user_data.get("name", f"User {user_id}"),
+        "avatar": user_data.get("avatar", "https://api.dicebear.com/7.x/avataaars/svg?seed=default"),
+        "bio": user_data.get("bio", "New LyoApp user"),
+        "created_at": "2024-01-01T00:00:00Z"
+    }
+    users_db[user_id] = new_user
+    
+    return {
+        "success": True,
+        "message": "User registered successfully",
+        "token": f"token_{user_id}",
+        "user": new_user
+    }
+
+@app.get("/api/v1/users/me")
+async def get_current_user(authorization: str = None):
+    # Extract user from token (simplified for demo)
+    user_id = "1"  # Default user for demo
+    user = users_db.get(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {
+        "id": user["id"],
+        "username": user["username"],
+        "email": user["email"],
+        "name": user["name"],
+        "avatar": user["avatar"],
+        "bio": user["bio"],
+        "preferences": {
+            "learning_style": "visual",
+            "difficulty_level": "intermediate",
+            "notification_settings": {
+                "daily_reminders": True,
+                "progress_updates": True
+            }
+        },
+        "stats": {
+            "total_courses": 12,
+            "completed_courses": 3,
+            "learning_streak": 7,
+            "total_learning_time": 156.5
+        }
+    }
+
+# === LEARNING RESOURCES ===
+
+# Mock learning resources data
+learning_resources_db = [
+    {
+        "id": "lr_1",
+        "title": "Introduction to Swift Programming",
+        "description": "Learn the fundamentals of Swift programming language",
+        "type": "course",
+        "category": "Programming",
+        "difficulty": "beginner",
+        "duration": 120,
+        "thumbnail": "https://example.com/swift-thumb.jpg",
+        "tags": ["swift", "ios", "programming"],
+        "rating": 4.8,
+        "instructor": "Apple Developer Team",
+        "lessons": [
+            {"id": "lesson_1", "title": "Variables and Constants", "duration": 15},
+            {"id": "lesson_2", "title": "Functions and Closures", "duration": 20},
+            {"id": "lesson_3", "title": "Classes and Structures", "duration": 25}
+        ]
+    },
+    {
+        "id": "lr_2", 
+        "title": "SwiftUI Fundamentals",
+        "description": "Build beautiful iOS apps with SwiftUI",
+        "type": "course",
+        "category": "Mobile Development",
+        "difficulty": "intermediate",
+        "duration": 180,
+        "thumbnail": "https://example.com/swiftui-thumb.jpg",
+        "tags": ["swiftui", "ios", "ui"],
+        "rating": 4.9,
+        "instructor": "iOS Experts",
+        "lessons": [
+            {"id": "lesson_4", "title": "Views and Modifiers", "duration": 30},
+            {"id": "lesson_5", "title": "State Management", "duration": 35},
+            {"id": "lesson_6", "title": "Navigation", "duration": 25}
+        ]
+    },
+    {
+        "id": "lr_3",
+        "title": "Data Structures & Algorithms",
+        "description": "Master fundamental data structures and algorithms",
+        "type": "course",
+        "category": "Computer Science",
+        "difficulty": "advanced",
+        "duration": 240,
+        "thumbnail": "https://example.com/algorithms-thumb.jpg",
+        "tags": ["algorithms", "data-structures", "programming"],
+        "rating": 4.7,
+        "instructor": "CS Professors",
+        "lessons": [
+            {"id": "lesson_7", "title": "Arrays and Linked Lists", "duration": 40},
+            {"id": "lesson_8", "title": "Trees and Graphs", "duration": 45},
+            {"id": "lesson_9", "title": "Sorting Algorithms", "duration": 35}
+        ]
+    }
+]
+
+@app.get("/api/v1/learning-resources")
+async def get_learning_resources(
+    category: str = None,
+    difficulty: str = None,
+    search: str = None,
+    limit: int = 20,
+    offset: int = 0
+):
+    resources = learning_resources_db.copy()
+    
+    # Apply filters
+    if category:
+        resources = [r for r in resources if r["category"].lower() == category.lower()]
+    if difficulty:
+        resources = [r for r in resources if r["difficulty"].lower() == difficulty.lower()]
+    if search:
+        search_lower = search.lower()
+        resources = [r for r in resources if 
+                    search_lower in r["title"].lower() or 
+                    search_lower in r["description"].lower() or
+                    any(search_lower in tag for tag in r["tags"])]
+    
+    # Apply pagination
+    total = len(resources)
+    resources = resources[offset:offset + limit]
+    
+    return {
+        "resources": resources,
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "has_more": offset + limit < total
+    }
+
+@app.get("/api/v1/learning-resources/{resource_id}")
+async def get_learning_resource_details(resource_id: str):
+    resource = next((r for r in learning_resources_db if r["id"] == resource_id), None)
+    if not resource:
+        raise HTTPException(status_code=404, detail="Learning resource not found")
+    
+    # Add additional details for specific resource
+    detailed_resource = resource.copy()
+    detailed_resource.update({
+        "enrollment_count": 1250,
+        "completion_rate": 0.78,
+        "prerequisites": ["Basic programming knowledge"],
+        "learning_outcomes": [
+            "Understand core programming concepts",
+            "Build practical projects",
+            "Prepare for advanced topics"
+        ],
+        "reviews": [
+            {
+                "id": "review_1",
+                "user": "Alex Johnson",
+                "rating": 5,
+                "comment": "Excellent course structure and clear explanations!",
+                "date": "2024-01-15"
+            }
+        ]
+    })
+    
+    return detailed_resource
+
+# === USER PROGRESS TRACKING ===
+
+# Mock user progress data
+user_progress_db = [
+    {
+        "id": "progress_1",
+        "user_id": "1",
+        "resource_id": "lr_1",
+        "progress": 0.65,
+        "time_spent": 78.5,
+        "completed_lessons": ["lesson_1", "lesson_2"],
+        "current_lesson": "lesson_3",
+        "last_accessed": "2024-01-20T15:30:00Z",
+        "is_completed": False,
+        "notes": "Great course so far, loving the hands-on examples"
+    },
+    {
+        "id": "progress_2", 
+        "user_id": "1",
+        "resource_id": "lr_2",
+        "progress": 0.33,
+        "time_spent": 45.2,
+        "completed_lessons": ["lesson_4"],
+        "current_lesson": "lesson_5",
+        "last_accessed": "2024-01-19T10:15:00Z",
+        "is_completed": False,
+        "notes": "SwiftUI is really intuitive"
+    }
+]
+
+@app.get("/api/v1/users/progress")
+async def get_user_progress(user_id: str = "1"):
+    progress = [p for p in user_progress_db if p["user_id"] == user_id]
+    return progress
+
+@app.post("/api/v1/users/progress")
+async def save_user_progress(progress_data: dict):
+    # Create new progress entry
+    progress_id = f"progress_{len(user_progress_db) + 1}"
+    new_progress = {
+        "id": progress_id,
+        "user_id": progress_data.get("user_id", "1"),
+        "resource_id": progress_data["resource_id"],
+        "progress": progress_data.get("progress", 0.0),
+        "time_spent": progress_data.get("time_spent", 0.0),
+        "completed_lessons": progress_data.get("completed_lessons", []),
+        "current_lesson": progress_data.get("current_lesson"),
+        "last_accessed": progress_data.get("last_accessed", "2024-01-20T15:30:00Z"),
+        "is_completed": progress_data.get("is_completed", False),
+        "notes": progress_data.get("notes", "")
+    }
+    
+    # Update existing progress or add new
+    existing_index = next((i for i, p in enumerate(user_progress_db) 
+                          if p["user_id"] == new_progress["user_id"] and 
+                             p["resource_id"] == new_progress["resource_id"]), None)
+    
+    if existing_index is not None:
+        user_progress_db[existing_index] = new_progress
+    else:
+        user_progress_db.append(new_progress)
+    
+    return {
+        "success": True,
+        "message": "Progress saved successfully",
+        "progress": new_progress
+    }
+
+# === RECOMMENDATIONS ===
+
+@app.get("/api/v1/recommendations")
+async def get_recommendations(user_id: str = "1", limit: int = 10):
+    # Simple recommendation logic based on user progress and preferences
+    user_progress = [p for p in user_progress_db if p["user_id"] == user_id]
+    completed_categories = set()
+    
+    # Get categories from completed or in-progress courses
+    for progress in user_progress:
+        resource = next((r for r in learning_resources_db if r["id"] == progress["resource_id"]), None)
+        if resource:
+            completed_categories.add(resource["category"])
+    
+    # Recommend resources from similar categories or next difficulty level
+    recommendations = []
+    for resource in learning_resources_db:
+        # Skip if already in progress
+        if any(p["resource_id"] == resource["id"] for p in user_progress):
+            continue
+            
+        # Recommend based on category similarity or progression
+        if (resource["category"] in completed_categories or 
+            resource["difficulty"] == "beginner" or
+            len(recommendations) < limit):
+            recommendations.append(resource)
+        
+        if len(recommendations) >= limit:
+            break
+    
+    return recommendations
+
 if __name__ == "__main__":
     print("🚀 Starting LyoApp Professional Backend on http://localhost:8000")
     print("📱 Features: Professional Messenger, AI Search, Smart Library")
