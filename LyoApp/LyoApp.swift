@@ -1,26 +1,60 @@
 import SwiftUI
+import SwiftData
 import Combine
+import os
 
 @main
 struct LyoApp: App {
-    @StateObject private var appState = AppState()
+    @StateObject private var appState = AppState.shared
     @StateObject private var voiceActivationService = VoiceActivationService.shared
+    @StateObject private var networkMonitor = NetworkMonitor.shared
+    @StateObject private var gemmaService = GemmaService.shared
     @State private var cancellables = Set<AnyCancellable>()
+    
+    // SwiftData Model Container - Temporarily disabled until entities are fixed
+    let modelContainer: ModelContainer = {
+        do {
+            // Using empty schema for now
+            let schema = Schema([])
+            
+            let modelConfiguration = ModelConfiguration(
+                schema: schema,
+                isStoredInMemoryOnly: true, // Use in-memory for now
+                cloudKitDatabase: .none
+            )
+            
+            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+        } catch {
+            fatalError("Failed to create ModelContainer: \(error)")
+        }
+    }()
     
     var body: some Scene {
         WindowGroup {
             MainTabView(appState: appState)
                 .environmentObject(appState)
                 .environmentObject(voiceActivationService)
+                // .environmentObject(dataManager) // Temporarily disabled
+                .environmentObject(networkMonitor)
+                .environmentObject(gemmaService)
+                .modelContainer(modelContainer)
                 .preferredColorScheme(.dark) // Force dark mode for futuristic design
                 .onAppear {
+                    // ProductionConfiguration.configureForEnvironment() // Temporarily disabled
                     appState.initializeServices()
                     setupFuturisticAppearance()
                     initializeAvatarCompanion()
+                    checkExistingAuthentication()
                 }
                 .onChange(of: appState.isDarkMode) { _, _ in
                     appState.saveUserPreferences()
                 }
+        }
+    }
+    
+    private func checkExistingAuthentication() {
+        Task {
+            await appState.checkExistingAuthentication()
         }
     }
     
