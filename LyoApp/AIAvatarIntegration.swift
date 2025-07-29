@@ -17,45 +17,6 @@ struct DevelopmentConfig {
     // not hardcoded for security reasons
 }
 
-// MARK: - API Error Types
-enum APIError: Error, LocalizedError {
-    case invalidURL
-    case noData
-    case decodingError(Error)
-    case networkError(Error)
-    case serverError(Int, String?)
-    case unauthorized
-    case forbidden
-    case notFound
-    case timeout
-    case unknown(Error)
-    
-    var errorDescription: String? {
-        switch self {
-        case .invalidURL:
-            return "Invalid URL"
-        case .noData:
-            return "No data received"
-        case .decodingError(let error):
-            return "Failed to decode response: \(error.localizedDescription)"
-        case .networkError(let error):
-            return "Network error: \(error.localizedDescription)"
-        case .serverError(let code, let message):
-            return "Server error (\(code)): \(message ?? "Unknown error")"
-        case .unauthorized:
-            return "Unauthorized access"
-        case .forbidden:
-            return "Access forbidden"
-        case .notFound:
-            return "Resource not found"
-        case .timeout:
-            return "Request timed out"
-        case .unknown(let error):
-            return "Unknown error: \(error.localizedDescription)"
-        }
-    }
-}
-
 // MARK: - HTTP Methods
 // HTTPMethod is defined in NetworkLayer.swift to avoid duplication
 
@@ -282,7 +243,7 @@ class AIAvatarAPIClient: ObservableObject {
             do {
                 request.httpBody = try JSONEncoder().encode(body)
             } catch {
-                throw APIError.decodingError(error)
+                throw APIError.decodingError(error.localizedDescription)
             }
         }
         
@@ -294,7 +255,7 @@ class AIAvatarAPIClient: ObservableObject {
             let (data, response) = try await session.data(for: request)
             
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw APIError.networkError(NSError(domain: "Invalid response", code: 0))
+                throw APIError.networkError("Invalid response")
             }
             
             if DevelopmentConfig.enableDebugLogging {
@@ -308,17 +269,17 @@ class AIAvatarAPIClient: ObservableObject {
                 authToken = nil
                 throw APIError.unauthorized
             case 403:
-                throw APIError.forbidden
+                throw APIError.unauthorized
             case 404:
-                throw APIError.notFound
+                throw APIError.invalidResponse
             case 400...499:
                 let errorMessage = try? JSONDecoder().decode(ErrorResponse.self, from: data)
-                throw APIError.serverError(httpResponse.statusCode, errorMessage?.detail)
+                throw APIError.serverError(httpResponse.statusCode)
             case 500...599:
                 let errorMessage = try? JSONDecoder().decode(ErrorResponse.self, from: data)
-                throw APIError.serverError(httpResponse.statusCode, errorMessage?.detail)
+                throw APIError.serverError(httpResponse.statusCode)
             default:
-                throw APIError.serverError(httpResponse.statusCode, nil)
+                throw APIError.serverError(httpResponse.statusCode)
             }
             
             do {
@@ -326,14 +287,14 @@ class AIAvatarAPIClient: ObservableObject {
                 return result
             } catch {
                 logger.error("❌ Decoding error: \(error)")
-                throw APIError.decodingError(error)
+                throw APIError.decodingError(error.localizedDescription)
             }
             
         } catch let error as APIError {
             throw error
         } catch {
             logger.error("❌ Network error: \(error)")
-            throw APIError.networkError(error)
+            throw APIError.networkError(error.localizedDescription)
         }
     }
     
