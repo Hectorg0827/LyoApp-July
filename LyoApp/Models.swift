@@ -16,7 +16,6 @@ struct User: Codable, Identifiable {
     var level: Int
     var experience: Int
     var joinDate: Date
-    var isVerified: Bool
     
     init(
         id: UUID = UUID(),
@@ -31,8 +30,7 @@ struct User: Codable, Identifiable {
         badges: [UserBadge] = [],
         level: Int = 1,
         experience: Int = 0,
-        joinDate: Date = Date(),
-        isVerified: Bool = false
+        joinDate: Date = Date()
     ) {
         self.id = id
         self.username = username
@@ -47,14 +45,13 @@ struct User: Codable, Identifiable {
         self.level = level
         self.experience = experience
         self.joinDate = joinDate
-        self.isVerified = isVerified
     }
     
     // MARK: - Codable
     enum CodingKeys: String, CodingKey {
         case id, username, email, fullName, bio, profileImageURL
         case followers, following, posts, badges, level, experience
-        case joinDate, isVerified
+        case joinDate
     }
 }
 
