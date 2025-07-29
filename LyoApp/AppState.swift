@@ -85,6 +85,8 @@ enum AppError: LocalizedError, Equatable {
 /// Global application state manager
 @MainActor
 class AppState: ObservableObject {
+    static let shared = AppState()
+    
     @Published var isAuthenticated = false
     @Published var currentUser: User?
     @Published var isDarkMode = false
@@ -98,6 +100,8 @@ class AppState: ObservableObject {
     @Published var alertTitle = ""
     @Published var alertMessage = ""
     @Published var alertActions: [AlertAction] = []
+    @Published var errorMessage: String?
+    @Published var learningResources: [LearningResource] = []
     
     // MARK: - User Data Manager Integration
     // TODO: Re-enable UserDataManager integration after compilation issues resolved
