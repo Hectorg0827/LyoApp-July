@@ -230,8 +230,7 @@ struct AuthenticationView: View {
                     bio: "Welcome to LyoApp!",
                     followers: 0,
                     following: 0,
-                    posts: 0,
-                    isVerified: false
+                    posts: 0
                 )
                 
                 // Use AppState's new method for proper user management
@@ -265,8 +264,7 @@ struct AuthenticationView: View {
                     bio: "Welcome to LyoApp!",
                     followers: 0,
                     following: 0,
-                    posts: 0,
-                    isVerified: false
+                    posts: 0
                 )
                 
                 // Use AppState's new method for proper user management
