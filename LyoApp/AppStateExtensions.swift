@@ -1,4 +1,6 @@
 import SwiftUI
+import Foundation
+import SwiftData
 
 // MARK: - Enhanced App State with New Services
 extension AppState {
@@ -34,50 +36,118 @@ extension AppState {
         StorageManager.shared.saveUserPreference(isDarkMode, forKey: "isDarkMode")
     }
     
-    // MARK: - Enhanced Authentication
-        @MainActor
+    // MARK: - Enhanced Authentication with Real Backend
+    @MainActor
     func authenticateUser(email: String, password: String) async {
         isLoading = true
         
-        // Use real backend authentication
-        let success = await AIAvatarService.shared.authenticateWithUserCredentials(
-            email: email, 
-            password: password
-        )
-        
-        if success {
+        do {
+            // Use real API service for authentication
+            let authResponse = try await RealAPIService.shared.authenticate(email: email, password: password)
+            
+            // Store tokens securely
+            KeychainManager.shared.store(authResponse.accessToken, for: .authToken)
+            KeychainManager.shared.store(authResponse.refreshToken, for: .refreshToken)
+            
             // Create user from real authentication response
-            // TODO: Get actual user data from backend response
-            let user = User(
-                id: UUID(),
-                username: email.components(separatedBy: "@").first ?? "User",
+            let authenticatedUser = User(
+                username: authResponse.user.username,
                 email: email,
-                fullName: "User", // TODO: Get from backend
-                bio: "Learning with Lyo!",
-                profileImageURL: nil as String?,
-                followers: 0,
-                following: 0,
-                posts: 0,
-                badges: [],
-                level: 1,
-                experience: 0,
-                joinDate: Date(),
-                isVerified: false
+                fullName: authResponse.user.fullName
             )
             
-            currentUser = user
-            isAuthenticated = true
+            // Save user data locally
+            // try await DataManager.shared.saveUser(authenticatedUser) // Temporarily disabled
             
-            // Track analytics
-            AnalyticsManager.shared.trackUserAction("user_login", parameters: ["method": "email"])
+            // Update app state
+            self.currentUser = authenticatedUser
+            self.isAuthenticated = true
             
-            // Save authentication state
-            StorageManager.shared.saveUserPreference(true, forKey: "isAuthenticated")
-            StorageManager.shared.saveUserPreference(user, forKey: "currentUser")
+            // Initialize real backend services
+            RealAPIService.shared.setAuthenticatedUser(authenticatedUser)
             
-            print("✅ User authenticated successfully: \(email)")
-        } else {
-            print("❌ Authentication failed for: \(email)")
+        } catch {
+            // Handle any authentication errors
+            await MainActor.run {
+                self.errorMessage = "Authentication failed: \(error.localizedDescription)"
+            }
+        }
+        
+        isLoading = false
+    }
+    
+    @MainActor
+    func signUpUser(email: String, password: String, username: String, fullName: String?) async {
+        isLoading = true
+        
+        do {
+            // Use real API service for registration
+            let authResponse = try await RealAPIService.shared.register(
+                email: email,
+                password: password,
+                username: username,
+                fullName: fullName
+            )
+            
+            // Store tokens securely
+            KeychainManager.shared.store(authResponse.accessToken, for: .authToken)
+            KeychainManager.shared.store(authResponse.refreshToken, for: .refreshToken)
+            
+            // Create user from registration response
+            let newUser = User(
+                username: username,
+                email: email,
+                fullName: fullName ?? "New User"
+            )
+            
+            // Save user data locally
+            // try await DataManager.shared.saveUser(newUser) // Temporarily disabled
+            
+            // Update app state
+            self.currentUser = newUser
+            self.isAuthenticated = true
+            
+            // Initialize real backend services
+            RealAPIService.shared.setAuthenticatedUser(newUser)
+            
+        } catch {
+            // Handle any registration errors
+            await MainActor.run {
+                self.errorMessage = "Registration failed: \(error.localizedDescription)"
+            }
+        }
+        
+        isLoading = false
+    }
+    
+    @MainActor
+    func checkExistingAuthentication() async {
+        // Check for stored authentication tokens
+        guard let token = KeychainManager.shared.retrieve(.authToken) else {
+            return
+        }
+        
+        isLoading = true
+        
+        do {
+            // Validate token with backend
+            let userProfile = try await RealAPIService.shared.getCurrentUser()
+            
+            let authenticatedUser = User(
+                username: userProfile.username,
+                email: userProfile.email,
+                fullName: userProfile.fullName ?? "User"
+            )
+            
+            // Update app state
+            self.currentUser = authenticatedUser
+            self.isAuthenticated = true
+            
+            // Initialize real backend services
+            RealAPIService.shared.setAuthenticatedUser(authenticatedUser)
+            
+        } catch {
+            print("Failed to validate existing authentication: \(error)")
         }
         
         isLoading = false
@@ -85,18 +155,139 @@ extension AppState {
     
     @MainActor
     func signOut() {
-        isAuthenticated = false
-        currentUser = nil
+        // Clear stored tokens
+        KeychainManager.shared.deleteAll()
         
-        // Clear stored data
-        StorageManager.shared.saveUserPreference(false, forKey: "isAuthenticated")
-        UserDefaults.standard.removeObject(forKey: "currentUser")
+        // Clear app state
+        self.currentUser = nil
+        self.isAuthenticated = false
         
-        // Track analytics
-        AnalyticsManager.shared.trackUserAction("user_logout")
+        // Clear local data
+        Task {
+            // try? await DataManager.shared.clearUserData() // Temporarily disabled
+        }
     }
     
-    // MARK: - Enhanced Gamification
+    // MARK: - Learning Resources Integration
+    @MainActor
+    func loadLearningResources() async {
+        isLoading = true
+        
+        do {
+            // Try to load from API first
+            let resources = try await RealAPIService.shared.fetchLearningResources()
+            
+            // Save to local storage for offline access
+            // try await DataManager.shared.saveLearningResources(resources) // Temporarily disabled
+            
+            self.learningResources = resources
+            
+        } catch {
+            print("Failed to load learning resources: \(error)")
+            // Fallback to mock data
+            self.learningResources = generateMockLearningResources()
+        }
+        
+        isLoading = false
+    }
+    
+    @MainActor
+    func trackProgress(for resourceId: String, progress: Double, timeSpent: TimeInterval, isCompleted: Bool = false) async {
+        guard currentUser != nil else { return }
+        
+        do {
+            // Update progress on backend
+            try await RealAPIService.shared.updateProgress(
+                resourceId: resourceId,
+                progress: progress,
+                timeSpent: timeSpent,
+                isCompleted: isCompleted
+            )
+            
+            // Save progress locally
+            // try await DataManager.shared.saveUserProgress( // Temporarily disabled
+            //     currentUser.id,
+            //     resourceId: resourceId,
+            //     progress: progress,
+            //     timeSpent: timeSpent,
+            //     isCompleted: isCompleted
+            // )
+            
+        } catch {
+            print("Failed to track progress: \(error)")
+            // Still save locally even if backend fails
+            // try? await DataManager.shared.saveUserProgress( // Temporarily disabled
+            //     currentUser.id,
+            //     resourceId: resourceId,
+            //     progress: progress,
+            //     timeSpent: timeSpent,
+            //     isCompleted: isCompleted
+            // )
+        }
+    }
+    
+    // MARK: - Legacy Support - TODO: Remove after migration
+    func authenticateWithMockUser() {
+        // Legacy mock authentication - keep for compatibility during migration
+        let mockUser = User(
+            username: "mock_user",
+            email: "mock@example.com",
+            fullName: "Mock User"
+        )
+        
+        self.currentUser = mockUser
+        self.isAuthenticated = true
+    }
+    
+    // MARK: - Mock Data Generation for Development
+    private func generateMockLearningResources() -> [LearningResource] {
+        return [
+            LearningResource(
+                title: "Introduction to SwiftUI",
+                description: "Learn the basics of SwiftUI development",
+                contentType: .video,
+                sourcePlatform: .youtube,
+                authorCreator: "Apple Developer",
+                tags: ["swift", "ios", "ui"],
+                thumbnailURL: URL(string: "https://example.com/thumb1.jpg")!,
+                contentURL: URL(string: "https://example.com/video1.mp4")!,
+                difficultyLevel: .beginner,
+                estimatedDuration: "30 minutes",
+                rating: 4.5,
+                category: "iOS Development"
+            ),
+            LearningResource(
+                title: "Advanced Swift Concepts",
+                description: "Deep dive into advanced Swift programming",
+                contentType: .article,
+                sourcePlatform: .curated,
+                authorCreator: "Swift Expert",
+                tags: ["swift", "programming", "advanced"],
+                thumbnailURL: URL(string: "https://example.com/thumb2.jpg")!,
+                contentURL: URL(string: "https://example.com/article1.html")!,
+                difficultyLevel: .advanced,
+                estimatedDuration: "45 minutes",
+                rating: 4.8,
+                category: "Programming"
+            ),
+            LearningResource(
+                title: "Core Data Fundamentals",
+                description: "Master data persistence in iOS apps",
+                contentType: .course,
+                sourcePlatform: .udemy,
+                authorCreator: "iOS Academy",
+                tags: ["coredata", "persistence", "ios"],
+                thumbnailURL: URL(string: "https://example.com/thumb3.jpg")!,
+                contentURL: URL(string: "https://example.com/course1")!,
+                difficultyLevel: .intermediate,
+                estimatedDuration: "60 minutes",
+                rating: 4.3,
+                category: "Data Management"
+            )
+        ]
+    }
+    
+    // MARK: - XP and Achievements System
     func awardXP(_ amount: Int, reason: String) {
         guard var user = currentUser else { return }
         
@@ -190,12 +381,14 @@ extension View {
     func trackScreenView(_ screenName: String) -> some View {
         self.onAppear {
             AnalyticsManager.shared.trackScreenView(screenName)
+            print("📊 Screen View: \(screenName)")
         }
     }
     
     func trackUserAction(_ action: String, parameters: [String: Any] = [:]) -> some View {
         self.onTapGesture {
             AnalyticsManager.shared.trackUserAction(action, parameters: parameters)
+            print("📊 User Action: \(action)")
         }
     }
 }
