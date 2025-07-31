@@ -8,10 +8,10 @@ struct LearnTabView: View {
     @State private var isSearchFocused = false
     @FocusState private var searchFieldFocused: Bool
     
-    // Educational content data - TODO: Integrate with UserDataManager
-    @State private var courses: [Course] = [] // Course.sampleCourses - using empty array until real data integration
-    @State private var videos: [EducationalVideo] = [] // EducationalVideo.sampleVideos - using empty array until real data integration
-    @State private var ebooks: [Ebook] = [] // Ebook.sampleEbooks - using empty array until real data integration
+    // Educational content data - loaded from UserDataManager
+    @State private var courses: [Course] = []
+    @State private var videos: [EducationalVideo] = []
+    @State private var ebooks: [Ebook] = []
     @State private var recentlyViewed: [EducationalContentItem] = []
     @State private var favorites: [EducationalContentItem] = []
     @State private var watchLater: [EducationalContentItem] = []
@@ -298,12 +298,23 @@ struct LearnTabView: View {
     
     // MARK: - Helper Functions
     private func loadEducationalContent() {
-        // Simulate loading recently viewed content
-        let sampleRecentItems = [
-            EducationalContentItem.course(courses.first!),
-            EducationalContentItem.video(videos.first!),
-            EducationalContentItem.ebook(ebooks.first!)
-        ]
+        // Load real data from UserDataManager
+        courses = UserDataManager.shared.getCourses()
+        videos = UserDataManager.shared.getEducationalVideos()
+        ebooks = UserDataManager.shared.getEbooks()
+        
+        // Create recently viewed content from available data
+        var sampleRecentItems: [EducationalContentItem] = []
+        
+        if let firstCourse = courses.first {
+            sampleRecentItems.append(EducationalContentItem.course(firstCourse))
+        }
+        if let firstVideo = videos.first {
+            sampleRecentItems.append(EducationalContentItem.video(firstVideo))
+        }
+        if let firstEbook = ebooks.first {
+            sampleRecentItems.append(EducationalContentItem.ebook(firstEbook))
+        }
         
         recentlyViewed = sampleRecentItems
         favorites = Array(sampleRecentItems.prefix(2))
