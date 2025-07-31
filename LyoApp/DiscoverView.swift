@@ -9,17 +9,22 @@ class DiscoverManager: ObservableObject {
     @Published var feedPosts: [Post] = []
     @Published var refreshing = false
     
+    private let userDataManager = UserDataManager.shared
+    
     func loadContent() {
-        // Simulate loading discover content
-        content = []
+        content = userDataManager.getDiscoverContent()
     }
     
     func preload() async {
         isLoading = true
-        // Simulate loading
+        // Load real data from UserDataManager
+        await MainActor.run {
+            content = userDataManager.getDiscoverContent()
+            feedPosts = userDataManager.getUserPosts()
+        }
+        
+        // Simulate network delay
         try? await Task.sleep(nanoseconds: 500_000_000)
-        // TODO: Replace with real data from UserDataManager
-        feedPosts = [] // Post.samplePosts.shuffled() - using empty array until real data integration
         isLoading = false
     }
     
@@ -32,8 +37,8 @@ class DiscoverManager: ObservableObject {
         isSearching = true
         // Simulate search
         try? await Task.sleep(nanoseconds: 300_000_000)
-        // TODO: Integrate with UserDataManager.shared.searchDiscoverContent(query)
-        content = [] // Empty array until real data integration
+        // Search content using UserDataManager
+        content = UserDataManager.shared.searchDiscoverContent(query)
         isSearching = false
     }
     
@@ -41,8 +46,8 @@ class DiscoverManager: ObservableObject {
         isLoading = true
         // Simulate category filtering
         try? await Task.sleep(nanoseconds: 300_000_000)
-        // TODO: Integrate with UserDataManager.shared.getDiscoverContentByCategory(category)
-        content = [] // Empty array until real data integration
+        // Filter content by category using UserDataManager
+        content = UserDataManager.shared.getDiscoverContentByCategory(category)
         isLoading = false
     }
     
@@ -50,16 +55,6 @@ class DiscoverManager: ObservableObject {
         content.removeAll()
         feedPosts.removeAll()
     }
-}
-
-struct DiscoverContent: Identifiable {
-    let id = UUID()
-    let title: String
-    let description: String
-    
-    // MARK: - Sample Data Removed
-    // All sample content moved to UserDataManager for real data management
-    // static let sampleContent = [] // Use UserDataManager.shared.getDiscoverContent()
 }
 
 struct DiscoverView: View {
