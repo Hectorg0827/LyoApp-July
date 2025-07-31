@@ -3,16 +3,101 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var voiceActivationService: VoiceActivationService
+    @StateObject private var userDataManager = UserDataManager.shared
     @State private var showingAIFlow = false
     @State private var showingStoryDrawer = false
+    @State private var videos: [VideoPost] = []
+    @State private var isLoading = true
     
     var body: some View {
-        TikTokStyleHomeView()
-            .onAppear {
-                // Initialize app without mock data
-                // User authentication should happen through proper login flow
-                print("📱 LyoApp initialized - waiting for user authentication")
+        NavigationView {
+            VStack {
+                if isLoading {
+                    ProgressView("Loading content...")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if videos.isEmpty {
+                    EmptyStateView(
+                        icon: "video.circle",
+                        title: "No Videos Yet",
+                        description: "Start exploring and saving videos to see them here"
+                    )
+                } else {
+                    TikTokStyleHomeView()
+                }
             }
+            .onAppear {
+                loadContent()
+            }
+            .refreshable {
+                await refreshContent()
+            }
+        }
+    }
+    
+    private func loadContent() {
+        Task {
+            let educationalVideos = userDataManager.getEducationalVideos()
+            
+            // Convert EducationalVideo to VideoPost for display
+            await MainActor.run {
+                self.videos = educationalVideos.map { convertToVideoPost($0) }
+                self.isLoading = false
+            }
+            
+            // Track analytics
+            AnalyticsManager.shared.trackScreenView("content_view")
+        }
+    }
+    
+    private func refreshContent() async {
+        await MainActor.run {
+            isLoading = true
+            loadContent()
+        }
+    }
+    
+    private func convertToVideoPost(_ educationalVideo: EducationalVideo) -> VideoPost {
+        return VideoPost(
+            id: educationalVideo.id,
+            author: appState.currentUser ?? User(username: "Unknown", email: "", fullName: "Unknown"),
+            videoURL: educationalVideo.videoURL,
+            thumbnailURL: educationalVideo.thumbnailURL ?? "",
+            caption: educationalVideo.description,
+            timestamp: Date(),
+            likeCount: 0,
+            commentCount: 0,
+            shareCount: 0,
+            isLiked: false
+        )
+    }
+}
+
+// MARK: - Empty State View
+struct EmptyStateView: View {
+    let icon: String
+    let title: String
+    let description: String
+    
+    var body: some View {
+        VStack(spacing: DesignTokens.Spacing.large) {
+            Image(systemName: icon)
+                .font(.system(size: 64))
+                .foregroundColor(DesignTokens.Colors.textSecondary)
+            
+            VStack(spacing: DesignTokens.Spacing.small) {
+                Text(title)
+                    .font(DesignTokens.Typography.title)
+                    .fontWeight(.semibold)
+                    .foregroundColor(DesignTokens.Colors.textPrimary)
+                
+                Text(description)
+                    .font(DesignTokens.Typography.body)
+                    .foregroundColor(DesignTokens.Colors.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, DesignTokens.Spacing.large)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
@@ -324,32 +409,12 @@ class VideoFeedViewModel: ObservableObject {
         // Load real data using UserDataManager
         Task {
             await MainActor.run {
-                // TODO: Implement getUserVideos() in UserDataManager
-                // self.videos = UserDataManager.shared.getUserVideos()
-                self.videos = [] // Empty until real data loading is implemented
+                // Load videos from UserDataManager
+                self.videos = UserDataManager.shared.getUserVideos()
                 self.isLoading = false
             }
         }
     }
-}
-
-// MARK: - Video Post Model
-struct VideoPost: Identifiable {
-    let id = UUID()
-    let author: User
-    let title: String
-    let videoURL: String
-    let thumbnailURL: String
-    var likes: Int
-    var comments: Int
-    var shares: Int
-    var isLiked: Bool = false
-    let hashtags: [String]
-    let createdAt: Date
-    
-    // MARK: - Sample Data Removed
-    // All sample videos moved to UserDataManager for real data management
-    // static let sampleVideos = [] // Use UserDataManager.shared.getUserVideos()
 }
 
 #Preview {
