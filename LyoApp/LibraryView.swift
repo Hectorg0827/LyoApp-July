@@ -409,50 +409,20 @@ class LibraryViewModel: ObservableObject {
     @Published var saved: [SavedItem] = []
     
     func loadLibrary() {
-        // TODO: Replace with real API call to UserDataManager
+        // Load real data from UserDataManager
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.aiRecommended = [] // Use UserDataManager.shared.getRecommendedCourses()
-            self.inProgress = [] // Use UserDataManager.shared.getInProgressCourses()
-            self.completed = [] // Use UserDataManager.shared.getCompletedCourses()
-            self.saved = [] // Use UserDataManager.shared.getSavedItems()
+            self.aiRecommended = UserDataManager.shared.getRecommendedCourses()
+            self.inProgress = UserDataManager.shared.getInProgressCourses()
+            self.completed = UserDataManager.shared.getCompletedCourses()
+            self.saved = UserDataManager.shared.getSavedItems()
         }
     }
 }
 
-// MARK: - Models
-struct LibraryCourse: Identifiable {
-    let id = UUID()
-    let title: String
-    let instructor: String
-    let thumbnailURL: String
-    let rating: Double
-    let duration: String
-    let progress: Double
-    let completedDate: String?
-    
-    // MARK: - Sample Data Removed
-    // All sample courses moved to UserDataManager for real data management
-    // static let sampleRecommended = [] // Use UserDataManager.shared.getRecommendedCourses()
-    // static let sampleInProgress = [] // Use UserDataManager.shared.getInProgressCourses()
-    // static let sampleCompleted = [] // Use UserDataManager.shared.getCompletedCourses()
 }
 
-struct SavedItem: Identifiable {
-    let id = UUID()
-    let title: String
-    let author: String
-    let thumbnailURL: String?
-    let type: SavedItemType
-    let savedDate: String
-    
-    enum SavedItemType {
-        case video
-        case article
-        case post
-    }
-    
-    // MARK: - Sample Data Removed
-    // All sample saved items moved to UserDataManager for real data management
-    // static let sampleSaved = [] // Use UserDataManager.shared.getSavedItems()
+#Preview {
+    LibraryView()
+        .environmentObject(AppState())
 }
 
