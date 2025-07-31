@@ -7,6 +7,7 @@ struct LearningHubView: View {
     
     // MARK: - Environment and State
     @EnvironmentObject var appState: AppState
+    @StateObject private var userDataManager = UserDataManager.shared
     @StateObject private var searchViewModel = LearningSearchViewModel()
     @StateObject private var suggestionsViewModel = SearchSuggestionsViewModel()
     
@@ -345,69 +346,156 @@ struct LearningHubView: View {
     private func loadInitialContent() {
         Task {
             await loadFeaturedContent()
-            await loadTrendingContent()
+            await loadTrendingContent() 
             await loadRecommendedContent()
             await loadRecentContent()
         }
     }
     
     private func loadFeaturedContent() async {
-        do {
+        await MainActor.run {
             isLoadingFeatured = true
-            let featured = try await apiService.fetchResources(for: "featured", limit: 5)
             
-            await MainActor.run {
-                self.featuredContent = featured
-                self.isLoadingFeatured = false
-                print("✅ FEATURED: Loaded \(featured.count) featured resources")
+            // Use UserDataManager to get educational videos and convert to LearningResource
+            let educationalVideos = userDataManager.getEducationalVideos()
+            let ebooks = userDataManager.getEbooks()
+            
+            // Convert to LearningResource format
+            var resources: [LearningResource] = []
+            
+            // Add videos as learning resources
+            resources += educationalVideos.prefix(3).map { video in
+                LearningResource(
+                    id: video.id,
+                    title: video.title,
+                    description: video.description,
+                    contentType: .video,
+                    sourcePlatform: .curated,
+                    thumbnailURL: URL(string: video.thumbnailURL ?? "") ?? URL(string: "https://example.com/default.jpg")!,
+                    contentURL: URL(string: video.videoURL) ?? URL(string: "https://example.com/default.mp4")!,
+                    difficultyLevel: video.difficulty,
+                    estimatedDuration: "\(video.duration) min",
+                    category: video.category
+                )
             }
-        } catch {
-            await MainActor.run {
-                self.isLoadingFeatured = false
-                self.handleError(error)
+            
+            // Add ebooks as learning resources
+            resources += ebooks.prefix(2).map { ebook in
+                LearningResource(
+                    id: ebook.id,
+                    title: ebook.title,
+                    description: ebook.description,
+                    contentType: .ebook,
+                    sourcePlatform: .curated,
+                    authorCreator: ebook.author,
+                    thumbnailURL: URL(string: ebook.coverImageURL ?? "") ?? URL(string: "https://example.com/default.jpg")!,
+                    contentURL: URL(string: ebook.fileURL ?? "") ?? URL(string: "https://example.com/default.pdf")!,
+                    category: ebook.category
+                )
             }
+            
+            self.featuredContent = resources
+            self.isLoadingFeatured = false
+            print("✅ FEATURED: Loaded \(resources.count) featured resources from UserDataManager")
         }
     }
     
     private func loadTrendingContent() async {
-        do {
+        await MainActor.run {
             isLoadingTrending = true
-            let trending = try await apiService.fetchResources(for: "trending", limit: 10)
             
-            await MainActor.run {
-                self.trendingContent = trending
-                self.isLoadingTrending = false
-                print("✅ TRENDING: Loaded \(trending.count) trending resources")
+            // Use UserDataManager content for trending
+            let educationalVideos = userDataManager.getEducationalVideos()
+            let resources = educationalVideos.map { video in
+                LearningResource(
+                    id: video.id,
+                    title: video.title,
+                    description: video.description,
+                    contentType: .video,
+                    sourcePlatform: .curated,
+                    thumbnailURL: URL(string: video.thumbnailURL ?? "") ?? URL(string: "https://example.com/default.jpg")!,
+                    contentURL: URL(string: video.videoURL) ?? URL(string: "https://example.com/default.mp4")!,
+                    difficultyLevel: video.difficulty,
+                    estimatedDuration: "\(video.duration) min",
+                    category: video.category
+                )
             }
-        } catch {
-            await MainActor.run {
-                self.isLoadingTrending = false
-                self.handleError(error)
-            }
+            
+            self.trendingContent = resources
+            self.isLoadingTrending = false
+            print("✅ TRENDING: Loaded \(resources.count) trending resources from UserDataManager")
         }
     }
     
     private func loadRecommendedContent() async {
-        do {
+        await MainActor.run {
             isLoadingRecommended = true
-            let recommended = try await apiService.fetchResources(for: "recommended", limit: 10)
             
-            await MainActor.run {
-                self.recommendedContent = recommended
-                self.isLoadingRecommended = false
-                print("✅ RECOMMENDED: Loaded \(recommended.count) recommended resources")
+            // Use UserDataManager content for recommendations
+            let ebooks = userDataManager.getEbooks()
+            let resources = ebooks.map { ebook in
+                LearningResource(
+                    id: ebook.id,
+                    title: ebook.title,
+                    description: ebook.description,
+                    contentType: .ebook,
+                    sourcePlatform: .curated,
+                    authorCreator: ebook.author,
+                    thumbnailURL: URL(string: ebook.coverImageURL ?? "") ?? URL(string: "https://example.com/default.jpg")!,
+                    contentURL: URL(string: ebook.fileURL ?? "") ?? URL(string: "https://example.com/default.pdf")!,
+                    category: ebook.category
+                )
             }
-        } catch {
-            await MainActor.run {
-                self.isLoadingRecommended = false
-                self.handleError(error)
-            }
+            
+            self.recommendedContent = resources
+            self.isLoadingRecommended = false
+            print("✅ RECOMMENDED: Loaded \(resources.count) recommended resources from UserDataManager")
         }
     }
     
     private func loadRecentContent() async {
-        // Load from local storage or API
-        // For now, use sample data
+        await MainActor.run {
+            // Combine recent videos and ebooks for recent content
+            let educationalVideos = userDataManager.getEducationalVideos()
+            let ebooks = userDataManager.getEbooks()
+            
+            var resources: [LearningResource] = []
+            
+            // Add recent videos
+            resources += educationalVideos.suffix(2).map { video in
+                LearningResource(
+                    id: video.id,
+                    title: video.title,
+                    description: video.description,
+                    contentType: .video,
+                    sourcePlatform: .curated,
+                    thumbnailURL: URL(string: video.thumbnailURL ?? "") ?? URL(string: "https://example.com/default.jpg")!,
+                    contentURL: URL(string: video.videoURL) ?? URL(string: "https://example.com/default.mp4")!,
+                    difficultyLevel: video.difficulty,
+                    estimatedDuration: "\(video.duration) min",
+                    category: video.category
+                )
+            }
+            
+            // Add recent ebooks
+            resources += ebooks.suffix(1).map { ebook in
+                LearningResource(
+                    id: ebook.id,
+                    title: ebook.title,
+                    description: ebook.description,
+                    contentType: .ebook,
+                    sourcePlatform: .curated,
+                    authorCreator: ebook.author,
+                    thumbnailURL: URL(string: ebook.coverImageURL ?? "") ?? URL(string: "https://example.com/default.jpg")!,
+                    contentURL: URL(string: ebook.fileURL ?? "") ?? URL(string: "https://example.com/default.pdf")!,
+                    category: ebook.category
+                )
+            }
+            
+            self.recentContent = resources
+            print("✅ RECENT: Loaded \(resources.count) recent resources from UserDataManager")
+        }
+    }
         await MainActor.run {
             self.recentContent = Array(LearningResource.sampleResources.prefix(3))
             print("✅ RECENT: Loaded \(self.recentContent.count) recent resources")
