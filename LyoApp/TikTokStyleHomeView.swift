@@ -370,8 +370,8 @@ class VideoFeedViewModel: ObservableObject {
         
         // Simulate API call
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            // TODO: Integrate with UserDataManager.shared.getUserVideos()
-            self.videos = [] // Empty array until real data integration
+            // Load videos from UserDataManager
+            self.videos = UserDataManager.shared.getUserVideos()
             self.isLoading = false
         }
     }
