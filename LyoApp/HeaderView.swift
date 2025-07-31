@@ -9,6 +9,7 @@ import SwiftUI
 import Combine
 
 struct HeaderView: View {
+    @StateObject private var userDataManager = UserDataManager.shared
     @State private var isDrawerExpanded = false
     @State private var buttonPosition: CGFloat = UIScreen.main.bounds.width - 70 // Start position (right side)
     @State private var glowIntensity: Double = 0.3
@@ -16,6 +17,7 @@ struct HeaderView: View {
     @State private var consciousnessLevel: Double = 0.1
     @State private var showIcons = false
     @State private var showStories = false
+    @State private var stories: [Story] = []
     
     // Quantum animation timer
     @State private var quantumTimer: Timer?
@@ -102,6 +104,7 @@ struct HeaderView: View {
         }
         .onAppear {
             startQuantumAnimations()
+            loadStories()
         }
         .onDisappear {
             stopQuantumAnimations()
@@ -252,8 +255,12 @@ struct HeaderView: View {
                     
                     // User stories
                     // TODO: Replace with real user stories from UserDataManager
-                    ForEach([MockStory](), id: \.username) { story in
-                        FuturisticStoryCircle(story: story)
+                    ForEach(stories, id: \.id) { story in
+                        StoryCircle(story: story)
+                            .onTapGesture {
+                                // Handle story tap
+                                print("Story tapped: \(story.user.username)")
+                            }
                     }
                 }
                 .padding(.horizontal, 20)
@@ -358,6 +365,10 @@ struct HeaderView: View {
         quantumTimer = nil
     }
     
+    private func loadStories() {
+        stories = userDataManager.getUserStories()
+    }
+    
     private func getQuantumColor(for index: Int) -> Color {
         let hue = (240.0 + Double(index) * 20) / 360 // Blue-purple spectrum
         return Color(hue: hue, saturation: 0.8, brightness: 0.7)
@@ -366,13 +377,85 @@ struct HeaderView: View {
 
 // MARK: - Futuristic Story Circle
 struct FuturisticStoryCircle: View {
-    let story: MockStory
+    let story: Story
     @State private var isPressed = false
     
     var body: some View {
         Button(action: {
             HapticManager.shared.medium()
-            print("Story tapped: \(story.username)")
+        }) {
+            ZStack {
+                // Quantum ring border
+                Circle()
+                    .strokeBorder(
+                        AngularGradient(
+                            colors: [.cyan, .purple, .blue, .cyan],
+                            center: .center
+                        ),
+                        lineWidth: 2
+                    )
+                    .frame(width: 70, height: 70)
+                    .blur(radius: 0.5)
+                
+                // Avatar image
+                AsyncImage(url: URL(string: story.mediaURL)) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 60, height: 60)
+                        .clipShape(Circle())
+                } placeholder: {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [.purple, .blue],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 60, height: 60)
+                        .overlay(
+                            Text(String(story.user.username.prefix(1).uppercased()))
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                        )
+                }
+                
+                // Holographic overlay effect
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [
+                                Color.white.opacity(0.2),
+                                Color.clear
+                            ],
+                            center: .topLeading,
+                            startRadius: 5,
+                            endRadius: 30
+                        )
+                    )
+                    .frame(width: 60, height: 60)
+                    .blendMode(.overlay)
+            }
+            .scaleEffect(isPressed ? 0.95 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .onLongPressGesture(minimumDuration: 0) { pressing in
+            isPressed = pressing
+        } perform: {}
+    }
+}
+
+// MARK: - Story Circle Component
+struct StoryCircle: View {
+    let story: Story
+    @State private var isPressed = false
+    
+    var body: some View {
+        Button(action: {
+            print("Story tapped: \(story.user.username)")
         }) {
             VStack(spacing: 8) {
                 ZStack {
@@ -384,8 +467,6 @@ struct FuturisticStoryCircle: View {
                                     colors: [
                                         DesignTokens.Colors.brand,
                                         DesignTokens.Colors.accent,
-                                        Color.cyan,
-                                        Color.purple,
                                         DesignTokens.Colors.brand
                                     ],
                                     center: .center
@@ -393,35 +474,30 @@ struct FuturisticStoryCircle: View {
                                 lineWidth: 3
                             )
                             .frame(width: 70, height: 70)
-                            .shadow(color: DesignTokens.Colors.brand.opacity(0.6), radius: 8)
+                            .opacity(0.9)
                     }
                     
-                    // Avatar container
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(0.9),
-                                    Color.gray.opacity(0.1)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
+                    // Avatar
+                    AsyncImage(url: URL(string: story.user.avatarURL)) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Circle()
+                            .fill(DesignTokens.Colors.primaryGradient)
+                            .overlay(
+                                Text(String(story.user.username.prefix(1)).uppercased())
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
                             )
-                        )
-                        .frame(width: 60, height: 60)
-                        .overlay(
-                            // Avatar image or icon
-                            Image(systemName: "person.circle.fill")
-                                .font(.system(size: 30))
-                                .foregroundColor(DesignTokens.Colors.brand)
-                        )
-                        .shadow(color: .black.opacity(0.1), radius: 5)
+                    }
+                    .frame(width: 60, height: 60)
+                    .clipShape(Circle())
                 }
-                .scaleEffect(isPressed ? 0.95 : 1.0)
                 
-                // Username
-                Text(story.username)
-                    .font(.system(size: 11, weight: .medium))
+                Text(story.user.username)
+                    .font(DesignTokens.Typography.caption2)
                     .foregroundColor(DesignTokens.Colors.textSecondary)
                     .lineLimit(1)
             }
@@ -434,33 +510,18 @@ struct FuturisticStoryCircle: View {
     }
 }
 
-// MARK: - Helper Extension (reuse from original HeaderView)
+// MARK: - Helper Extension
 extension View {
     func pressEvents(onPress: @escaping () -> Void, onRelease: @escaping () -> Void) -> some View {
-        self.onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity, pressing: { pressing in
+        self.onLongPressGesture(minimumDuration: 0) { pressing in
             if pressing {
                 onPress()
             } else {
                 onRelease()
             }
-        }, perform: {})
+        } perform: {}
     }
 }
-
-// MARK: - Mock Data
-// MARK: - Story Models (Placeholder - TODO: Move to proper models)
-struct MockStory: Identifiable {
-    let id = UUID()
-    let username: String
-    let hasNewStory: Bool
-    
-    // MARK: - Sample Data Removed
-    // All mock stories moved to UserDataManager for real data management
-    // static let mockStories = [] // Use UserDataManager.shared.getUserStories()
-}
-
-// MARK: - Global Access (TODO: Remove when UserDataManager integration is complete)
-let mockStories: [MockStory] = [] // Empty array until real data integration
 
 #Preview {
     HeaderView()
