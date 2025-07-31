@@ -847,3 +847,66 @@ enum LearningSectionType: String, CaseIterable {
 // extension Ebook {
 //     // Sample ebooks moved to UserDataManager for real data management
 // }
+
+// MARK: - Library Models
+struct LibraryCourse: Identifiable {
+    let id = UUID()
+    let title: String
+    let instructor: String
+    let thumbnailURL: String
+    let rating: Double
+    let duration: String
+    let progress: Double
+    let completedDate: String?
+}
+
+struct SavedItem: Identifiable {
+    let id = UUID()
+    let title: String
+    let author: String
+    let thumbnailURL: String?
+    let type: SavedItemType
+    let savedDate: String
+    
+    enum SavedItemType {
+        case video
+        case article
+        case post
+    }
+}
+
+// MARK: - Profile Models
+struct Achievement: Identifiable {
+    let id = UUID()
+    let title: String
+    let description: String
+    let icon: String
+    let isUnlocked: Bool
+    let unlockedDate: Date?
+}
+
+// MARK: - Video Feed Models
+struct VideoPost: Identifiable {
+    let id = UUID()
+    let author: User
+    let title: String
+    let videoURL: String
+    let thumbnailURL: String
+    var likes: Int
+    var comments: Int
+    var shares: Int
+    var isLiked: Bool = false
+    let hashtags: [String]
+    let createdAt: Date
+}
+
+// MARK: - Discover Models
+struct DiscoverContent: Identifiable {
+    let id = UUID()
+    let title: String
+    let description: String
+    let category: String
+    let imageURL: String?
+    let author: String
+    let createdAt: Date
+}
