@@ -264,12 +264,60 @@ struct ProfileView: View {
     
     private var coursesTab: some View {
         LazyVStack(spacing: DesignTokens.Spacing.md) {
-            // TODO: Replace with real data from UserDataManager
-            ForEach([], id: \.id) { (course: LibraryCourse) in
-                CompletedCourseCard(course: course)
+            // Get completed courses from UserDataManager
+            ForEach(UserDataManager.shared.getCompletedCourses(), id: \.id) { course in
+                HStack(spacing: DesignTokens.Spacing.md) {
+                    AsyncImage(url: URL(string: course.thumbnailURL)) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Rectangle()
+                            .fill(DesignTokens.Colors.primaryGradient)
+                            .overlay(
+                                Image(systemName: "checkmark.circle")
+                                    .font(.title2)
+                                    .foregroundColor(.white)
+                            )
+                    }
+                    .frame(width: 80, height: 60)
+                    .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.sm))
+                    
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
+                        Text(course.title)
+                            .font(DesignTokens.Typography.bodyMedium)
+                            .foregroundColor(DesignTokens.Colors.textPrimary)
+                            .lineLimit(2)
+                        
+                        Text(course.instructor)
+                            .font(DesignTokens.Typography.caption)
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
+                        
+                        HStack {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(DesignTokens.Colors.success)
+                                .font(.caption)
+                            
+                            Text("Completed")
+                                .font(DesignTokens.Typography.caption)
+                                .foregroundColor(DesignTokens.Colors.success)
+                        }
+                    }
+                    
+                    Spacer()
+                }
+                .padding(DesignTokens.Spacing.md)
+                .background(
+                    RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                        .fill(DesignTokens.Colors.glassBg)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                                .strokeBorder(DesignTokens.Colors.glassBorder, lineWidth: 1)
+                        )
+                )
+                .padding(.horizontal, DesignTokens.Spacing.lg)
             }
         }
-        .padding(.horizontal, DesignTokens.Spacing.lg)
     }
     
     private var achievementsTab: some View {
@@ -277,8 +325,8 @@ struct ProfileView: View {
             GridItem(.flexible()),
             GridItem(.flexible())
         ], spacing: DesignTokens.Spacing.md) {
-            // TODO: Integrate with UserDataManager.shared.getUserAchievements()
-            ForEach([Achievement]()) { achievement in
+            // Get achievements from UserDataManager
+            ForEach(UserDataManager.shared.getUserAchievements()) { achievement in
                 AchievementCard(achievement: achievement)
             }
         }
@@ -437,19 +485,6 @@ struct AchievementCard: View {
 }
 
 // MARK: - Achievement Model
-struct Achievement: Identifiable {
-    let id = UUID()
-    let title: String
-    let description: String
-    let icon: String
-    let isUnlocked: Bool
-    let unlockedDate: Date?
-    
-    // MARK: - Sample Data Removed
-    // All sample achievements moved to UserDataManager for real data management
-    // static let sampleAchievements = [] // Use UserDataManager.shared.getUserAchievements()
-}
-
 #Preview {
     ProfileView()
         .environmentObject(AppState())
