@@ -104,7 +104,7 @@ class AppState: ObservableObject {
     @Published var learningResources: [LearningResource] = []
     
     // MARK: - User Data Manager Integration
-    // TODO: Re-enable UserDataManager integration after compilation issues resolved
+    // TODO: Re-enable after fixing circular dependency
     // private let userDataManager = UserDataManager.shared
     
     // MARK: - Lyo AI State
@@ -148,7 +148,7 @@ class AppState: ObservableObject {
     }
     
     private func setupUserDataManagerSync() {
-        // TODO: Re-enable UserDataManager sync after compilation issues resolved
+        // TODO: Re-enable UserDataManager sync
         // Sync current user from UserDataManager
         // currentUser = userDataManager.currentUser
         // isAuthenticated = currentUser != nil
@@ -167,7 +167,7 @@ class AppState: ObservableObject {
     
     /// Set authenticated user and sync with data manager
     func setAuthenticatedUser(_ user: User) {
-        // TODO: Re-enable UserDataManager sync after compilation issues resolved
+        // TODO: Re-enable UserDataManager sync
         // userDataManager.setCurrentUser(user)
         currentUser = user
         isAuthenticated = true
@@ -177,7 +177,7 @@ class AppState: ObservableObject {
     
     /// Log out current user
     func logoutUser() {
-        // TODO: Re-enable UserDataManager sync after compilation issues resolved
+        // TODO: Re-enable UserDataManager sync
         // userDataManager.clearUserData()
         currentUser = nil
         isAuthenticated = false
