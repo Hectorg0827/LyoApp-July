@@ -26,32 +26,13 @@
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
-		<key>NSExceptionDomains</key>
-		<dict>
-			<key>127.0.0.1</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-				<key>NSExceptionMinimumTLSVersion</key>
-				<string>1.0</string>
-			</dict>
-			<key>localhost</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-				<key>NSExceptionMinimumTLSVersion</key>
-				<string>1.0</string>
-			</dict>
-		</dict>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Lyo needs camera access for visual learning features and content creation.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Lyo can use location to provide contextual learning experiences.</string>
+	<string>Lyo uses camera for profile pictures and content creation</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Lyo needs microphone access for voice interactions and 'Hey Lyo' wake word detection.</string>
+	<string>Lyo uses microphone for video content and voice messages</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Lyo needs photo library access to save your learning progress and visual content.</string>
+	<string>Lyo accesses photos for profile pictures and content sharing</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
