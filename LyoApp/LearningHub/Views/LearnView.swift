@@ -1,8 +1,8 @@
 import SwiftUI
 import Combine
 
-// MARK: - Main Learn View
-/// Primary learning hub interface with search, filtering, and content discovery
+// MARK: - Learn View (Alternative Learning Interface)
+/// Alternative learning hub interface with search, filtering, and content discovery
 struct LearnView: View {
     @StateObject private var searchViewModel = SearchViewModel()
     @State private var selectedContentType: LearningResource.ContentType? = nil
@@ -485,7 +485,7 @@ struct LearnView: View {
 }
 
 // MARK: - Data Loading
-private extension LearnView {
+private extension LearningHubView {
     
     func loadInitialContent() async {
         print("🚀 LEARN VIEW: Loading initial content")
@@ -681,5 +681,5 @@ struct ShimmerModifier: ViewModifier {
 
 // MARK: - Preview
 #Preview {
-    LearnView()
+    LearningHubView()
 }
