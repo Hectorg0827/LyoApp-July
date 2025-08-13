@@ -386,25 +386,6 @@ class VideoFeedViewModel: ObservableObject {
     }
 }
 
-// MARK: - Video Post Model
-struct VideoPost: Identifiable {
-    let id = UUID()
-    let author: User
-    let title: String
-    let videoURL: String
-    let thumbnailURL: String
-    var likes: Int
-    var comments: Int
-    var shares: Int
-    var isLiked: Bool = false
-    let hashtags: [String]
-    let createdAt: Date
-    
-    // MARK: - Sample Data Removed
-    // All sample videos moved to UserDataManager for real data management
-    // static let sampleVideos = [] // Use UserDataManager.shared.getUserVideos()
-}
-
 #Preview {
     TikTokStyleHomeView()
 }
