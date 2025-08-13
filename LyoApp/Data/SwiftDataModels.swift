@@ -7,7 +7,7 @@ import Foundation
 class LearningResourceEntity {
     @Attribute(.unique) var id: String
     var title: String
-    var description: String
+    var resourceDescription: String
     var contentType: String
     var sourcePlatform: String
     var authorCreator: String?
