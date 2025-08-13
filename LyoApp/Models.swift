@@ -848,32 +848,6 @@ enum LearningSectionType: String, CaseIterable {
 //     // Sample ebooks moved to UserDataManager for real data management
 // }
 
-// MARK: - Library Models
-struct LibraryCourse: Identifiable {
-    let id = UUID()
-    let title: String
-    let instructor: String
-    let thumbnailURL: String
-    let rating: Double
-    let duration: String
-    let progress: Double
-    let completedDate: String?
-}
-
-struct SavedItem: Identifiable {
-    let id = UUID()
-    let title: String
-    let author: String
-    let thumbnailURL: String?
-    let type: SavedItemType
-    let savedDate: String
-    
-    enum SavedItemType {
-        case video
-        case article
-        case post
-    }
-}
 
 // MARK: - Profile Models
 struct Achievement: Identifiable {
