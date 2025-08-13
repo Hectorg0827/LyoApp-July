@@ -38,7 +38,12 @@ class DiscoverManager: ObservableObject {
         // Simulate search
         try? await Task.sleep(nanoseconds: 300_000_000)
         // Search content using UserDataManager
-        content = UserDataManager.shared.searchDiscoverContent(query)
+        let allContent = UserDataManager.shared.getDiscoverContent()
+        content = allContent.filter { item in
+            item.title.lowercased().contains(query.lowercased()) ||
+            item.description.lowercased().contains(query.lowercased()) ||
+            item.category.lowercased().contains(query.lowercased())
+        }
         isSearching = false
     }
     
@@ -47,7 +52,8 @@ class DiscoverManager: ObservableObject {
         // Simulate category filtering
         try? await Task.sleep(nanoseconds: 300_000_000)
         // Filter content by category using UserDataManager
-        content = UserDataManager.shared.getDiscoverContentByCategory(category)
+        let allContent = UserDataManager.shared.getDiscoverContent()
+        content = allContent.filter { $0.category.lowercased() == category.lowercased() }
         isLoading = false
     }
     
