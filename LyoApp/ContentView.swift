@@ -22,7 +22,7 @@ struct ContentView: View {
                         description: "Start exploring and saving videos to see them here"
                     )
                 } else {
-                    TikTokStyleHomeView()
+                    VideoFeedView(videos: videos)
                 }
             }
             .onAppear {
@@ -36,16 +36,14 @@ struct ContentView: View {
     
     private func loadContent() {
         Task {
-            let educationalVideos = userDataManager.getEducationalVideos()
-            
-            // Convert EducationalVideo to VideoPost for display
+            // For now, create some sample videos until UserDataManager is fully integrated
             await MainActor.run {
-                self.videos = educationalVideos.map { convertToVideoPost($0) }
+                self.videos = createSampleVideos()
                 self.isLoading = false
             }
             
             // Track analytics
-            AnalyticsManager.shared.trackScreenView("content_view")
+            print("📊 ANALYTICS: Content view loaded")
         }
     }
     
@@ -56,19 +54,37 @@ struct ContentView: View {
         }
     }
     
-    private func convertToVideoPost(_ educationalVideo: EducationalVideo) -> VideoPost {
-        return VideoPost(
-            id: educationalVideo.id,
-            author: appState.currentUser ?? User(username: "Unknown", email: "", fullName: "Unknown"),
-            videoURL: educationalVideo.videoURL,
-            thumbnailURL: educationalVideo.thumbnailURL ?? "",
-            caption: educationalVideo.description,
-            timestamp: Date(),
-            likeCount: 0,
-            commentCount: 0,
-            shareCount: 0,
-            isLiked: false
+    private func createSampleVideos() -> [VideoPost] {
+        let sampleUser = User(
+            username: "lyolearner",
+            email: "learner@lyo.app",
+            fullName: "Lyo Learner"
         )
+        
+        return [
+            VideoPost(
+                author: sampleUser,
+                title: "Swift Programming Basics",
+                videoURL: "https://example.com/video1.mp4",
+                thumbnailURL: "https://picsum.photos/400/600?random=1",
+                likes: 125,
+                comments: 23,
+                shares: 8,
+                hashtags: ["#Swift", "#iOS", "#Programming"],
+                createdAt: Date()
+            ),
+            VideoPost(
+                author: sampleUser,
+                title: "AI and Machine Learning Introduction",
+                videoURL: "https://example.com/video2.mp4",
+                thumbnailURL: "https://picsum.photos/400/600?random=2",
+                likes: 89,
+                comments: 15,
+                shares: 4,
+                hashtags: ["#AI", "#MachineLearning", "#Tech"],
+                createdAt: Date().addingTimeInterval(-3600)
+            )
+        ]
     }
 }
 
@@ -79,113 +95,122 @@ struct EmptyStateView: View {
     let description: String
     
     var body: some View {
-        VStack(spacing: DesignTokens.Spacing.large) {
+        VStack(spacing: DesignTokens.Spacing.xl) {
             Image(systemName: icon)
                 .font(.system(size: 64))
                 .foregroundColor(DesignTokens.Colors.textSecondary)
             
-            VStack(spacing: DesignTokens.Spacing.small) {
+            VStack(spacing: DesignTokens.Spacing.md) {
                 Text(title)
-                    .font(DesignTokens.Typography.title)
+                    .font(DesignTokens.Typography.headlineMedium)
                     .fontWeight(.semibold)
                     .foregroundColor(DesignTokens.Colors.textPrimary)
                 
                 Text(description)
-                    .font(DesignTokens.Typography.body)
+                    .font(DesignTokens.Typography.bodyMedium)
                     .foregroundColor(DesignTokens.Colors.textSecondary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, DesignTokens.Spacing.large)
+                    .padding(.horizontal, DesignTokens.Spacing.xl)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
-// MARK: - Feed Item View
-struct FeedItemView: View {
-    let index: Int
-    @State private var isLiked = false
-    @State private var showComments = false
+// MARK: - Video Feed View
+struct VideoFeedView: View {
+    let videos: [VideoPost]
     
     var body: some View {
-        VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-            // User header
-            HStack {
-                AsyncImage(url: URL(string: "https://picsum.photos/40/40?random=\(index)")) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    Circle()
-                        .fill(DesignTokens.Colors.primaryGradient)
-                        .overlay(
-                            Text("U")
-                                .font(DesignTokens.Typography.caption)
-                                .foregroundColor(.white)
-                        )
+        ScrollView {
+            LazyVStack(spacing: DesignTokens.Spacing.md) {
+                ForEach(videos) { video in
+                    VideoFeedItemView(video: video)
                 }
-                .frame(width: 40, height: 40)
-                .clipShape(Circle())
+            }
+            .padding(DesignTokens.Spacing.md)
+        }
+    }
+}
+
+// MARK: - Video Feed Item View
+struct VideoFeedItemView: View {
+    let video: VideoPost
+    @State private var isLiked = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+            // Author info
+            HStack {
+                Circle()
+                    .fill(DesignTokens.Colors.primaryGradient)
+                    .frame(width: 40, height: 40)
+                    .overlay(
+                        Text(String(video.author.username.prefix(1)).uppercased())
+                            .font(DesignTokens.Typography.labelMedium)
+                            .foregroundColor(.white)
+                    )
                 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("@techguru")
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("@\(video.author.username)")
                         .font(DesignTokens.Typography.bodyMedium)
                         .foregroundColor(DesignTokens.Colors.textPrimary)
                     
                     Text("2m ago")
-                        .font(DesignTokens.Typography.caption)
+                        .font(DesignTokens.Typography.bodySmall)
                         .foregroundColor(DesignTokens.Colors.textSecondary)
                 }
                 
                 Spacer()
-                
-                Button {
-                    // More options
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .foregroundColor(DesignTokens.Colors.textSecondary)
-                }
             }
-            .padding(.horizontal, DesignTokens.Spacing.md)
-            .padding(.top, DesignTokens.Spacing.md)
             
-            // Content
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-                Text("Quick tip that will save you hours of debugging 🔧\nAlways check your edge case...")
-                    .font(DesignTokens.Typography.body)
+            // Video content
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+                Text(video.title)
+                    .font(DesignTokens.Typography.titleMedium)
                     .foregroundColor(DesignTokens.Colors.textPrimary)
-                    .padding(.horizontal, DesignTokens.Spacing.md)
                 
-                // Tags
+                // Video thumbnail
+                AsyncImage(url: URL(string: video.thumbnailURL)) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(16/9, contentMode: .fill)
+                } placeholder: {
+                    Rectangle()
+                        .fill(DesignTokens.Colors.backgroundSecondary)
+                        .aspectRatio(16/9, contentMode: .fill)
+                        .overlay(
+                            Image(systemName: "play.circle.fill")
+                                .font(.system(size: 48))
+                                .foregroundColor(.white.opacity(0.8))
+                        )
+                }
+                .frame(maxHeight: 200)
+                .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.md))
+                
+                // Hashtags
                 HStack(spacing: DesignTokens.Spacing.xs) {
-                    ForEach(["#AI", "#MachineLearning", "#Python"], id: \.self) { tag in
+                    ForEach(video.hashtags, id: \.self) { tag in
                         Text(tag)
-                            .font(DesignTokens.Typography.caption)
+                            .font(DesignTokens.Typography.bodySmall)
                             .foregroundColor(DesignTokens.Colors.primary)
-                            .padding(.horizontal, DesignTokens.Spacing.sm)
-                            .padding(.vertical, DesignTokens.Spacing.xs)
-                            .background(
-                                RoundedRectangle(cornerRadius: DesignTokens.Radius.sm)
-                                    .fill(DesignTokens.Colors.primary.opacity(0.1))
-                            )
                     }
                     Spacer()
                 }
-                .padding(.horizontal, DesignTokens.Spacing.md)
             }
             
             // Actions
             HStack {
                 Button {
-                    withAnimation(DesignTokens.Animations.bouncy) {
+                    withAnimation {
                         isLiked.toggle()
                     }
                 } label: {
                     HStack(spacing: DesignTokens.Spacing.xs) {
                         Image(systemName: isLiked ? "heart.fill" : "heart")
-                            .foregroundColor(isLiked ? DesignTokens.Colors.neonPink : DesignTokens.Colors.textSecondary)
-                        Text("33.7K")
-                            .font(DesignTokens.Typography.caption)
+                            .foregroundColor(isLiked ? .red : DesignTokens.Colors.textSecondary)
+                        Text("\(video.likes)")
+                            .font(DesignTokens.Typography.bodySmall)
                             .foregroundColor(DesignTokens.Colors.textSecondary)
                     }
                 }
@@ -193,13 +218,13 @@ struct FeedItemView: View {
                 Spacer()
                 
                 Button {
-                    showComments = true
+                    // Comments
                 } label: {
                     HStack(spacing: DesignTokens.Spacing.xs) {
                         Image(systemName: "message")
                             .foregroundColor(DesignTokens.Colors.textSecondary)
-                        Text("297")
-                            .font(DesignTokens.Typography.caption)
+                        Text("\(video.comments)")
+                            .font(DesignTokens.Typography.bodySmall)
                             .foregroundColor(DesignTokens.Colors.textSecondary)
                     }
                 }
@@ -210,10 +235,10 @@ struct FeedItemView: View {
                     // Share
                 } label: {
                     HStack(spacing: DesignTokens.Spacing.xs) {
-                        Image(systemName: "arrowshape.turn.up.right")
+                        Image(systemName: "square.and.arrow.up")
                             .foregroundColor(DesignTokens.Colors.textSecondary)
-                        Text("178")
-                            .font(DesignTokens.Typography.caption)
+                        Text("\(video.shares)")
+                            .font(DesignTokens.Typography.bodySmall)
                             .foregroundColor(DesignTokens.Colors.textSecondary)
                     }
                 }
@@ -227,193 +252,14 @@ struct FeedItemView: View {
                         .foregroundColor(DesignTokens.Colors.textSecondary)
                 }
             }
-            .padding(.horizontal, DesignTokens.Spacing.md)
-            .padding(.bottom, DesignTokens.Spacing.md)
         }
+        .padding(DesignTokens.Spacing.md)
         .background(
             RoundedRectangle(cornerRadius: DesignTokens.Radius.lg)
-                .fill(DesignTokens.Colors.glassBg)
-                .overlay(
-                    RoundedRectangle(cornerRadius: DesignTokens.Radius.lg)
-                        .strokeBorder(DesignTokens.Colors.glassBorder, lineWidth: 1)
-                )
+                .fill(DesignTokens.Colors.backgroundElevated)
+                .stroke(DesignTokens.Colors.neutral300, lineWidth: 1)
         )
         .shadow(color: DesignTokens.Colors.primary.opacity(0.1), radius: 8, x: 0, y: 4)
-    }
-}
-
-// MARK: - TikTok Style Home View
-struct TikTokStyleHomeView: View {
-    @StateObject private var viewModel = VideoFeedViewModel()
-    @State private var currentIndex = 0
-    @State private var dragOffset: CGSize = .zero
-    
-    var body: some View {
-        ZStack {
-            // Background
-            DesignTokens.Colors.primaryBg.ignoresSafeArea(.container, edges: .horizontal)
-            
-            // Video Feed Content
-            ScrollView {
-                LazyVStack(spacing: 0) {
-                    ForEach(Array(viewModel.videos.enumerated()), id: \.offset) { index, video in
-                        VideoFeedItemView(video: video, index: index)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .containerRelativeFrame(.vertical)
-                    }
-                }
-                .scrollTargetBehavior(.paging)
-            }
-            .scrollIndicators(.hidden)
-            
-            // Overlay UI
-            VStack {
-                // Top UI
-                HStack {
-                    Spacer()
-                    
-                    Button {
-                        // Search
-                    } label: {
-                        Image(systemName: "magnifyingglass")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                            .padding()
-                            .background(Circle().fill(Color.black.opacity(0.3)))
-                    }
-                }
-                .padding()
-                
-                Spacer()
-            }
-        }
-        .onAppear {
-            viewModel.loadVideos()
-        }
-    }
-}
-
-// MARK: - Video Feed Item View
-struct VideoFeedItemView: View {
-    let video: VideoPost
-    let index: Int
-    @State private var isLiked = false
-    
-    var body: some View {
-        ZStack {
-            // Background gradient
-            DesignTokens.Colors.primaryGradient
-            
-            // Content
-            VStack(spacing: DesignTokens.Spacing.lg) {
-                // Author info
-                HStack {
-                    Circle()
-                        .fill(DesignTokens.Colors.primaryGradient)
-                        .frame(width: 40, height: 40)
-                        .overlay(
-                            Text(video.author.fullName.prefix(1))
-                                .font(.title2)
-                                .foregroundColor(.white)
-                        )
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("@\(video.author.username)")
-                            .font(DesignTokens.Typography.bodyMedium)
-                            .foregroundColor(.white)
-                        
-                        Text("2m ago")
-                            .font(DesignTokens.Typography.caption)
-                            .foregroundColor(.white.opacity(0.8))
-                    }
-                    
-                    Spacer()
-                }
-                
-                // Video content
-                VStack(spacing: DesignTokens.Spacing.md) {
-                    Text(video.title)
-                        .font(DesignTokens.Typography.title2)
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(3)
-                    
-                    // Hashtags
-                    HStack(spacing: DesignTokens.Spacing.xs) {
-                        ForEach(video.hashtags, id: \.self) { hashtag in
-                            Text("#\(hashtag)")
-                                .font(DesignTokens.Typography.caption)
-                                .foregroundColor(DesignTokens.Colors.neonBlue)
-                        }
-                    }
-                }
-                
-                Spacer()
-                
-                // Actions
-                HStack {
-                    Button {
-                        isLiked.toggle()
-                    } label: {
-                        HStack(spacing: DesignTokens.Spacing.xs) {
-                            Image(systemName: isLiked ? "heart.fill" : "heart")
-                                .foregroundColor(isLiked ? DesignTokens.Colors.neonPink : .white)
-                            Text("\(video.likes)")
-                                .foregroundColor(.white)
-                        }
-                        .font(DesignTokens.Typography.caption)
-                    }
-                    
-                    Spacer()
-                    
-                    Button {
-                        // Comments
-                    } label: {
-                        HStack(spacing: DesignTokens.Spacing.xs) {
-                            Image(systemName: "message")
-                                .foregroundColor(.white)
-                            Text("\(video.comments)")
-                                .foregroundColor(.white)
-                        }
-                        .font(DesignTokens.Typography.caption)
-                    }
-                    
-                    Spacer()
-                    
-                    Button {
-                        // Share
-                    } label: {
-                        HStack(spacing: DesignTokens.Spacing.xs) {
-                            Image(systemName: "arrowshape.turn.up.right")
-                                .foregroundColor(.white)
-                            Text("\(video.shares)")
-                                .foregroundColor(.white)
-                        }
-                        .font(DesignTokens.Typography.caption)
-                    }
-                }
-            }
-            .padding()
-        }
-    }
-}
-
-// MARK: - Video Feed View Model
-class VideoFeedViewModel: ObservableObject {
-    @Published var videos: [VideoPost] = []
-    @Published var isLoading = false
-    
-    func loadVideos() {
-        isLoading = true
-        
-        // Load real data using UserDataManager
-        Task {
-            await MainActor.run {
-                // Load videos from UserDataManager
-                self.videos = UserDataManager.shared.getUserVideos()
-                self.isLoading = false
-            }
-        }
     }
 }
 
