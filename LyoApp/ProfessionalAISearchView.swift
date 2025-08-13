@@ -1,6 +1,23 @@
 import SwiftUI
 import Foundation
 
+// MARK: - AI Search Models
+
+struct AISearchResult: Identifiable, Codable {
+    let id = UUID()
+    let title: String
+    let description: String
+    let type: String
+    let relevance: Double
+    let url: String?
+    let thumbnailURL: String?
+    let metadata: [String: String]?
+    
+    enum CodingKeys: String, CodingKey {
+        case title, description, type, relevance, url, thumbnailURL, metadata
+    }
+}
+
 // MARK: - AI Search Service
 
 @MainActor
