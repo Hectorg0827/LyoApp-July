@@ -413,44 +413,6 @@ struct ChatBubbleView: View {
     }
 }
 
-// MARK: - Typing Indicator View
-struct TypingIndicatorView: View {
-    @State private var animationOffset: CGFloat = 0
-    
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 4) {
-                    ForEach(0..<3) { index in
-                        Circle()
-                            .fill(DesignTokens.Colors.textSecondary)
-                            .frame(width: 8, height: 8)
-                            .offset(y: animationOffset)
-                            .animation(
-                                .easeInOut(duration: 0.6)
-                                .repeatForever(autoreverses: true)
-                                .delay(Double(index) * 0.2),
-                                value: animationOffset
-                            )
-                    }
-                }
-                .padding(DesignTokens.Spacing.md)
-                .background(DesignTokens.Colors.glassBg)
-                .cornerRadius(DesignTokens.Radius.lg)
-                .overlay(
-                    RoundedRectangle(cornerRadius: DesignTokens.Radius.lg)
-                        .stroke(DesignTokens.Colors.glassBorder, lineWidth: 1)
-                )
-            }
-            
-            Spacer()
-        }
-        .onAppear {
-            animationOffset = -4
-        }
-    }
-}
-
 // MARK: - AI Quick Action Button
 struct AIQuickActionButton: View {
     let title: String
