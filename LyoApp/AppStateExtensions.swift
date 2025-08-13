@@ -123,7 +123,7 @@ extension AppState {
     @MainActor
     func checkExistingAuthentication() async {
         // Check for stored authentication tokens
-        guard let token = KeychainManager.shared.retrieve(.authToken) else {
+        guard KeychainManager.shared.retrieve(.authToken) != nil else {
             return
         }
         
