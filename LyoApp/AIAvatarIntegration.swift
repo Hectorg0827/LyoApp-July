@@ -2,52 +2,6 @@ import Foundation
 import Combine
 import os.log
 
-// MARK: - API Configuration
-struct APIConfig {
-    static let developmentURL = "http://localhost:8000/api/v1"
-    static let baseURL = developmentURL
-    static let requestTimeout: TimeInterval = 30.0
-    static let webSocketURL = "ws://localhost:8000/api/v1/ws"
-}
-
-struct DevelopmentConfig {
-    static let useMockData = false
-    static let enableDebugLogging = true
-    // Authentication credentials should come from user input or secure storage
-    // not hardcoded for security reasons
-}
-
-// MARK: - HTTP Methods
-// HTTPMethod is defined in NetworkLayer.swift to avoid duplication
-
-// MARK: - Response Models
-struct ErrorResponse: Codable {
-    let detail: String
-}
-
-struct HealthResponse: Codable {
-    let status: String
-    let message: String
-    let timestamp: String
-}
-
-struct LoginRequest: Codable {
-    let email: String
-    let password: String
-}
-
-struct LoginResponse: Codable {
-    let token: String
-    let user: APIUser
-}
-
-struct APIUser: Codable {
-    let id: String
-    let name: String
-    let email: String
-    let role: String
-}
-
 // MARK: - AI Avatar Request Models
 struct AvatarMessageRequest: Codable {
     let message: String
@@ -273,10 +227,10 @@ class AIAvatarAPIClient: ObservableObject {
             case 404:
                 throw APIError.invalidResponse
             case 400...499:
-                let errorMessage = try? JSONDecoder().decode(ErrorResponse.self, from: data)
+                let _ = try? JSONDecoder().decode(ErrorResponse.self, from: data)
                 throw APIError.serverError(httpResponse.statusCode)
             case 500...599:
-                let errorMessage = try? JSONDecoder().decode(ErrorResponse.self, from: data)
+                let _ = try? JSONDecoder().decode(ErrorResponse.self, from: data)
                 throw APIError.serverError(httpResponse.statusCode)
             default:
                 throw APIError.serverError(httpResponse.statusCode)
