@@ -250,39 +250,3 @@ class APIClient: APIClientProtocol, ObservableObject {
         }
     }
 }
-
-// MARK: - Request/Response Models
-struct EmptyRequest: Codable {}
-
-// MARK: - HTTP Methods
-// HTTPMethod is defined in NetworkLayer.swift to avoid duplication
-
-// MARK: - Response Models
-// ErrorResponse is defined in AIAvatarIntegration.swift to avoid duplication
-
-// EmptyResponse is defined in AIAvatarIntegration.swift to avoid duplication
-
-// MARK: - Health Response
-struct HealthResponse: Codable {
-    let status: String
-    let message: String
-    let timestamp: String
-}
-
-// MARK: - Authentication Models
-struct LoginRequest: Codable {
-    let email: String
-    let password: String
-}
-
-struct LoginResponse: Codable {
-    let token: String
-    let user: APIUser
-}
-
-struct APIUser: Codable {
-    let id: String
-    let name: String
-    let email: String
-    let role: String
-}
