@@ -1,74 +1,133 @@
-//
-//  FuturisticHeaderView.swift
-//  LyoApp
-//
-//  Futuristic AI drawer header with animated Lyo button and glassmorphic interface
-//
-
 import SwiftUI
-import Combine
 
 struct FuturisticHeaderView: View {
-    @State private var isDrawerExpanded = false
-    @State private var buttonPosition: CGFloat = UIScreen.main.bounds.width - 70 // Start position (right side)
-    @State private var glowIntensity: Double = 0.3
-    @State private var quantumPhase: Double = 0
-    @State private var consciousnessLevel: Double = 0.1
-    @State private var showIcons = false
+    @State private var scrollOffset: CGFloat = 0
     @State private var showStories = false
-    
-    // Quantum animation timer
-    @State private var quantumTimer: Timer?
-    
-    private let expandedButtonPosition: CGFloat = 70 // End position (left side)
-    private let collapsedButtonPosition: CGFloat = UIScreen.main.bounds.width - 70
+    @State private var showIcons = true
+    @State private var buttonPosition: CGFloat = 50
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Main header strip
-            ZStack {
-                // Glassmorphic background strip (only visible when expanded)
-                if isDrawerExpanded {
-                    RoundedRectangle(cornerRadius: 25)
-                        .fill(
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color.white.opacity(0.15),
-                                    Color.blue.opacity(0.08),
-                                    Color.purple.opacity(0.05)
-                                ]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .background(.ultraThinMaterial)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 25)
-                                .strokeBorder(
-                                    LinearGradient(
-                                        colors: [
-                                            DesignTokens.Colors.brand.opacity(glowIntensity),
-                                            DesignTokens.Colors.accent.opacity(glowIntensity * 0.7),
-                                            Color.clear
-                                        ],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    ),
-                                    lineWidth: 2
-                                )
-                        )
-                        .frame(height: 60)
-                        .padding(.horizontal, 16)
-                        .shadow(
-                            color: DesignTokens.Colors.brand.opacity(glowIntensity * 0.5),
-                            radius: 15,
-                            x: 0,
-                            y: 5
-                        )
-                        .transition(.asymmetric(
-                            insertion: .scale(scale: 0.8).combined(with: .opacity),
-                            removal: .scale(scale: 0.8).combined(with: .opacity)
-                        ))
+        ZStack {
+            // Background Gradient
+            LinearGradient(
+                colors: [
+                    Color.black.opacity(0.9),
+                    Color.purple.opacity(0.3),
+                    Color.black.opacity(0.8)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Header Content
+                headerContent
+                
+                // Stories Section
+                if showStories {
+                    storiesSection
+                        .transition(.opacity.combined(with: .scale))
+                }
+            }
+        }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 0.6)) {
+                showStories = true
+            }
+        }
+    }
+    
+    private var headerContent: some View {
+        HStack {
+            // Lyo AI Button
+            lyoAIButton
+            
+            Spacer()
+            
+            // Header Icons
+            if showIcons {
+                headerIcons
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 10)
+    }
+    
+    private var lyoAIButton: some View {
+        Button(action: {
+            // AI action
+        }) {
+            HStack {
+                Image(systemName: "brain.head.profile")
+                    .foregroundColor(.white)
+                Text("Lyo AI")
+                    .foregroundColor(.white)
+                    .font(.system(size: 14, weight: .medium))
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(Color.purple.opacity(0.3))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 15)
+                            .stroke(Color.purple, lineWidth: 1)
+                    )
+            )
+        }
+    }
+    
+    private var headerIcons: some View {
+        HStack(spacing: 20) {
+            Button(action: {}) {
+                Image(systemName: "plus.circle")
+                    .font(.title2)
+                    .foregroundColor(.white)
+            }
+            
+            Button(action: {}) {
+                Image(systemName: "heart")
+                    .font(.title2)
+                    .foregroundColor(.white)
+            }
+            
+            Button(action: {}) {
+                Image(systemName: "paperplane")
+                    .font(.title2)
+                    .foregroundColor(.white)
+            }
+        }
+    }
+    
+    private var storiesSection: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(spacing: 15) {
+                ForEach(sampleStories, id: \.id) { story in
+                    FuturisticStoryCircle(story: story)
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+        .padding(.vertical, 10)
+    }
+    
+    private var sampleStories: [Story] {
+        [
+            Story(id: 1, username: "john_doe", profileImage: "person.circle.fill", hasStory: true),
+            Story(id: 2, username: "jane_smith", profileImage: "person.circle.fill", hasStory: true),
+            Story(id: 3, username: "alex_wilson", profileImage: "person.circle.fill", hasStory: false),
+            Story(id: 4, username: "sarah_jones", profileImage: "person.circle.fill", hasStory: true)
+        ]
+    }
+        .animation(.easeInOut, value: isDrawerExpanded)
+    }
+}
+
+#Preview {
+    FuturisticHeaderView()
+        .background(Color.black.ignoresSafeArea())
+}
                 }
                 
                 HStack {
