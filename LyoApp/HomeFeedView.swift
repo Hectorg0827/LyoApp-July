@@ -1,14 +1,55 @@
 import SwiftUI
-// MARK: - Safe Array Subscript Extension
-extension Array {
-    subscript(safe index: Int) -> Element? {
-        indices.contains(index) ? self[index] : nil
+
+// MARK: - Core Data Models
+struct FeedItem: Identifiable {
+    let id: UUID
+    let creator: User  // Changed from Creator to canonical User model
+    let contentType: FeedContentType
+    let timestamp: Date
+    var engagement: EngagementMetrics
+    let duration: TimeInterval?
+}
+
+struct EngagementMetrics {
+    var likes: Int
+    var comments: Int
+    var shares: Int
+    var saves: Int
+    var isLiked: Bool
+    var isSaved: Bool
+}
+
+struct VideoContent {
+    let url: URL
+    let thumbnailURL: URL
+    let title: String
+    let description: String
+    let quality: VideoQuality
+    let duration: TimeInterval
+}
+
+enum FeedContentType {
+    case video(VideoContent)
+    case article(ArticleContent)
+    case product(ProductContent)
+    
+    // Access duration based on content type
+    var duration: TimeInterval? {
+        switch self {
+        case .video(_):
+            // Videos have fixed durations
+            return 120.0 // Default 2 minutes if not specified
+        case .article(let articleContent):
+            // Articles have read times
+            return articleContent.readTime
+        case .product:
+            // Products don't have durations
+            return nil
+        }
     }
 }
-// MARK: - Core Models (Fixes missing type errors)
-// MARK: - Missing Models and Managers (Restored)
 
-enum VideoQuality {
+enum VideoQuality: CaseIterable {
     case sd, hd, uhd
 }
 
@@ -28,46 +69,123 @@ struct ProductContent {
     let description: String
 }
 
-class FeedManager: ObservableObject {
+// MARK: - Safe Array Subscript Extension
+extension Array {
+    subscript(safe index: Int) -> Element? {
+        indices.contains(index) ? self[index] : nil
+    }
+}
+
+// MARK: - Feed Protocol
+
+protocol FeedDataProvider {
+    var feedItems: [FeedItem] { get }
+    func loadFeedFromBackend() async
+    func generateSuggestedUsers() -> [User]
+    func generateRandomFeedItem() -> FeedItem
+}
+
+@MainActor
+class FeedManager: ObservableObject, FeedDataProvider {
     @Published var feedItems: [FeedItem] = []
+    @Published var isLoading = false
+    @Published var errorMessage: String?
+
+    private let postRepository = PostRepository()
+    private let userRepository = UserRepository()
+    private let courseRepository = CourseRepository()
 
     init() {
-        // Load feed data from backend - no longer using mock data
+        // Load feed data from repositories
         Task {
             await loadFeedFromBackend()
         }
     }
     
-    // Removed loadMockFeedItems() - now using real data from UserDataManager
-    // func loadMockFeedItems() {
-    //     // Mock data removed - using real data management
-    // }
-    
-    @MainActor
     func loadFeedFromBackend() async {
-        // Try to load feed from backend via LyoAPIService
+        isLoading = true
+        defer { isLoading = false }
+        
         do {
-            // Check if we have a valid connection first
+            // Try to load feed from backend via LyoAPIService
             let _ = try await LyoAPIService.shared.getSystemHealth()
             print("📱 Feed: Backend health check passed")
             
-            // TODO: Implement actual feed endpoint when available
-            // For now, we'll use the existing API structure but with actual calls
-            
-            // Simulate real API call structure
-            feedItems = []
-            print("📱 Feed: Successfully loaded from backend (empty state)")
+            // Load real data from repositories
+            await loadRealFeedData()
             
         } catch {
-            print("📱 Feed: Backend unavailable, loading empty state - \(error)")
-            feedItems = []
+            print("⚠️ Feed: Error connecting to backend - \(error.localizedDescription)")
+            
+            // If we have no data, create some sample data for first-time users
+            if feedItems.isEmpty {
+                await createInitialSampleData()
+            }
         }
     }
     
-    func preload() async {}
-    func cleanup() {}
-    func preloadNextVideo(at index: Int) {}
+    private func loadRealFeedData() async {
+        // Load posts from PostRepository
+        await postRepository.loadPosts(limit: 50)
+        
+        // Convert Core Data posts to FeedItems
+        feedItems = postRepository.posts.compactMap { post in
+            postRepository.convertToFeedItem(post)
+        }
+        
+        print("📱 Feed: Loaded \(feedItems.count) real feed items")
+    }
     
+    private func createInitialSampleData() async {
+        // Only create sample data if no real data exists
+        let existingPosts = postRepository.posts
+        if existingPosts.isEmpty {
+            // Create a few sample users and posts for first-time experience
+            await createSampleUsersAndPosts()
+            await loadRealFeedData()
+        }
+    }
+    
+    private func createSampleUsersAndPosts() async {
+        let sampleUsers = [
+            ("tech_explorer", "tech@example.com", "Alex Chen", "Tech enthusiast and AI researcher"),
+            ("design_maven", "design@example.com", "Jamie Rodriguez", "UI/UX Designer passionate about beautiful interfaces"),
+            ("code_ninja", "code@example.com", "Jordan Smith", "Full-stack developer and open source contributor")
+        ]
+        
+        for (username, email, fullName, bio) in sampleUsers {
+            let result = await userRepository.createUser(
+                username: username,
+                email: email,
+                fullName: fullName,
+                bio: bio,
+                profileImageURL: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d"
+            )
+            
+            if case .success(let user) = result {
+                // Create sample posts for this user
+                await createSamplePostsForUser(user)
+            }
+        }
+    }
+    
+    private func createSamplePostsForUser(_ user: User) async {
+        let samplePosts = [
+            "Just discovered an amazing new SwiftUI feature! The declarative syntax makes everything so much cleaner.",
+            "Working on a new iOS app that uses Core Data and SwiftUI together. The integration is seamless!",
+            "Learning about advanced iOS animation techniques. The possibilities are endless!"
+        ]
+        
+        for content in samplePosts {
+            _ = await postRepository.createPost(
+                authorId: user.id.uuidString,
+                content: content,
+                tags: ["ios", "swift", "development"]
+            )
+        }
+    }
+
+    // MARK: - Feed Interactions
     func toggleLike(for item: FeedItem) {
         if let index = feedItems.firstIndex(where: { $0.id == item.id }) {
             feedItems[index].engagement.isLiked.toggle()
@@ -76,6 +194,12 @@ class FeedManager: ObservableObject {
             } else {
                 feedItems[index].engagement.likes -= 1
             }
+            
+            // Update in repository
+            Task {
+                await postRepository.likePost(item.id.uuidString, by: "current_user_id")
+            }
+            
             FeedbackManager.shared.likeAction()
         }
     }
@@ -91,6 +215,45 @@ class FeedManager: ObservableObject {
             FeedbackManager.shared.saveAction()
         }
     }
+    
+    func shareItem(_ item: FeedItem) {
+        Task {
+            await postRepository.sharePost(item.id.uuidString, by: "current_user_id")
+        }
+        FeedbackManager.shared.shareAction()
+    }
+
+    // MARK: - Required Protocol Methods (No longer generate mock data)
+    func generateSuggestedUsers() -> [User] {
+        // Return real users from repository
+        return userRepository.users
+    }
+    
+    func generateRandomFeedItem() -> FeedItem {
+        // This should not be called anymore, but return a placeholder if needed
+        let placeholderUser = User(username: "placeholder", email: "placeholder@example.com", fullName: "Placeholder User")
+        let placeholderContent = ArticleContent(
+            title: "Loading...",
+            excerpt: "Content is being loaded",
+            content: "Please wait while we load your feed",
+            heroImageURL: nil,
+            readTime: 60
+        )
+        
+        return FeedItem(
+            id: UUID(),
+            creator: placeholderUser,
+            contentType: .article(placeholderContent),
+            timestamp: Date(),
+            engagement: EngagementMetrics(likes: 0, comments: 0, shares: 0, saves: 0, isLiked: false, isSaved: false),
+            duration: 60
+        )
+    }
+    
+    func preload() async {}
+    func cleanup() {}
+    func preloadNextVideo(at index: Int) {}
+}
 }
 
 class FeedbackManager: ObservableObject {
@@ -124,47 +287,6 @@ class FeedbackManager: ObservableObject {
         print("👆 Button tap action triggered")
     }
 }
-
-struct FeedItem: Identifiable {
-    let id: UUID
-    let creator: Creator
-    let contentType: FeedContentType
-    let timestamp: Date
-    var engagement: EngagementMetrics
-    let duration: TimeInterval?
-}
-
-struct Creator {
-    let id: UUID
-    let username: String
-    let displayName: String
-    let avatarURL: URL?
-    let isVerified: Bool
-}
-
-struct EngagementMetrics {
-    var likes: Int
-    var comments: Int
-    var shares: Int
-    var saves: Int
-    var isLiked: Bool
-    var isSaved: Bool
-}
-
-
-struct VideoContent {
-    let url: URL
-    let thumbnailURL: URL?
-    let duration: TimeInterval
-    let quality: VideoQuality
-}
-
-enum FeedContentType {
-    case video(VideoContent)
-    case article(ArticleContent)
-    case product(ProductContent)
-}
-// ...existing code...
 
 // MARK: - Content Views (Moved above immersiveContentView for SwiftUI scoping)
 private func tikTokStyleVideoView(videoContent: VideoContent, geometry: GeometryProxy) -> some View {
@@ -474,11 +596,11 @@ struct HomeFeedView: View {
         return VStack(alignment: .leading, spacing: 12) {
             // Creator info
             HStack(spacing: 8) {
-                Text(item?.creator.displayName ?? "Creator")
+                Text(item?.creator.fullName ?? "Creator")
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(.white)
 
-                if item?.creator.isVerified ?? false {
+                if (item?.creator.level ?? 0) >= 3 { // Using level as a proxy for verification
                     Image(systemName: "checkmark.seal.fill")
                         .font(.system(size: 14))
                         .foregroundColor(.blue)
