@@ -2,6 +2,12 @@
 import SwiftUI
 import Combine
 
+// MARK: - Notification Names
+extension NSNotification.Name {
+    static let userDidLogin = NSNotification.Name("userDidLogin")
+    static let userDidLogout = NSNotification.Name("userDidLogout")
+}
+
 // MARK: - Loading States
 enum LoadingState: Equatable {
     case idle
@@ -588,7 +594,3 @@ struct AppNotification: Identifiable {
 }
 
 // MARK: - Notification Names
-extension Notification.Name {
-    static let userDidLogin = Notification.Name("userDidLogin")
-    static let userDidLogout = Notification.Name("userDidLogout")
-}
