@@ -1,6 +1,14 @@
 
 import SwiftUI
 
+extension DateFormatter {
+    static let shortDate: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        return formatter
+    }()
+}
+
 struct LibraryView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject private var libraryViewModel = LibraryViewModel()
@@ -311,7 +319,7 @@ struct CompletedCourseCard: View {
                     
                     Spacer()
                     
-                    Text(course.completedDate ?? "")
+                    Text(DateFormatter.shortDate.string(from: course.lastAccessed))
                         .font(DesignTokens.Typography.caption2)
                         .foregroundColor(DesignTokens.Colors.textSecondary)
                 }
@@ -337,7 +345,7 @@ struct SavedItemCard: View {
     
     var body: some View {
         HStack(spacing: DesignTokens.Spacing.md) {
-            AsyncImage(url: URL(string: item.thumbnailURL ?? "")) { image in
+            AsyncImage(url: URL(string: item.thumbnailURL)) { image in
                 image
                     .resizable()
                     .aspectRatio(contentMode: .fill)
@@ -345,7 +353,7 @@ struct SavedItemCard: View {
                 Rectangle()
                     .fill(DesignTokens.Colors.primaryGradient)
                     .overlay(
-                        Image(systemName: item.type == .video ? "play.circle" : "doc.text")
+                        Image(systemName: item.type == "video" ? "play.circle" : "doc.text")
                             .font(.title2)
                             .foregroundColor(.white)
                     )
@@ -374,7 +382,7 @@ struct SavedItemCard: View {
                     
                     Spacer()
                     
-                    Text(item.savedDate)
+                    Text(item.savedDate, style: .date)
                         .font(DesignTokens.Typography.caption2)
                         .foregroundColor(DesignTokens.Colors.textSecondary)
                 }
@@ -411,18 +419,97 @@ class LibraryViewModel: ObservableObject {
     func loadLibrary() {
         // Load real data from UserDataManager
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.aiRecommended = UserDataManager.shared.getRecommendedCourses()
-            self.inProgress = UserDataManager.shared.getInProgressCourses()
-            self.completed = UserDataManager.shared.getCompletedCourses()
-            self.saved = UserDataManager.shared.getSavedItems()
+            // For now, create mock data since specific methods don't exist yet
+            self.aiRecommended = self.createMockRecommendedCourses()
+            self.inProgress = self.createMockInProgressCourses()
+            self.completed = self.createMockCompletedCourses()
+            self.saved = self.createMockSavedItems()
         }
+    }
+    
+    private func createMockRecommendedCourses() -> [LibraryCourse] {
+        return [
+            LibraryCourse(
+                title: "SwiftUI Advanced Techniques",
+                instructor: "Apple Developer",
+                progress: 0.0,
+                thumbnailURL: "https://images.unsplash.com/photo-1498050108023-c5249f4df085",
+                duration: "4h 30m",
+                rating: 4.8,
+                isCompleted: false,
+                lastAccessed: Date()
+            )
+        ]
+    }
+    
+    private func createMockInProgressCourses() -> [LibraryCourse] {
+        return [
+            LibraryCourse(
+                title: "iOS Development Fundamentals",
+                instructor: "CodePath",
+                progress: 0.6,
+                thumbnailURL: "https://images.unsplash.com/photo-1555099962-4199c345e5dd",
+                duration: "8h 15m",
+                rating: 4.7,
+                isCompleted: false,
+                lastAccessed: Date().addingTimeInterval(-86400)
+            )
+        ]
+    }
+    
+    private func createMockCompletedCourses() -> [LibraryCourse] {
+        return [
+            LibraryCourse(
+                title: "Swift Programming Basics",
+                instructor: "Stanford",
+                progress: 1.0,
+                thumbnailURL: "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0",
+                duration: "6h 45m",
+                rating: 4.9,
+                isCompleted: true,
+                lastAccessed: Date().addingTimeInterval(-172800)
+            )
+        ]
+    }
+    
+    private func createMockSavedItems() -> [SavedItem] {
+        return [
+            SavedItem(
+                title: "Advanced SwiftUI Tutorial",
+                author: "Apple Developer",
+                type: "video",
+                thumbnailURL: "https://images.unsplash.com/photo-1498050108023-c5249f4df085",
+                savedDate: Date()
+            )
+        ]
     }
 }
 
+// MARK: - Data Models
+struct LibraryCourse: Identifiable {
+    let id = UUID()
+    let title: String
+    let instructor: String
+    let progress: Double
+    let thumbnailURL: String
+    let duration: String
+    let rating: Double
+    let isCompleted: Bool
+    let lastAccessed: Date
+}
+
+struct SavedItem: Identifiable {
+    let id = UUID()
+    let title: String
+    let author: String
+    let type: String
+    let thumbnailURL: String
+    let savedDate: Date
 }
 
 #Preview {
     LibraryView()
         .environmentObject(AppState())
 }
+
 
