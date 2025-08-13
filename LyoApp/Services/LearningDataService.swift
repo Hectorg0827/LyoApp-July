@@ -1,67 +1,8 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - SwiftData Models for Production
-
-@Model
-final class LearningResourceEntity {
-    @Attribute(.unique) var id: String
-    var title: String
-    var resourceDescription: String
-    var contentType: String // video, article, podcast, document
-    var category: String?
-    var difficulty: String // beginner, intermediate, advanced
-    var estimatedDuration: String?
-    var rating: Double?
-    var thumbnailURL: String?
-    var contentURL: String?
-    
-    // Offline capabilities
-    var isDownloaded: Bool = false
-    var downloadProgress: Double = 0.0
-    var localFilePath: String?
-    var downloadDate: Date?
-    
-    // Learning progress
-    var isCompleted: Bool = false
-    var progressPercentage: Double = 0.0
-    var lastAccessedDate: Date?
-    var timeSpent: TimeInterval = 0
-    
-    // AI enhancements
-    var aiSummary: String?
-    var studyQuestions: [String] = []
-    var personalizedInsights: String?
-    var embeddings: [Float] = []
-    
-    // Metadata
-    var createdDate: Date = Date()
-    var updatedDate: Date = Date()
-    var tags: [String] = []
-    var isFavorite: Bool = false
-    
-    init(id: String = UUID().uuidString,
-         title: String,
-         description: String,
-         contentType: String,
-         category: String? = nil,
-         difficulty: String = "beginner",
-         estimatedDuration: String? = nil,
-         rating: Double? = nil,
-         thumbnailURL: String? = nil,
-         contentURL: String? = nil) {
-        self.id = id
-        self.title = title
-        self.resourceDescription = description
-        self.contentType = contentType
-        self.category = category
-        self.difficulty = difficulty
-        self.estimatedDuration = estimatedDuration
-        self.rating = rating
-        self.thumbnailURL = thumbnailURL
-        self.contentURL = contentURL
-    }
-}
+// MARK: - Learning Data Management Service
+// Uses the SwiftData models defined in SwiftDataModels.swift
 
 @Model
 final class LearningProgressEntity {
@@ -175,7 +116,7 @@ class LearningDataService: ObservableObject {
     // MARK: - Learning Resources
     
     func saveLearningResource(_ resource: LearningResource) async throws {
-        guard let context = modelContext else { throw DataServiceError.contextNotInitialized }
+        guard modelContext != nil else { throw DataServiceError.contextNotInitialized }
         
         // let entity = LearningResourceEntity(from: resource)
         // Temporarily skip entity creation
