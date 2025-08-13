@@ -12,7 +12,7 @@ struct MessengerUser {
     let lastSeen: Date?
 }
 
-struct MessengerMessage: Identifiable, Codable {
+struct ProfessionalMessengerMessage: Identifiable, Codable {
     let id: String
     let senderId: String
     let recipientId: String
@@ -39,13 +39,13 @@ struct MessengerMessage: Identifiable, Codable {
 struct MessengerConversation: Identifiable, Codable {
     let id: String
     let participants: [String]
-    let lastMessage: MessengerMessage?
+    let lastMessage: ProfessionalMessengerMessage?
     let updatedAt: Date
     let isGroup: Bool
     let name: String?
     let unreadCount: Int
     
-    init(id: String = UUID().uuidString, participants: [String], lastMessage: MessengerMessage? = nil, updatedAt: Date = Date(), isGroup: Bool = false, name: String? = nil, unreadCount: Int = 0) {
+    init(id: String = UUID().uuidString, participants: [String], lastMessage: ProfessionalMessengerMessage? = nil, updatedAt: Date = Date(), isGroup: Bool = false, name: String? = nil, unreadCount: Int = 0) {
         self.id = id
         self.participants = participants
         self.lastMessage = lastMessage
@@ -72,17 +72,17 @@ class MessengerAPIService: ObservableObject {
         return response["conversations"] ?? []
     }
     
-    func getMessages(conversationId: String) async throws -> [MessengerMessage] {
+    func getMessages(conversationId: String) async throws -> [ProfessionalMessengerMessage] {
         guard let url = URL(string: "\(baseURL)/api/v1/messenger/conversations/\(conversationId)/messages") else {
             throw URLError(.badURL)
         }
         
         let (data, _) = try await URLSession.shared.data(from: url)
-        let response = try JSONDecoder().decode([String: [MessengerMessage]].self, from: data)
+        let response = try JSONDecoder().decode([String: [ProfessionalMessengerMessage]].self, from: data)
         return response["messages"] ?? []
     }
     
-    func sendMessage(conversationId: String, content: String, recipientId: String) async throws -> MessengerMessage {
+    func sendMessage(conversationId: String, content: String, recipientId: String) async throws -> ProfessionalMessengerMessage {
         guard let url = URL(string: "\(baseURL)/api/v1/messenger/conversations/\(conversationId)/messages") else {
             throw URLError(.badURL)
         }
@@ -100,7 +100,7 @@ class MessengerAPIService: ObservableObject {
         request.httpBody = try JSONSerialization.data(withJSONObject: message)
         
         let (data, _) = try await URLSession.shared.data(for: request)
-        let response = try JSONDecoder().decode([String: MessengerMessage].self, from: data)
+        let response = try JSONDecoder().decode([String: ProfessionalMessengerMessage].self, from: data)
         return response["message"]!
     }
 }
@@ -110,7 +110,7 @@ class MessengerAPIService: ObservableObject {
 @MainActor
 class ProfessionalMessengerViewModel: ObservableObject {
     @Published var conversations: [MessengerConversation] = []
-    @Published var currentMessages: [MessengerMessage] = []
+    @Published var currentMessages: [ProfessionalMessengerMessage] = []
     @Published var selectedConversation: MessengerConversation?
     @Published var currentInput = ""
     @Published var isLoading = false
@@ -183,7 +183,7 @@ class ProfessionalMessengerViewModel: ObservableObject {
         currentInput = ""
         
         // Optimistic UI update
-        let tempMessage = MessengerMessage(
+        let tempMessage = ProfessionalMessengerMessage(
             id: UUID().uuidString,
             senderId: "1",
             recipientId: conversation.participants.first { $0 != "1" } ?? "",
@@ -223,7 +223,7 @@ class ProfessionalMessengerViewModel: ObservableObject {
             MessengerConversation(
                 id: "conv_1",
                 participants: ["1", "2"],
-                lastMessage: MessengerMessage(
+                lastMessage: ProfessionalMessengerMessage(
                     id: "msg_1",
                     senderId: "2",
                     recipientId: "1",
@@ -240,7 +240,7 @@ class ProfessionalMessengerViewModel: ObservableObject {
             MessengerConversation(
                 id: "conv_2",
                 participants: ["1", "3"],
-                lastMessage: MessengerMessage(
+                lastMessage: ProfessionalMessengerMessage(
                     id: "msg_2",
                     senderId: "3",
                     recipientId: "1",
@@ -257,9 +257,9 @@ class ProfessionalMessengerViewModel: ObservableObject {
         ]
     }
     
-    private func generateMockMessages(for conversationId: String) -> [MessengerMessage] {
+    private func generateMockMessages(for conversationId: String) -> [ProfessionalMessengerMessage] {
         return [
-            MessengerMessage(
+            ProfessionalMessengerMessage(
                 id: "msg_1",
                 senderId: "2",
                 recipientId: "1",
@@ -268,7 +268,7 @@ class ProfessionalMessengerViewModel: ObservableObject {
                 timestamp: Date().addingTimeInterval(-3600),
                 isRead: false
             ),
-            MessengerMessage(
+            ProfessionalMessengerMessage(
                 id: "msg_2",
                 senderId: "1",
                 recipientId: "2",
@@ -277,7 +277,7 @@ class ProfessionalMessengerViewModel: ObservableObject {
                 timestamp: Date().addingTimeInterval(-3300),
                 isRead: true
             ),
-            MessengerMessage(
+            ProfessionalMessengerMessage(
                 id: "msg_3",
                 senderId: "2",
                 recipientId: "1",
@@ -581,7 +581,7 @@ struct ConversationRowView: View {
 // MARK: - Message Bubble View
 
 struct MessageBubbleView: View {
-    let message: MessengerMessage
+    let message: ProfessionalMessengerMessage
     
     private var isFromCurrentUser: Bool {
         message.senderId == "1" // Current user ID
