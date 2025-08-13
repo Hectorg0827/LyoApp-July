@@ -57,23 +57,36 @@ struct FloatingActionButton: View {
     }
     
     private var riftBorder: some View {
-        Circle()
-            .strokeBorder(
-                AngularGradient(
-                    colors: [
-                        Color.purple, 
-                        Color.cyan, 
-                        Color.pink, 
-                        Color.blue, 
-                        Color.purple
-                    ],
-                    center: .center
-                ),
-                lineWidth: 4
-            )
-            .scaleEffect(1 + expansion * 0.3)
-            .opacity(Double(1 - expansion * 0.3))
-            .animation(.linear(duration: 3).repeatForever(autoreverses: false), value: expansion)
+        ZStack {
+            // Inner quantum field - pulsating energy
+            Circle()
+                .strokeBorder(
+                    AngularGradient(
+                        colors: [
+                            Color.purple, 
+                            Color.cyan, 
+                            Color.pink, 
+                            Color.blue, 
+                            Color.purple
+                        ],
+                        center: .center
+                    ),
+                    lineWidth: 4
+                )
+                .scaleEffect(1 + expansion * 0.3)
+                .opacity(Double(1 - expansion * 0.3))
+                .animation(.linear(duration: 3).repeatForever(autoreverses: false), value: expansion)
+            
+            // Quantum particle effect - tiny dots orbiting
+            ForEach(0..<8) { i in
+                Circle()
+                    .fill(i % 2 == 0 ? Color.cyan : Color.purple)
+                    .frame(width: 4, height: 4)
+                    .offset(x: 30 * cos(Double(i) * .pi / 4 + expansion * 5),
+                            y: 30 * sin(Double(i) * .pi / 4 + expansion * 5))
+                    .opacity(0.7 + 0.3 * sin(expansion * 3 + Double(i)))
+            }
+        }
     }
     
     private var centralContent: some View {
@@ -158,21 +171,61 @@ struct FloatingActionButton: View {
         let progress: CGFloat
         let isActive: Bool
         @State private var electricityAnimation: CGFloat = 0
+        @State private var pulsateIntensity: CGFloat = 0
+        @State private var rotationAngle: Double = 0
         
         var body: some View {
             ZStack {
+                // Primary electric bolts
                 ForEach(0..<8, id: \.self) { index in
                     ElectricBolt(
-                        angle: Double(index) * 45,
+                        angle: Double(index) * 45 + rotationAngle,
                         intensity: isActive ? electricityAnimation : 0,
                         progress: progress
                     )
                 }
+                
+                // Secondary thinner electric arcs
+                ForEach(0..<12, id: \.self) { index in
+                    ElectricBolt(
+                        angle: Double(index) * 30 - rotationAngle,
+                        intensity: isActive ? electricityAnimation * 0.7 : 0,
+                        progress: progress * 0.8
+                    )
+                    .scaleEffect(0.6)
+                    .opacity(0.7)
+                }
+                
+                // Central energy core
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [
+                                .white,
+                                .cyan.opacity(0.8),
+                                .clear
+                            ],
+                            center: .center,
+                            startRadius: 2,
+                            endRadius: 10
+                        )
+                    )
+                    .frame(width: 15, height: 15)
+                    .scaleEffect(1 + pulsateIntensity * 0.3)
+                    .opacity(isActive ? 1.0 : 0.0)
             }
             .opacity(isActive ? 1 : 0)
             .onAppear {
                 withAnimation(.linear(duration: 0.5).repeatForever(autoreverses: true)) {
                     electricityAnimation = 1.0
+                }
+                
+                withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
+                    pulsateIntensity = 1.0
+                }
+                
+                withAnimation(.linear(duration: 8).repeatForever(autoreverses: false)) {
+                    rotationAngle = 360
                 }
             }
         }
@@ -235,25 +288,69 @@ struct FloatingActionButton: View {
         }
     }
 
-    /// Swirling knowledge symbols along a vortex path
+    /// Advanced knowledge vortex with multi-layered symbols and quantum paths
     struct VortexSwirl: View {
         let progress: CGFloat
+        @State private var rotation: Double = 0
+        @State private var symbolScale: CGFloat = 1.0
+        
+        // Educational symbols representing different knowledge domains
         private let symbols = ["📚", "⚛️", "🧠", "💡", "🔍", "📈", "🧪", "🤖"]
+        private let universitySymbols = ["🎓", "🏛️", "🔬", "📊", "📝", "💻", "🔭", "📡"]
         
         var body: some View {
             ZStack {
+                // Spiral path indicator
+                Circle()
+                    .stroke(
+                        AngularGradient(
+                            colors: [.cyan.opacity(0.0), .cyan.opacity(0.5), .purple.opacity(0.7), .clear],
+                            center: .center
+                        ),
+                        style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round, dash: [2, 5])
+                    )
+                    .rotationEffect(.degrees(rotation))
+                    .scaleEffect(progress * 1.5)
+                    .opacity(Double(min(1, progress * 1.5)))
+                
+                // Primary knowledge symbols
                 ForEach(Array(symbols.enumerated()), id: \.offset) { idx, symbol in
-                    let angle = Double(idx) / Double(symbols.count) * 360 + Double(progress) * 360
+                    let angle = Double(idx) / Double(symbols.count) * 360 + Double(progress) * 720
                     let radius = 30 * progress
                     let x = cos(angle * .pi / 180) * radius
                     let y = sin(angle * .pi / 180) * radius
                     Text(symbol)
                         .font(.system(size: 16))
+                        .shadow(color: .cyan, radius: 2)
+                        .scaleEffect(symbolScale)
                         .opacity(Double(min(1, progress * 2)))
+                        .position(x: 25 + x, y: 25 + y)
+                }
+                
+                // Secondary university symbols (inner orbit)
+                ForEach(Array(universitySymbols.enumerated()), id: \.offset) { idx, symbol in
+                    let angle = Double(idx) / Double(universitySymbols.count) * 360 - Double(progress) * 540
+                    let radius = 15 * progress
+                    let x = cos(angle * .pi / 180) * radius
+                    let y = sin(angle * .pi / 180) * radius
+                    Text(symbol)
+                        .font(.system(size: 12))
+                        .shadow(color: .purple, radius: 1)
+                        .scaleEffect(symbolScale * 0.8)
+                        .opacity(Double(min(1, progress * 3)))
                         .position(x: 25 + x, y: 25 + y)
                 }
             }
             .frame(width: 50, height: 50)
+            .onAppear {
+                withAnimation(.linear(duration: 10).repeatForever(autoreverses: false)) {
+                    rotation = 360
+                }
+                
+                withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
+                    symbolScale = 1.2
+                }
+            }
         }
     }
 }
