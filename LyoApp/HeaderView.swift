@@ -19,6 +19,12 @@ struct HeaderView: View {
     @State private var showStories = false
     @State private var stories: [Story] = []
     
+    // Navigation states for presenting views
+    @State private var showSearchView = false
+    @State private var showMessengerView = false
+    @State private var showLibraryView = false
+    @State private var showStoryCreation = false
+    
     // Quantum animation timer
     @State private var quantumTimer: Timer?
     
@@ -109,6 +115,18 @@ struct HeaderView: View {
         .onDisappear {
             stopQuantumAnimations()
         }
+        .sheet(isPresented: $showSearchView) {
+            AISearchView()
+        }
+        .sheet(isPresented: $showMessengerView) {
+            MessengerView()
+        }
+        .sheet(isPresented: $showLibraryView) {
+            LibraryView()
+        }
+        .fullScreenCover(isPresented: $showStoryCreation) {
+            StoryCreationView()
+        }
     }
     
     // MARK: - Lyo AI Button
@@ -176,20 +194,23 @@ struct HeaderView: View {
         HStack(spacing: 20) {
             // Search icon
             actionIcon(systemName: "magnifyingglass", action: {
-                print("Search tapped")
+                print("Search tapped - Opening AI Search")
                 HapticManager.shared.light()
+                showSearchView = true
             })
             
             // Message icon
             actionIcon(systemName: "message", action: {
-                print("Message tapped")
+                print("Message tapped - Opening Messenger")
                 HapticManager.shared.light()
+                showMessengerView = true
             })
             
             // Library icon
             actionIcon(systemName: "books.vertical", action: {
-                print("Library tapped")
+                print("Library tapped - Opening Professional Library")
                 HapticManager.shared.light()
+                showLibraryView = true
             })
         }
         .padding(.trailing, 30)
@@ -256,11 +277,10 @@ struct HeaderView: View {
                     // User stories
                     // TODO: Replace with real user stories from UserDataManager
                     ForEach(stories, id: \.id) { story in
-                        StoryCircle(story: story)
-                            .onTapGesture {
-                                // Handle story tap
-                                print("Story tapped: \(story.user.username)")
-                            }
+                        StoryCircle(story: story) {
+                            // Handle story tap
+                            print("Story tapped: \(story.author.username)")
+                        }
                     }
                 }
                 .padding(.horizontal, 20)
@@ -273,7 +293,8 @@ struct HeaderView: View {
     private var addStoryCircle: some View {
         Button(action: {
             HapticManager.shared.medium()
-            print("Add story tapped")
+            showStoryCreation = true
+            print("Enhanced story creation opening...")
         }) {
             VStack(spacing: 8) {
                 ZStack {
@@ -383,6 +404,7 @@ struct FuturisticStoryCircle: View {
     var body: some View {
         Button(action: {
             HapticManager.shared.medium()
+            print("Story tapped: \(story.author.username)")
         }) {
             ZStack {
                 // Quantum ring border
@@ -415,7 +437,7 @@ struct FuturisticStoryCircle: View {
                         )
                         .frame(width: 60, height: 60)
                         .overlay(
-                            Text(String(story.user.username.prefix(1).uppercased()))
+                            Text(String(story.author.username.prefix(1).uppercased()))
                                 .font(.title2)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
@@ -448,68 +470,6 @@ struct FuturisticStoryCircle: View {
     }
 }
 
-// MARK: - Story Circle Component
-struct StoryCircle: View {
-    let story: Story
-    @State private var isPressed = false
-    
-    var body: some View {
-        Button(action: {
-            print("Story tapped: \(story.user.username)")
-        }) {
-            VStack(spacing: 8) {
-                ZStack {
-                    // Holographic ring for new stories
-                    if story.hasNewStory {
-                        Circle()
-                            .stroke(
-                                AngularGradient(
-                                    colors: [
-                                        DesignTokens.Colors.brand,
-                                        DesignTokens.Colors.accent,
-                                        DesignTokens.Colors.brand
-                                    ],
-                                    center: .center
-                                ),
-                                lineWidth: 3
-                            )
-                            .frame(width: 70, height: 70)
-                            .opacity(0.9)
-                    }
-                    
-                    // Avatar
-                    AsyncImage(url: URL(string: story.user.avatarURL)) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } placeholder: {
-                        Circle()
-                            .fill(DesignTokens.Colors.primaryGradient)
-                            .overlay(
-                                Text(String(story.user.username.prefix(1)).uppercased())
-                                    .font(.title2)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
-                            )
-                    }
-                    .frame(width: 60, height: 60)
-                    .clipShape(Circle())
-                }
-                
-                Text(story.user.username)
-                    .font(DesignTokens.Typography.caption2)
-                    .foregroundColor(DesignTokens.Colors.textSecondary)
-                    .lineLimit(1)
-            }
-        }
-        .buttonStyle(PlainButtonStyle())
-        .pressEvents(
-            onPress: { isPressed = true },
-            onRelease: { isPressed = false }
-        )
-    }
-}
-
 // MARK: - Helper Extension
 extension View {
     func pressEvents(onPress: @escaping () -> Void, onRelease: @escaping () -> Void) -> some View {
@@ -520,6 +480,227 @@ extension View {
                 onRelease()
             }
         } perform: {}
+    }
+}
+
+// Simple Story Creation View
+struct StoryCreationView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var selectedStoryType: StoryType = .photo
+    @State private var storyText: String = ""
+    @State private var showCamera = false
+    
+    enum StoryType: String, CaseIterable {
+        case photo = "Photo"
+        case video = "Video"
+        case text = "Text"
+        case ai = "AI Art"
+        case poll = "Poll"
+        case quiz = "Quiz"
+        
+        var icon: String {
+            switch self {
+            case .photo: return "camera.fill"
+            case .video: return "video.fill"
+            case .text: return "text.alignleft"
+            case .ai: return "wand.and.stars"
+            case .poll: return "chart.bar.fill"
+            case .quiz: return "questionmark.circle.fill"
+            }
+        }
+    }
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                // Quantum background
+                LinearGradient(
+                    colors: [.purple, .blue, .pink, .orange],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                VStack(spacing: 30) {
+                    // Story type selector
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 20) {
+                        ForEach(StoryType.allCases, id: \.self) { type in
+                            storyTypeButton(type)
+                        }
+                    }
+                    .padding(.horizontal)
+                    
+                    // Content area
+                    contentView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .background(.ultraThinMaterial)
+                        )
+                        .padding()
+                    
+                    // Action buttons
+                    HStack(spacing: 20) {
+                        Button("Cancel") {
+                            dismiss()
+                        }
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 15)
+                                .background(.ultraThinMaterial)
+                        )
+                        
+                        Button("Share Story") {
+                            // Handle story creation
+                            dismiss()
+                        }
+                        .foregroundColor(.black)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 15)
+                                .fill(.white)
+                        )
+                    }
+                    .padding(.bottom, 30)
+                }
+            }
+            .navigationTitle("Create Story")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.hidden, for: .navigationBar)
+        }
+    }
+    
+    @ViewBuilder
+    private func storyTypeButton(_ type: StoryType) -> some View {
+        Button {
+            selectedStoryType = type
+        } label: {
+            VStack(spacing: 8) {
+                Image(systemName: type.icon)
+                    .font(.title2)
+                    .foregroundColor(selectedStoryType == type ? .black : .white)
+                
+                Text(type.rawValue)
+                    .font(.caption)
+                    .foregroundColor(selectedStoryType == type ? .black : .white)
+            }
+            .frame(height: 80)
+            .frame(maxWidth: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(selectedStoryType == type ? .white : .white.opacity(0.2))
+            )
+        }
+    }
+    
+    @ViewBuilder
+    private func contentView() -> some View {
+        switch selectedStoryType {
+        case .photo:
+            PhotosPickerView()
+        case .video:
+            VideoCreationView()
+        case .text:
+            TextStoryView()
+        case .ai:
+            AIArtView()
+        case .poll:
+            PollCreationView()
+        case .quiz:
+            QuizCreationView()
+        }
+    }
+}
+
+// Supporting Views
+struct PhotosPickerView: View {
+    var body: some View {
+        VStack {
+            Image(systemName: "camera.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.white.opacity(0.7))
+            
+            Text("Tap to select photo")
+                .foregroundColor(.white)
+                .font(.headline)
+        }
+    }
+}
+
+struct VideoCreationView: View {
+    var body: some View {
+        VStack {
+            Image(systemName: "video.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.white.opacity(0.7))
+            
+            Text("Record or select video")
+                .foregroundColor(.white)
+                .font(.headline)
+        }
+    }
+}
+
+struct TextStoryView: View {
+    @State private var storyText: String = ""
+    
+    var body: some View {
+        VStack {
+            TextEditor(text: $storyText)
+                .foregroundColor(.white)
+                .background(Color.clear)
+                .font(.title2)
+                .padding()
+            
+            if storyText.isEmpty {
+                Text("What's on your mind?")
+                    .foregroundColor(.white.opacity(0.7))
+                    .font(.headline)
+            }
+        }
+    }
+}
+
+struct AIArtView: View {
+    var body: some View {
+        VStack {
+            Image(systemName: "wand.and.stars")
+                .font(.system(size: 60))
+                .foregroundColor(.white.opacity(0.7))
+            
+            Text("Generate AI artwork")
+                .foregroundColor(.white)
+                .font(.headline)
+        }
+    }
+}
+
+struct PollCreationView: View {
+    var body: some View {
+        VStack {
+            Image(systemName: "chart.bar.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.white.opacity(0.7))
+            
+            Text("Create a poll")
+                .foregroundColor(.white)
+                .font(.headline)
+        }
+    }
+}
+
+struct QuizCreationView: View {
+    var body: some View {
+        VStack {
+            Image(systemName: "questionmark.circle.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.white.opacity(0.7))
+            
+            Text("Create a quiz")
+                .foregroundColor(.white)
+                .font(.headline)
+        }
     }
 }
 
