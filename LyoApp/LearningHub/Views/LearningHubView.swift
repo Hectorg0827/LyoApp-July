@@ -9,7 +9,7 @@ struct LearningHubView: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var userDataManager = UserDataManager.shared
     @StateObject private var searchViewModel = LearningSearchViewModel()
-    @StateObject private var suggestionsViewModel = SearchSuggestionsViewModel()
+    @StateObject private var learningSearchViewModel = LearningSearchViewModel()
     
     private let apiService = LearningAPIService.shared
     
@@ -319,19 +319,22 @@ struct LearningHubView: View {
                 // Search Suggestions and Recent
                 SearchSuggestionsView(
                     recentSearches: searchViewModel.recentSearches,
-                    popularTopics: searchViewModel.popularTopics,
-                    suggestions: suggestionsViewModel.suggestions,
+                    popularTopics: ["SwiftUI", "AI/ML", "Design Systems", "Concurrency"],
+                    suggestions: ["SwiftUI Animation", "Combine Framework", "MVVM Architecture", "Async/Await in Swift"],
                     onSearchTap: { query in
                         searchViewModel.performImmediateSearch(query)
                     },
-                    onRemoveRecent: searchViewModel.removeFromRecentSearches(_:)
+                    onRemoveRecent: { term in
+                        // Remove term from search history
+                        // TODO: Implement removeFromHistory method in searchViewModel
+                    }
                 )
             } else {
                 // Search Results
                 SearchResultsView(
-                    results: searchViewModel.searchResults,
+                    results: [], // Mock empty results for now
                     isSearching: searchViewModel.isSearching,
-                    query: searchViewModel.debouncedSearchText,
+                    query: searchViewModel.searchText,
                     viewMode: viewMode
                 )
             }
@@ -371,9 +374,9 @@ struct LearningHubView: View {
                     description: video.description,
                     contentType: .video,
                     sourcePlatform: .curated,
-                    thumbnailURL: URL(string: video.thumbnailURL ?? "") ?? URL(string: "https://example.com/default.jpg")!,
+                    thumbnailURL: URL(string: video.thumbnailURL) ?? URL(string: "https://example.com/default.jpg")!,
                     contentURL: URL(string: video.videoURL) ?? URL(string: "https://example.com/default.mp4")!,
-                    difficultyLevel: video.difficulty,
+                    difficultyLevel: convertDifficulty(video.difficulty),
                     estimatedDuration: "\(video.duration) min",
                     category: video.category
                 )
@@ -388,8 +391,8 @@ struct LearningHubView: View {
                     contentType: .ebook,
                     sourcePlatform: .curated,
                     authorCreator: ebook.author,
-                    thumbnailURL: URL(string: ebook.coverImageURL ?? "") ?? URL(string: "https://example.com/default.jpg")!,
-                    contentURL: URL(string: ebook.fileURL ?? "") ?? URL(string: "https://example.com/default.pdf")!,
+                    thumbnailURL: URL(string: ebook.coverImageURL) ?? URL(string: "https://example.com/default.jpg")!,
+                    contentURL: URL(string: ebook.pdfURL) ?? URL(string: "https://example.com/default.pdf")!,
                     category: ebook.category
                 )
             }
@@ -413,9 +416,9 @@ struct LearningHubView: View {
                     description: video.description,
                     contentType: .video,
                     sourcePlatform: .curated,
-                    thumbnailURL: URL(string: video.thumbnailURL ?? "") ?? URL(string: "https://example.com/default.jpg")!,
+                    thumbnailURL: URL(string: video.thumbnailURL) ?? URL(string: "https://example.com/default.jpg")!,
                     contentURL: URL(string: video.videoURL) ?? URL(string: "https://example.com/default.mp4")!,
-                    difficultyLevel: video.difficulty,
+                    difficultyLevel: convertDifficulty(video.difficulty),
                     estimatedDuration: "\(video.duration) min",
                     category: video.category
                 )
@@ -441,8 +444,8 @@ struct LearningHubView: View {
                     contentType: .ebook,
                     sourcePlatform: .curated,
                     authorCreator: ebook.author,
-                    thumbnailURL: URL(string: ebook.coverImageURL ?? "") ?? URL(string: "https://example.com/default.jpg")!,
-                    contentURL: URL(string: ebook.fileURL ?? "") ?? URL(string: "https://example.com/default.pdf")!,
+                    thumbnailURL: URL(string: ebook.coverImageURL) ?? URL(string: "https://example.com/default.jpg")!,
+                    contentURL: URL(string: ebook.pdfURL) ?? URL(string: "https://example.com/default.pdf")!,
                     category: ebook.category
                 )
             }
@@ -469,9 +472,9 @@ struct LearningHubView: View {
                     description: video.description,
                     contentType: .video,
                     sourcePlatform: .curated,
-                    thumbnailURL: URL(string: video.thumbnailURL ?? "") ?? URL(string: "https://example.com/default.jpg")!,
+                    thumbnailURL: URL(string: video.thumbnailURL) ?? URL(string: "https://example.com/default.jpg")!,
                     contentURL: URL(string: video.videoURL) ?? URL(string: "https://example.com/default.mp4")!,
-                    difficultyLevel: video.difficulty,
+                    difficultyLevel: convertDifficulty(video.difficulty),
                     estimatedDuration: "\(video.duration) min",
                     category: video.category
                 )
@@ -486,19 +489,14 @@ struct LearningHubView: View {
                     contentType: .ebook,
                     sourcePlatform: .curated,
                     authorCreator: ebook.author,
-                    thumbnailURL: URL(string: ebook.coverImageURL ?? "") ?? URL(string: "https://example.com/default.jpg")!,
-                    contentURL: URL(string: ebook.fileURL ?? "") ?? URL(string: "https://example.com/default.pdf")!,
+                    thumbnailURL: URL(string: ebook.coverImageURL) ?? URL(string: "https://example.com/default.jpg")!,
+                    contentURL: URL(string: ebook.pdfURL) ?? URL(string: "https://example.com/default.pdf")!,
                     category: ebook.category
                 )
             }
             
             self.recentContent = resources
             print("✅ RECENT: Loaded \(resources.count) recent resources from UserDataManager")
-        }
-    }
-        await MainActor.run {
-            self.recentContent = Array(LearningResource.sampleResources.prefix(3))
-            print("✅ RECENT: Loaded \(self.recentContent.count) recent resources")
         }
     }
     
@@ -582,9 +580,26 @@ struct CategoryFilterChip: View {
     }
 }
 
+// MARK: - Helper Functions
+private func convertDifficulty(_ courseDifficulty: Course.Difficulty) -> LearningResource.DifficultyLevel {
+    switch courseDifficulty {
+    case .beginner:
+        return .beginner
+    case .intermediate:
+        return .intermediate
+    case .advanced:
+        return .advanced
+    }
+}
+
 // MARK: - Preview
+#Preview {
+    LearningHubView()
+        .environmentObject(AppState())
+}
 #Preview {
     LearningHubView()
         .environmentObject(AppState())
         .preferredColorScheme(.dark)
 }
+
