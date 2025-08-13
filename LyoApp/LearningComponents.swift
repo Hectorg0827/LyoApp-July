@@ -2,10 +2,16 @@ import SwiftUI
 
 // MARK: - Learning Hub Components for Build
 /// Contains all Learning Hub related views to ensure successful compilation
+/// Note: Main LearningHubView is now defined in /LearningHub/Views/LearningHubView.swift
 
-// MARK: - Main Learning Hub View
-struct LearningHubView: View {
-    @EnvironmentObject var appState: AppState
+// MARK: - Simple Components Only
+struct LearningProgressView: View {
+    var body: some View {
+        VStack {
+            Text("Learning Progress")
+        }
+    }
+}
     
     var body: some View {
         NavigationView {
