@@ -272,7 +272,7 @@ class LyoAPIService: ObservableObject {
         guard httpResponse.statusCode == 201 || httpResponse.statusCode == 200 else {
             // Try to parse error message from response
             if let errorData = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let message = errorData["message"] as? String {
+               let _ = errorData["message"] as? String {
                 throw APIError.serverError(httpResponse.statusCode)
             }
             throw APIError.serverError(httpResponse.statusCode)
