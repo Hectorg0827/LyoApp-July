@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - Learning Hub View
 /// Simplified Learning Hub for build compatibility
-struct LearningHubView: View {
+struct SimplifiedLearningHubView: View {
     @EnvironmentObject var appState: AppState
     
     var body: some View {
@@ -188,7 +188,7 @@ struct SimpleLearningPath {
 
 // MARK: - Preview
 #Preview {
-    LearningHubView()
+    SimplifiedLearningHubView()
         .environmentObject(AppState())
         .preferredColorScheme(.dark)
 }
