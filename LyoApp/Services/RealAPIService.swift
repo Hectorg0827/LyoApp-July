@@ -1,6 +1,23 @@
 import Foundation
 import Network
 
+// MARK: - API Response Models
+struct AuthResponse: Codable {
+    let accessToken: String
+    let refreshToken: String
+    let user: User
+}
+
+struct RefreshTokenRequest: Codable {
+    let refreshToken: String
+}
+
+struct ResetPasswordRequest: Codable {
+    let email: String
+}
+
+struct EmptyResponse: Codable {}
+
 // MARK: - Production API Service
 @MainActor
 class RealAPIService: ObservableObject {
@@ -130,7 +147,7 @@ class RealAPIService: ObservableObject {
     
     // MARK: - User Progress
     func saveProgress(_ progress: LearningProgress) async throws {
-        try await performRequest(
+        let _: EmptyResponse = try await performRequest(
             endpoint: "/users/progress",
             method: "POST",
             body: progress,
@@ -291,7 +308,7 @@ class RealAPIService: ObservableObject {
             throw APIError.serverError(httpResponse.statusCode)
         case 401:
             // Try to refresh token
-            if let token = KeychainManager.shared.retrieve(.refreshToken) {
+            if KeychainManager.shared.retrieve(.refreshToken) != nil {
                 try await refreshToken()
                 throw APIError.unauthorized
             } else {
@@ -321,47 +338,4 @@ struct APIUserProfile: Codable {
     let profileImageURL: String?
 }
 
-// MARK: - API Errors
-enum APIError: Error, LocalizedError {
-    case noAuthToken
-    case invalidResponse
-    case unauthorized
-    case invalidCredentials
-    case userAlreadyExists
-    case rateLimited
-    case serverError(Int)
-    case networkError(String)
-    case decodingError(String)
-    case unknown(Error)
-    case invalidURL
-    case noData
-    
-    var errorDescription: String? {
-        switch self {
-        case .noAuthToken:
-            return "Authentication token not found"
-        case .invalidResponse:
-            return "Invalid response from server"
-        case .unauthorized:
-            return "Authentication required"
-        case .invalidCredentials:
-            return "Invalid email or password"
-        case .userAlreadyExists:
-            return "An account with this email already exists"
-        case .rateLimited:
-            return "Too many requests. Please try again later."
-        case .serverError(let code):
-            return "Server error (\(code))"
-        case .networkError(let message):
-            return "Network error: \(message)"
-        case .decodingError(let message):
-            return "Data parsing error: \(message)"
-        case .unknown(let error):
-            return "Unknown error: \(error.localizedDescription)"
-        case .invalidURL:
-            return "Invalid URL"
-        case .noData:
-            return "No data received"
-        }
-    }
-}
+
