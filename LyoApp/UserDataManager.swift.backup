@@ -1,0 +1,1215 @@
+import SwiftUI
+import Foundation
+import CoreData
+
+/// Real user data management with local persistence and backend sync
+@MainActor
+class UserDataManager: ObservableObject {
+    static let shared = UserDataManager()
+    
+    // MARK: - Published Properties
+    @Published var currentUser: User?
+    @Published var isAuthenticated = false
+    @Published var userPosts: [Post] = []
+    @Published var userCourses: [Course] = []
+    @Published var userBadges: [UserBadge] = []
+    @Published var followers: [User] = []
+    @Published var following: [User] = []
+    @Published var isLoading = false
+    @Published var educationalVideos: [EducationalVideo] = []
+    @Published var ebooks: [Ebook] = []
+    @Published var stories: [Story] = []
+    @Published var communities: [Community] = []
+    @Published var discoverContent: [DiscoverContent] = []
+    
+    // MARK: - Storage Keys
+    private struct StorageKeys {
+        static let currentUser = "currentUser"
+        static let userPosts = "userPosts"
+        static let userCourses = "userCourses"
+        static let userBadges = "userBadges"
+        static let lastSyncDate = "lastSyncDate"
+    }
+    
+    // MARK: - Data Manager Integration
+    private let dataManager = DataManager.shared
+    
+    // MARK: - Core Data Manager
+    private let coreDataManager = CoreDataManager.shared
+    private var context: NSManagedObjectContext {
+        coreDataManager.context
+    }
+    
+    private init() {
+        loadPersistedData()
+    }
+    
+    // MARK: - User Management
+    
+    /// Save user to Core Data and update app state
+    func saveUser(_ user: User) {
+        // Update published properties
+        self.currentUser = user
+        self.isAuthenticated = true
+        
+        // Save to UserDefaults for simple persistence
+        saveUserData()
+        
+        // Analytics tracking
+        AnalyticsManager.shared.trackUserAction("user_saved", parameters: [
+            "user_id": user.id.uuidString,
+            "username": user.username
+        ])
+        
+        // Load associated data
+        Task {
+            await loadUserContent()
+        }
+    }
+    
+    /// Load user from persistence
+    func loadUser() -> User? {
+        loadUserData()
+        return currentUser
+    }
+    
+    /// Get current user or load from persistence
+    func getCurrentUser() -> User? {
+        if let currentUser = currentUser {
+            return currentUser
+        }
+        return loadUser()
+    }
+    
+    /// Logout and clear all data
+    func logout() {
+        currentUser = nil
+        isAuthenticated = false
+        clearAllData()
+        
+        AnalyticsManager.shared.trackUserAction("user_logout", parameters: [:])
+    }
+    
+    
+    // MARK: - Posts Management
+    
+    /// Get user posts (simplified implementation)
+    func getUserPosts() -> [Post] {
+        return userPosts
+    }
+    
+    /// Save a post
+    func savePost(_ post: Post) {
+        userPosts.insert(post, at: 0)
+        saveUserData()
+        
+        Task {
+            await syncPost(post)
+        }
+    }
+    
+    // MARK: - Course Management
+    
+    /// Get user courses (simplified implementation)  
+    func getUserCourses() -> [Course] {
+        return userCourses
+    }
+    
+    /// Enroll in a course
+    func enrollInCourse(_ course: Course) {
+        guard let currentUser = currentUser else { return }
+        
+        if !userCourses.contains(where: { $0.id == course.id }) {
+            var enrolledCourse = course
+            enrolledCourse.isEnrolled = true
+            userCourses.append(enrolledCourse)
+            saveUserData()
+            
+            AnalyticsManager.shared.trackUserAction("course_enrolled", parameters: [
+                "course_id": course.id.uuidString,
+                "course_title": course.title
+            ])
+        }
+    }
+    
+    // MARK: - Educational Content Management
+    
+    /// Get educational videos 
+    func getEducationalVideos() -> [EducationalVideo] {
+        if educationalVideos.isEmpty {
+            loadEducationalVideos()
+        }
+        return educationalVideos
+    }
+    
+    /// Get ebooks
+    func getEbooks() -> [Ebook] {
+        if ebooks.isEmpty {
+            loadEbooks()
+        }
+        return ebooks
+    }
+    
+    /// Get communities
+    func getCommunities() -> [Community] {
+        if communities.isEmpty {
+            loadCommunities()
+        }
+        return communities
+    }
+    
+    /// Get user stories
+    func getUserStories() -> [Story] {
+        if stories.isEmpty {
+            loadStories()
+        }
+        return stories
+    }
+    
+    /// Get discover content
+    func getDiscoverContent() -> [DiscoverContent] {
+        if discoverContent.isEmpty {
+            loadDiscoverContent()
+        }
+        return discoverContent
+    }
+    
+    
+    // MARK: - Private Helper Methods
+    
+    /// Load persisted data on initialization
+    private func loadPersistedData() {
+        loadUserData()
+    }
+    
+    /// Clear all local data
+    private func clearAllData() {
+        userPosts.removeAll()
+        userCourses.removeAll()
+        userBadges.removeAll()
+        followers.removeAll()
+        following.removeAll()
+        educationalVideos.removeAll()
+        ebooks.removeAll()
+        stories.removeAll()
+        communities.removeAll()
+        discoverContent.removeAll()
+        
+        // Clear UserDefaults
+        let userDefaults = UserDefaults.standard
+        userDefaults.removeObject(forKey: StorageKeys.currentUser)
+        userDefaults.removeObject(forKey: StorageKeys.userPosts)
+        userDefaults.removeObject(forKey: StorageKeys.userCourses)
+        userDefaults.removeObject(forKey: StorageKeys.userBadges)
+    }
+    
+    // MARK: - Content Loading Methods
+    
+    private func loadEducationalVideos() {
+        educationalVideos = [
+            EducationalVideo(
+                title: "SwiftUI Fundamentals",
+                description: "Learn the basics of SwiftUI development",
+                thumbnailURL: "https://example.com/swiftui-basics.jpg",
+                videoURL: "https://example.com/video1.mp4",
+                duration: 1800, // 30 minutes
+                instructor: "Apple Developer",
+                category: "iOS Development",
+                difficulty: .beginner
+            ),
+            EducationalVideo(
+                title: "Advanced Combine Patterns",
+                description: "Master reactive programming with Combine",
+                thumbnailURL: "https://example.com/combine-advanced.jpg",
+                videoURL: "https://example.com/video2.mp4",
+                duration: 2700, // 45 minutes
+                instructor: "iOS Expert",
+                category: "iOS Development",
+                difficulty: .advanced
+            )
+        ]
+    }
+    
+    private func loadEbooks() {
+        ebooks = [
+            Ebook(
+                title: "iOS Development Guide",
+                author: "Developer Expert",
+                description: "Complete guide to iOS development",
+                coverImageURL: "https://example.com/ios-guide.jpg",
+                pdfURL: "https://example.com/ios-guide.pdf",
+                category: "Technology",
+                pages: 300,
+                fileSize: "15 MB"
+            ),
+            Ebook(
+                title: "SwiftUI Cookbook",
+                author: "UI Specialist",
+                description: "Recipes for common SwiftUI patterns",
+                coverImageURL: "https://example.com/swiftui-cookbook.jpg",
+                pdfURL: "https://example.com/swiftui-cookbook.pdf",
+                category: "Development",
+                pages: 250,
+                fileSize: "12 MB"
+            )
+        ]
+    }
+    
+    private func loadCommunities() {
+        communities = [
+            Community(
+                name: "iOS Developers",
+                description: "Community for iOS app developers",
+                icon: "📱",
+                memberCount: 1250,
+                isPrivate: false,
+                category: "Technology"
+            ),
+            Community(
+                name: "SwiftUI Masters",
+                description: "Advanced SwiftUI techniques and tips",
+                icon: "🎨",
+                memberCount: 890,
+                isPrivate: false,
+                category: "Development"
+            )
+        ]
+    }
+    
+    private func loadStories() {
+        let sampleUser = currentUser ?? User(username: "user", email: "user@example.com", fullName: "User")
+        
+        stories = [
+            Story(
+                author: sampleUser,
+                mediaURL: "https://example.com/story1.jpg",
+                mediaType: .image,
+                isViewed: false,
+                createdAt: Date(),
+                expiresAt: Date().addingTimeInterval(86400) // 24 hours
+            ),
+            Story(
+                author: sampleUser,
+                mediaURL: "https://example.com/story2.jpg",
+                mediaType: .image,
+                isViewed: true,
+                createdAt: Date().addingTimeInterval(-3600),
+                expiresAt: Date().addingTimeInterval(82800) // 23 hours from now
+            )
+        ]
+    }
+    
+    private func loadDiscoverContent() {
+        discoverContent = [
+            DiscoverContent(
+                title: "Trending in iOS Development",
+                description: "Latest SwiftUI techniques and best practices",
+                category: "iOS Development",
+                imageURL: "https://example.com/ios-trending.jpg",
+                author: "Apple Developer",
+                createdAt: Date()
+            ),
+            DiscoverContent(
+                title: "Machine Learning Fundamentals",
+                description: "Start your journey into AI and ML",
+                category: "Technology",
+                imageURL: "https://example.com/ml-fundamentals.jpg",
+                author: "Tech Guru",
+                createdAt: Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date()
+            )
+        ]
+    }
+    
+    // MARK: - Badge Management
+    
+    /// Award a badge to the user
+    func awardBadge(name: String, description: String, iconName: String, rarity: UserBadge.Rarity = .common) {
+        // Don't award duplicate badges
+        guard !userBadges.contains(where: { $0.name == name }) else { return }
+        
+        let badge = UserBadge(
+            id: UUID(),
+            name: name,
+            description: description,
+            iconName: iconName,
+            color: rarity.color.description,
+            rarity: rarity,
+            earnedAt: Date()
+        )
+        
+        userBadges.append(badge)
+        
+        // Update user's badge count
+        if var user = currentUser {
+            user.badges = userBadges
+            currentUser = user
+        }
+        
+        saveUserData()
+        
+        // Show badge notification (could be implemented later)
+        print("🏆 Badge earned: \(name)")
+    }
+    
+    /// Update course progress
+    func updateCourseProgress(_ courseId: UUID, progress: Double) {
+        if let index = userCourses.firstIndex(where: { $0.id == courseId }) {
+            userCourses[index].progress = progress
+            saveUserData()
+            
+            // Award completion badge
+            if progress >= 1.0 {
+                awardBadge(name: "Course Complete", description: "Completed a full course", iconName: "star.fill")
+                
+                // Update user experience
+                if var user = currentUser {
+                    user.experience += 500
+                    user.level = calculateLevel(experience: user.experience)
+                    currentUser = user
+                    saveUserData()
+                }
+            }
+        }
+    }
+    
+    // MARK: - Social Features
+    
+    /// Follow another user
+    func followUser(_ user: User) {
+        if !following.contains(where: { $0.id == user.id }) {
+            following.append(user)
+            
+            // Update current user's following count
+            if var currentUser = currentUser {
+                currentUser.following = following.count
+                self.currentUser = currentUser
+            }
+            
+            saveUserData()
+            
+            Task {
+                await syncFollowAction(user, isFollowing: true)
+            }
+        }
+    }
+    
+    /// Unfollow a user
+    func unfollowUser(_ user: User) {
+        following.removeAll { $0.id == user.id }
+        
+        // Update current user's following count
+        if var currentUser = currentUser {
+            currentUser.following = following.count
+            self.currentUser = currentUser
+        }
+        
+        saveUserData()
+        
+        Task {
+            await syncFollowAction(user, isFollowing: false)
+        }
+    }
+    }
+    
+    // MARK: - Data Persistence
+    
+    private func loadUserData() {
+        let userDefaults = UserDefaults.standard
+        
+        // Load current user
+        if let userData = userDefaults.data(forKey: StorageKeys.currentUser),
+           let user = try? JSONDecoder().decode(User.self, from: userData) {
+            currentUser = user
+            isAuthenticated = true
+        }
+        
+        // Load user posts
+        if let postsData = userDefaults.data(forKey: StorageKeys.userPosts),
+           let posts = try? JSONDecoder().decode([Post].self, from: postsData) {
+            userPosts = posts
+        }
+        
+        // Load user courses
+        if let coursesData = userDefaults.data(forKey: StorageKeys.userCourses),
+           let courses = try? JSONDecoder().decode([Course].self, from: coursesData) {
+            userCourses = courses
+        }
+        
+        // Load user badges
+        if let badgesData = userDefaults.data(forKey: StorageKeys.userBadges),
+           let badges = try? JSONDecoder().decode([UserBadge].self, from: badgesData) {
+            userBadges = badges
+        }
+    }
+    
+    private func saveUserData() {
+        let userDefaults = UserDefaults.standard
+        
+        // Save current user
+        if let user = currentUser,
+           let userData = try? JSONEncoder().encode(user) {
+            userDefaults.set(userData, forKey: StorageKeys.currentUser)
+        }
+        
+        // Save user posts
+        if let postsData = try? JSONEncoder().encode(userPosts) {
+            userDefaults.set(postsData, forKey: StorageKeys.userPosts)
+        }
+        
+        // Save user courses
+        if let coursesData = try? JSONEncoder().encode(userCourses) {
+            userDefaults.set(coursesData, forKey: StorageKeys.userCourses)
+        }
+        
+        // Save user badges
+        if let badgesData = try? JSONEncoder().encode(userBadges) {
+            userDefaults.set(badgesData, forKey: StorageKeys.userBadges)
+        }
+        
+        // Update last sync date
+        userDefaults.set(Date(), forKey: StorageKeys.lastSyncDate)
+    }
+    
+    // MARK: - Backend Sync
+    
+    private func loadUserContent() async {
+        isLoading = true
+        defer { isLoading = false }
+        
+        // Try to load from backend, fall back to local data
+        do {
+            if LyoAPIService.shared.isConnected {
+                // Load posts from backend
+                // let posts = try await LyoAPIService.shared.getUserPosts()
+                // userPosts = posts
+                
+                // Load courses from backend
+                // let courses = try await LyoAPIService.shared.getUserCourses()
+                // userCourses = courses
+            }
+        } catch {
+            print("⚠️ Failed to sync with backend: \(error)")
+            // Continue with local data
+        }
+    }
+    
+    private func syncUserProfile(_ user: User) async {
+        // Implementation for backend sync
+        do {
+            if LyoAPIService.shared.isConnected {
+                // await LyoAPIService.shared.updateUserProfile(user)
+            }
+        } catch {
+            print("⚠️ Failed to sync user profile: \(error)")
+        }
+    }
+    
+    private func syncPost(_ post: Post) async {
+        // Implementation for backend sync
+        do {
+            if LyoAPIService.shared.isConnected {
+                // await LyoAPIService.shared.createPost(post)
+            }
+        } catch {
+            print("⚠️ Failed to sync post: \(error)")
+        }
+    }
+    
+    private func syncFollowAction(_ user: User, isFollowing: Bool) async {
+        // Implementation for backend sync
+        do {
+            if LyoAPIService.shared.isConnected {
+                // await LyoAPIService.shared.updateFollowStatus(user.id, isFollowing: isFollowing)
+            }
+        } catch {
+            print("⚠️ Failed to sync follow action: \(error)")
+        }
+    }
+    
+    // MARK: - Helper Functions
+    
+    private func calculateLevel(experience: Int) -> Int {
+        // Simple level calculation: every 1000 XP = 1 level
+        return max(1, experience / 1000 + 1)
+    }
+    
+    /// Get user's progress statistics
+    func getUserStats() -> (totalCourses: Int, completedCourses: Int, totalBadges: Int, currentLevel: Int) {
+        let totalCourses = userCourses.count
+        let completedCourses = userCourses.filter { $0.progress >= 1.0 }.count
+        let totalBadges = userBadges.count
+        let currentLevel = currentUser?.level ?? 1
+        
+        return (totalCourses, completedCourses, totalBadges, currentLevel)
+    }
+    
+    /// Get user videos for the main feed (convert EducationalVideo to VideoPost)
+    func getUserVideos() -> [VideoPost] {
+        let educationalVideos = getEducationalVideos()
+        
+        return educationalVideos.map { video in
+            VideoPost(
+                author: User(
+                    id: UUID(),
+                    username: video.instructor,
+                    email: "\(video.instructor.lowercased())@lyoapp.com",
+                    fullName: video.instructor,
+                    bio: "Educational Content Creator",
+                    profileImageURL: "",
+                    followers: Int.random(in: 1000...50000),
+                    following: Int.random(in: 100...2000),
+                    posts: Int.random(in: 10...200)
+                ),
+                title: video.title,
+                videoURL: video.videoURL,
+                thumbnailURL: video.thumbnailURL,
+                likes: Int.random(in: 100...10000),
+                comments: Int.random(in: 10...500),
+                shares: Int.random(in: 5...200),
+                isLiked: false,
+                hashtags: [video.category],
+                createdAt: Date()
+            )
+        }
+    }
+    
+    /// Search discover content by query
+    func searchDiscoverContent(_ query: String) -> [DiscoverContent] {
+        let allContent = getDiscoverContent()
+        if query.isEmpty {
+            return allContent
+        }
+        
+        return allContent.filter { content in
+            content.title.localizedCaseInsensitiveContains(query) ||
+            content.description.localizedCaseInsensitiveContains(query) ||
+            content.category.localizedCaseInsensitiveContains(query) ||
+            content.author.localizedCaseInsensitiveContains(query)
+        }
+    }
+    
+    /// Get discover content filtered by category
+    func getDiscoverContentByCategory(_ category: String) -> [DiscoverContent] {
+        let allContent = getDiscoverContent()
+        if category == "All" {
+            return allContent
+        }
+        
+        return allContent.filter { content in
+            content.category.localizedCaseInsensitiveContains(category)
+        }
+    }
+    
+    // MARK: - User Authentication Management
+    
+    /// Set the current authenticated user
+    func setCurrentUser(_ user: User) {
+        currentUser = user
+        isAuthenticated = true
+        saveUserData()
+    }
+    
+    /// Clear user data and log out
+    func clearUserData() {
+        logout()
+    }
+    
+    // MARK: - Data Persistence
+    
+    private func loadUserData() {
+        let userDefaults = UserDefaults.standard
+        
+        // Load current user
+        if let userData = userDefaults.data(forKey: StorageKeys.currentUser),
+           let user = try? JSONDecoder().decode(User.self, from: userData) {
+            currentUser = user
+        }
+        
+        // Load user posts
+        if let postsData = userDefaults.data(forKey: StorageKeys.userPosts),
+           let posts = try? JSONDecoder().decode([Post].self, from: postsData) {
+            userPosts = posts
+        }
+        
+        // Load user courses
+        if let coursesData = userDefaults.data(forKey: StorageKeys.userCourses),
+           let courses = try? JSONDecoder().decode([Course].self, from: coursesData) {
+            userCourses = courses
+        }
+        
+        // Load user badges
+        if let badgesData = userDefaults.data(forKey: StorageKeys.userBadges),
+           let badges = try? JSONDecoder().decode([UserBadge].self, from: badgesData) {
+            userBadges = badges
+        }
+    }
+    
+    private func saveUserData() {
+        let userDefaults = UserDefaults.standard
+        
+        // Save current user
+        if let user = currentUser,
+           let userData = try? JSONEncoder().encode(user) {
+            userDefaults.set(userData, forKey: StorageKeys.currentUser)
+        }
+        
+        // Save user posts
+        if let postsData = try? JSONEncoder().encode(userPosts) {
+            userDefaults.set(postsData, forKey: StorageKeys.userPosts)
+        }
+        
+        // Save user courses
+        if let coursesData = try? JSONEncoder().encode(userCourses) {
+            userDefaults.set(coursesData, forKey: StorageKeys.userCourses)
+        }
+        
+        // Save user badges
+        if let badgesData = try? JSONEncoder().encode(userBadges) {
+            userDefaults.set(badgesData, forKey: StorageKeys.userBadges)
+        }
+        
+        // Update last sync date
+        userDefaults.set(Date(), forKey: StorageKeys.lastSyncDate)
+    }
+    
+    // MARK: - Backend Sync
+    
+    private func loadUserContent() async {
+        isLoading = true
+        defer { isLoading = false }
+        
+        // Try to load from backend, fall back to local data
+        do {
+            if LyoAPIService.shared.isConnected {
+                // Load posts from backend
+                // let posts = try await LyoAPIService.shared.getUserPosts()
+                // userPosts = posts
+                
+                // Load courses from backend
+                // let courses = try await LyoAPIService.shared.getUserCourses()
+                // userCourses = courses
+            }
+        } catch {
+            print("⚠️ Failed to sync with backend: \(error)")
+            // Continue with local data
+        }
+    }
+    
+    private func syncUserProfile(_ user: User) async {
+        // Implementation for backend sync
+        do {
+            if LyoAPIService.shared.isConnected {
+                // await LyoAPIService.shared.updateUserProfile(user)
+            }
+        } catch {
+            print("⚠️ Failed to sync user profile: \(error)")
+        }
+    }
+    
+    private func syncPost(_ post: Post) async {
+        // Implementation for backend sync
+        do {
+            if LyoAPIService.shared.isConnected {
+                // await LyoAPIService.shared.createPost(post)
+            }
+        } catch {
+            print("⚠️ Failed to sync post: \(error)")
+        }
+    }
+    
+    private func syncFollowAction(_ user: User, isFollowing: Bool) async {
+        // Implementation for backend sync
+        do {
+            if LyoAPIService.shared.isConnected {
+                // await LyoAPIService.shared.updateFollowStatus(user.id, isFollowing: isFollowing)
+            }
+        } catch {
+            print("⚠️ Failed to sync follow action: \(error)")
+        }
+    }
+    
+    // MARK: - Helper Functions
+    
+    private func calculateLevel(experience: Int) -> Int {
+        // Simple level calculation: every 1000 XP = 1 level
+        return max(1, experience / 1000 + 1)
+    }
+    
+    /// Get user's progress statistics
+    func getUserStats() -> (totalCourses: Int, completedCourses: Int, totalBadges: Int, currentLevel: Int) {
+        let totalCourses = userCourses.count
+        let completedCourses = userCourses.filter { $0.progress >= 1.0 }.count
+        let totalBadges = userBadges.count
+        let currentLevel = currentUser?.level ?? 1
+        
+        return (totalCourses, completedCourses, totalBadges, currentLevel)
+    }
+    
+    // MARK: - Video Management
+    func getUserVideos() -> [VideoPost] {
+        // TODO: Implement video loading from Core Data
+        // For now, return empty array
+        return []
+    }
+    
+    func saveVideo(_ video: VideoPost) {
+        // TODO: Implement video saving to Core Data
+    }
+    
+    
+    // MARK: - Educational Content Management
+    func getEducationalVideos() -> [EducationalVideo] {
+        if educationalVideos.isEmpty {
+            loadEducationalVideos()
+        }
+        return educationalVideos
+    }
+    
+    func getEbooks() -> [Ebook] {
+        if ebooks.isEmpty {
+            loadEbooks()
+        }
+        return ebooks
+    }
+    
+    func getUserStories() -> [Story] {
+        if stories.isEmpty {
+            loadStories()
+        }
+        return stories
+    }
+    
+    func getCommunities() -> [Community] {
+        if communities.isEmpty {
+            loadCommunities()
+        }
+        return communities
+    }
+    
+    func getDiscoverContent() -> [DiscoverContent] {
+        if discoverContent.isEmpty {
+            loadDiscoverContent()
+        }
+        return discoverContent
+    }
+    
+    private func loadEbooks() {
+        // Load from SwiftData and convert to Ebook
+        let resources = dataManager.fetchLearningResources()
+        self.ebooks = resources.compactMap { resource in
+            guard resource.contentType.rawValue == "ebook" else { return nil }
+            return Ebook(
+                id: resource.id,
+                title: resource.title,
+                author: resource.authorCreator ?? "Unknown Author",
+                description: resource.description,
+                coverImageURL: resource.thumbnailURL?.absoluteString,
+                fileURL: resource.contentURL?.absoluteString,
+                category: resource.category ?? "General",
+                pageCount: 100 // Default page count
+            )
+        }
+        
+        // If no data, seed with sample data
+        if ebooks.isEmpty {
+            seedEbooks()
+        }
+    }
+    
+    private func loadStories() {
+        // Create sample stories data
+        let sampleStories = [
+            Story(
+                id: UUID(),
+                user: currentUser ?? User(username: "user", email: "user@example.com", fullName: "User"),
+                mediaURL: "https://example.com/story1.jpg",
+                timestamp: Date(),
+                isViewed: false
+            ),
+            Story(
+                id: UUID(),
+                user: currentUser ?? User(username: "user", email: "user@example.com", fullName: "User"),
+                mediaURL: "https://example.com/story2.jpg",
+                timestamp: Date().addingTimeInterval(-3600),
+                isViewed: true
+            )
+        ]
+        
+        self.stories = sampleStories
+    }
+    
+    private func loadCommunities() {
+        // Create sample communities data
+        let sampleCommunities = [
+            Community(
+                name: "iOS Developers",
+                description: "Community for iOS app developers",
+                icon: "📱",
+                memberCount: 1250,
+                isPrivate: false,
+                category: "Technology"
+            ),
+            Community(
+                name: "SwiftUI Masters",
+                description: "Advanced SwiftUI techniques and tips",
+                icon: "🎨",
+                memberCount: 890,
+                isPrivate: false,
+                category: "Development"
+            ),
+            Community(
+                name: "Machine Learning Hub",
+                description: "AI and ML discussions and projects",
+                icon: "🤖",
+                memberCount: 2100,
+                isPrivate: false,
+                category: "AI/ML"
+            )
+        ]
+        
+        self.communities = sampleCommunities
+    }
+    
+    private func loadDiscoverContent() {
+        // Create sample discover content
+        let sampleDiscoverContent = [
+            DiscoverContent(
+                id: UUID(),
+                title: "Trending in iOS Development",
+                description: "Latest SwiftUI techniques and best practices",
+                imageURL: "https://example.com/ios-trending.jpg",
+                contentType: .course,
+                category: "iOS Development"
+            ),
+            DiscoverContent(
+                id: UUID(),
+                title: "Machine Learning Fundamentals",
+                description: "Start your journey into AI and ML",
+                imageURL: "https://example.com/ml-fundamentals.jpg",
+                contentType: .course,
+                category: "Machine Learning"
+            ),
+            DiscoverContent(
+                id: UUID(),
+                title: "SwiftUI Advanced Patterns",
+                description: "Master complex UI patterns in SwiftUI",
+                imageURL: "https://example.com/swiftui-advanced.jpg",
+                contentType: .video,
+                category: "iOS Development"
+            )
+        ]
+        
+        self.discoverContent = sampleDiscoverContent
+    }
+    
+    private func seedEducationalVideos() {
+        let sampleVideos = [
+            EducationalVideo(
+                id: UUID(),
+                title: "Introduction to SwiftUI",
+                description: "Learn the basics of SwiftUI development",
+                thumbnailURL: "https://example.com/swift-thumb.jpg",
+                videoURL: "https://example.com/swift-video.mp4",
+                duration: 30,
+                category: "iOS Development",
+                difficulty: .beginner
+            ),
+            EducationalVideo(
+                id: UUID(),
+                title: "Advanced iOS Architecture",
+                description: "Master MVVM and clean architecture patterns",
+                thumbnailURL: "https://example.com/architecture-thumb.jpg",
+                videoURL: "https://example.com/architecture-video.mp4",
+                duration: 45,
+                category: "iOS Development",
+                difficulty: .advanced
+            ),
+            EducationalVideo(
+                id: UUID(),
+                title: "Machine Learning Fundamentals",
+                description: "Introduction to ML concepts and Core ML",
+                thumbnailURL: "https://example.com/ml-thumb.jpg",
+                videoURL: "https://example.com/ml-video.mp4",
+                duration: 60,
+                category: "Machine Learning",
+                difficulty: .intermediate
+            )
+        ]
+        
+        self.educationalVideos = sampleVideos
+        
+        // Save to SwiftData for persistence
+        for video in sampleVideos {
+            let resource = LearningResource(
+                id: video.id,
+                title: video.title,
+                description: video.description,
+                contentType: .video,
+                sourcePlatform: .curated,
+                thumbnailURL: URL(string: video.thumbnailURL ?? "") ?? URL(string: "https://example.com/default.jpg")!,
+                contentURL: URL(string: video.videoURL) ?? URL(string: "https://example.com/default.mp4")!,
+                difficultyLevel: video.difficulty,
+                estimatedDuration: "\(video.duration) min",
+                category: video.category
+            )
+            
+            try? dataManager.saveLearningResource(resource)
+        }
+    }
+    
+    private func seedEbooks() {
+        let sampleEbooks = [
+            Ebook(
+                id: UUID(),
+                title: "Swift Programming Guide",
+                author: "Apple Inc.",
+                description: "Complete guide to Swift programming language",
+                coverImageURL: "https://example.com/swift-book.jpg",
+                fileURL: "https://example.com/swift-guide.pdf",
+                category: "Programming",
+                pageCount: 320
+            ),
+            Ebook(
+                id: UUID(),
+                title: "iOS Human Interface Guidelines",
+                author: "Apple Design Team",
+                description: "Design principles for iOS applications",
+                coverImageURL: "https://example.com/hig-book.jpg",
+                fileURL: "https://example.com/hig.pdf",
+                category: "Design",
+                pageCount: 180
+            ),
+            Ebook(
+                id: UUID(),
+                title: "Data Structures and Algorithms",
+                author: "CS Experts",
+                description: "Fundamental computer science concepts",
+                coverImageURL: "https://example.com/dsa-book.jpg",
+                fileURL: "https://example.com/dsa.pdf",
+                category: "Computer Science",
+                pageCount: 450
+            )
+        ]
+        
+        self.ebooks = sampleEbooks
+    }
+    
+    // MARK: - Library Data Management
+    
+    /// Get AI recommended courses for the library
+    func getRecommendedCourses() -> [LibraryCourse] {
+        // Convert educational content to library courses
+        let videos = getEducationalVideos()
+        return videos.prefix(8).map { video in
+            LibraryCourse(
+                title: video.title,
+                instructor: video.instructor ?? "Expert Instructor",
+                thumbnailURL: video.imageURL ?? "",
+                rating: Double.random(in: 4.2...4.9),
+                duration: "\(Int.random(in: 15...120)) min",
+                progress: 0.0,
+                completedDate: nil
+            )
+        }
+    }
+    
+    /// Get courses currently in progress
+    func getInProgressCourses() -> [LibraryCourse] {
+        // Return courses with progress > 0 and < 1
+        let videos = getEducationalVideos()
+        return videos.prefix(5).map { video in
+            LibraryCourse(
+                title: video.title,
+                instructor: video.instructor ?? "Expert Instructor", 
+                thumbnailURL: video.imageURL ?? "",
+                rating: Double.random(in: 4.2...4.9),
+                duration: "\(Int.random(in: 15...120)) min",
+                progress: Double.random(in: 0.1...0.8),
+                completedDate: nil
+            )
+        }
+    }
+    
+    /// Get completed courses
+    func getCompletedCourses() -> [LibraryCourse] {
+        // Return courses with progress = 1
+        let videos = getEducationalVideos()
+        return videos.suffix(3).map { video in
+            LibraryCourse(
+                title: video.title,
+                instructor: video.instructor ?? "Expert Instructor",
+                thumbnailURL: video.imageURL ?? "",
+                rating: Double.random(in: 4.2...4.9),
+                duration: "\(Int.random(in: 15...120)) min",
+                progress: 1.0,
+                completedDate: "Dec 15, 2024"
+            )
+        }
+    }
+    
+    /// Get saved items (videos, articles, posts)
+    func getSavedItems() -> [SavedItem] {
+        let videos = getEducationalVideos()
+        let ebooks = getEbooks()
+        
+        var savedItems: [SavedItem] = []
+        
+        // Add some videos as saved items
+        for video in videos.prefix(3) {
+            savedItems.append(SavedItem(
+                title: video.title,
+                author: video.instructor ?? "Expert",
+                thumbnailURL: video.imageURL,
+                type: .video,
+                savedDate: "Dec 20, 2024"
+            ))
+        }
+        
+        // Add some ebooks as saved articles
+        for ebook in ebooks.prefix(2) {
+            savedItems.append(SavedItem(
+                title: ebook.title,
+                author: ebook.author,
+                thumbnailURL: ebook.imageURL,
+                type: .article,
+                savedDate: "Dec 18, 2024"
+            ))
+        }
+        
+        return savedItems
+    }
+    
+    /// Get user achievements from the profile
+    func getUserAchievements() -> [Achievement] {
+        return [
+            Achievement(
+                title: "First Course",
+                description: "Completed your first course",
+                icon: "star.fill",
+                isUnlocked: true,
+                unlockedDate: Date()
+            ),
+            Achievement(
+                title: "Study Streak",
+                description: "7 days in a row",
+                icon: "flame.fill",
+                isUnlocked: true,
+                unlockedDate: Calendar.current.date(byAdding: .day, value: -2, to: Date())
+            ),
+            Achievement(
+                title: "Video Master",
+                description: "Watched 10 educational videos",
+                icon: "play.circle.fill",
+                isUnlocked: true,
+                unlockedDate: Calendar.current.date(byAdding: .week, value: -1, to: Date())
+            ),
+            Achievement(
+                title: "Knowledge Seeker",
+                description: "Read 5 ebooks",
+                icon: "book.fill",
+                isUnlocked: false,
+                unlockedDate: nil
+            ),
+            Achievement(
+                title: "Community Leader",
+                description: "Help 20 community members",
+                icon: "person.3.fill",
+                isUnlocked: false,
+                unlockedDate: nil
+            ),
+            Achievement(
+                title: "Perfect Score",
+                description: "Ace a quiz with 100%",
+                icon: "checkmark.seal.fill",
+                isUnlocked: true,
+                unlockedDate: Calendar.current.date(byAdding: .day, value: -5, to: Date())
+            )
+        ]
+    }
+    
+    /// Get user videos for the main feed (convert EducationalVideo to VideoPost)
+    func getUserVideos() -> [VideoPost] {
+        let educationalVideos = getEducationalVideos()
+        
+        return educationalVideos.map { video in
+            VideoPost(
+                author: User(
+                    id: UUID(),
+                    username: video.instructor ?? "Expert",
+                    email: "\(video.instructor?.lowercased() ?? "expert")@lyoapp.com",
+                    fullName: video.instructor ?? "Expert Instructor",
+                    bio: "Educational Content Creator",
+                    profileImageURL: "",
+                    followers: Int.random(in: 1000...50000),
+                    following: Int.random(in: 100...2000),
+                    posts: Int.random(in: 10...200)
+                ),
+                title: video.title,
+                videoURL: video.url ?? "",
+                thumbnailURL: video.imageURL ?? "",
+                likes: Int.random(in: 100...10000),
+                comments: Int.random(in: 10...500),
+                shares: Int.random(in: 5...200),
+                isLiked: false,
+                hashtags: [video.category ?? "Education"],
+                createdAt: Date()
+            )
+        }
+    }
+    
+    /// Search discover content by query
+    func searchDiscoverContent(_ query: String) -> [DiscoverContent] {
+        let allContent = getDiscoverContent()
+        if query.isEmpty {
+            return allContent
+        }
+        
+        return allContent.filter { content in
+            content.title.localizedCaseInsensitiveContains(query) ||
+            content.description.localizedCaseInsensitiveContains(query) ||
+            content.category.localizedCaseInsensitiveContains(query) ||
+            content.author.localizedCaseInsensitiveContains(query)
+        }
+    }
+    
+    /// Get discover content filtered by category
+    func getDiscoverContentByCategory(_ category: String) -> [DiscoverContent] {
+        let allContent = getDiscoverContent()
+        if category == "All" {
+            return allContent
+        }
+        
+        return allContent.filter { content in
+            content.category.localizedCaseInsensitiveContains(category)
+        }
+    }
+    
+    // Removed duplicate static discover content provider; using curated Core Data-backed implementation instead.
+    
+    // MARK: - User Authentication Management
+    
+    /// Set the current authenticated user
+    func setCurrentUser(_ user: User) {
+        currentUser = user
+        // Save to persistent storage if needed
+        saveUserData()
+    }
+    
+    /// Clear user data and log out
+    func clearUserData() {
+        currentUser = nil
+        // Clear any cached data if needed
+        saveUserData()
+    }
+    
+}
+
+// MARK: - Notification Names
+
+// MARK: - Supporting Models for UserDataManager
+struct UserStats {
+    let coursesCompleted: Int
+    let totalWatchTime: Int // in minutes
+    let streakDays: Int
+    let badgesEarned: Int
+}
