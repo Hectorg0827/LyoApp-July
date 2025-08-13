@@ -1,6 +1,45 @@
 import SwiftUI
 import SwiftData
 
+// MARK: - Production Learning API Service
+
+@MainActor
+class ProductionLearningAPIService: ObservableObject {
+    @Published var isLoading = false
+    @Published var resources: [LearningResource] = []
+    @Published var errorMessage: String?
+    
+    func loadResources() async {
+        isLoading = true
+        defer { isLoading = false }
+        
+        // Mock implementation for production
+        try? await Task.sleep(nanoseconds: 1_000_000_000)
+        resources = generateMockResources()
+    }
+    
+    private func generateMockResources() -> [LearningResource] {
+        return [
+            LearningResource(
+                id: UUID().uuidString,
+                title: "Swift Programming Basics",
+                description: "Learn the fundamentals of Swift programming language",
+                contentType: "video",
+                difficulty: "beginner",
+                thumbnailURL: nil
+            ),
+            LearningResource(
+                id: UUID().uuidString,
+                title: "SwiftUI Advanced Techniques",
+                description: "Master advanced SwiftUI concepts and patterns",
+                contentType: "article",
+                difficulty: "advanced",
+                thumbnailURL: nil
+            )
+        ]
+    }
+}
+
 // MARK: - Production Learning Hub View
 
 struct ProductionLearningHubView: View {
