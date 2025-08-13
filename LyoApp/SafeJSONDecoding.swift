@@ -103,24 +103,3 @@ extension LearningAPIService {
         }
     }
 }
-
-// MARK: - API Error Types
-enum APIError: LocalizedError {
-    case invalidURL
-    case invalidResponse
-    case serverError(Int)
-    case noData
-    
-    var errorDescription: String? {
-        switch self {
-        case .invalidURL:
-            return "Invalid URL format"
-        case .invalidResponse:
-            return "Invalid server response"
-        case .serverError(let code):
-            return "Server error with code: \(code)"
-        case .noData:
-            return "No data received from server"
-        }
-    }
-}
