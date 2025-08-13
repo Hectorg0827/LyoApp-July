@@ -1,0 +1,569 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination "platform=iOS Simulator,name=iPhone 16,OS=18.5"
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (1 target)
+    Target 'LyoApp' in project 'LyoApp' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk /Users/republicalatuya/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-d5fc8ad4295d2ef488fb7d0f804ce0c4.sdkstatcache
+    cd /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -o /Users/republicalatuya/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-d5fc8ad4295d2ef488fb7d0f804ce0c4.sdkstatcache
+
+SwiftDriver LyoApp normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name LyoApp -Onone -enforce-exclusivity\=checked @/Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/LyoApp.SwiftFileList -DDEBUG -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -target x86_64-apple-ios17.0-simulator -g -module-cache-path /Users/republicalatuya/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Index.noindex/DataStore -swift-version 5 -I /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Products/Debug-iphonesimulator -F /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Products/Debug-iphonesimulator -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/republicalatuya/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-d5fc8ad4295d2ef488fb7d0f804ce0c4.sdkstatcache -output-file-map /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/LyoApp-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/LyoApp.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/republicalatuya/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/LyoApp_const_extract_protocols.json -Xcc -iquote -Xcc /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/LyoApp-generated-files.hmap -Xcc -I/Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/LyoApp-own-target-headers.hmap -Xcc -I/Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/LyoApp-all-target-headers.hmap -Xcc -iquote -Xcc /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/LyoApp-project-headers.hmap -Xcc -I/Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/DerivedSources-normal/x86_64 -Xcc -I/Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/DerivedSources/x86_64 -Xcc -I/Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/LyoApp-Swift.h -working-directory /Users/republicalatuya/Desktop/LyoApp\ July -experimental-emit-module-separately -disable-cmo
+
+SwiftCompile normal x86_64 Compiling\ LessonBlockView.swift,\ AIAvatarView.swift,\ AIAvatarIntegration.swift,\ AIFullChatViewWithCompletion.swift,\ AIModels.swift,\ AIOnboardingFlowView.swift,\ AISearchView.swift,\ AppIconView.swift,\ AppState.swift,\ AppStateExtensions.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LessonBlockView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AIAvatarView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AIAvatarIntegration.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AIFullChatViewWithCompletion.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AIModels.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AIOnboardingFlowView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AISearchView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AppIconView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AppState.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AppStateExtensions.swift (in target 'LyoApp' from project 'LyoApp')
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LessonBlockView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AIAvatarView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AIAvatarIntegration.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AIFullChatViewWithCompletion.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AIModels.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AIOnboardingFlowView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AISearchView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AppIconView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AppState.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AppStateExtensions.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 Compiling\ LyoWebSocketService.swift,\ MainTabView.swift,\ MessageBubble.swift,\ MessengerView.swift,\ Models.swift,\ MoreTabView.swift,\ NetworkLayer.swift,\ PostView.swift,\ SettingsView.swift,\ SimpleChatView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LyoWebSocketService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/MainTabView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/MessageBubble.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/MessengerView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Models.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/MoreTabView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/NetworkLayer.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/PostView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/SettingsView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/SimpleChatView.swift (in target 'LyoApp' from project 'LyoApp')
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LyoWebSocketService.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/MainTabView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/MessageBubble.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/MessengerView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Models.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/MoreTabView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/NetworkLayer.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/PostView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/SettingsView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/SimpleChatView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 Compiling\ LearningResource.swift,\ LearningAPIService.swift,\ LearningAssistantViewModel.swift,\ LearningSearchViewModel.swift,\ SearchViewModel.swift,\ ContentDisplayComponents.swift,\ ContentSection.swift,\ FeaturedContentCarousel.swift,\ LearnView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Models/LearningResource.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Services/LearningAPIService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/ViewModels/LearningAssistantViewModel.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/ViewModels/LearningSearchViewModel.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/ViewModels/SearchViewModel.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/ContentDisplayComponents.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/ContentSection.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/FeaturedContentCarousel.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/LearnView.swift (in target 'LyoApp' from project 'LyoApp')
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Models/LearningResource.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Services/LearningAPIService.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/ViewModels/LearningAssistantViewModel.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/ViewModels/LearningSearchViewModel.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/ViewModels/SearchViewModel.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/ContentDisplayComponents.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/ContentSection.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/FeaturedContentCarousel.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/LearnView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftEmitModule normal x86_64 Emitting\ module\ for\ LyoApp (in target 'LyoApp' from project 'LyoApp')
+
+EmitSwiftModule normal x86_64 (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 Compiling\ LearningDataService.swift,\ KeychainManager.swift,\ NotificationManager.swift,\ GemmaService.swift,\ RealAPIService.swift,\ DownloadManager.swift,\ NetworkMonitor.swift,\ AuthenticationService.swift,\ StorageManager.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/LearningDataService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/KeychainManager.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/NotificationManager.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/GemmaService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/RealAPIService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/DownloadManager.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/NetworkMonitor.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/AuthenticationService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/StorageManager.swift (in target 'LyoApp' from project 'LyoApp')
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/LearningDataService.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/KeychainManager.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/NotificationManager.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/GemmaService.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/RealAPIService.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/DownloadManager.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/NetworkMonitor.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/AuthenticationService.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/StorageManager.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 Compiling\ SpecializedViews.swift,\ TypingIndicator.swift,\ UserDataManager.swift,\ DataManager.swift,\ VoiceActivationService.swift,\ VoiceRecognizer.swift,\ WebSocketService.swift,\ AnalyticsManager.swift,\ DownloadManagerService.swift,\ ContentPlayerService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/SpecializedViews.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/TypingIndicator.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/UserDataManager.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/DataManager.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/VoiceActivationService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/VoiceRecognizer.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/WebSocketService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/AnalyticsManager.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/DownloadManagerService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/ContentPlayerService.swift (in target 'LyoApp' from project 'LyoApp')
+Failed frontend command:
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend -frontend -c /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LessonBlockView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AIAvatarView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AIAvatarIntegration.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AIFullChatViewWithCompletion.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AIModels.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AIOnboardingFlowView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AISearchView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AppIconView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AppState.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AppStateExtensions.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AuthenticationView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AvatarCompanionCoordinator.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/CompilationVerification.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/ContentView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/DesignSystem.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/DesignTokens.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/DiscoverView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/ErrorHandlingService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/FeedModels.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/FinalTest.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/FloatingActionButton.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/GamificationOverlay.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/HeaderView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearnTabView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LessonModels.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LibraryView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/HomeFeedView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LyoAPIService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LyoApp.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LyoConfiguration.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LyoWebSocketService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/MainTabView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/MessageBubble.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/MessengerView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Models.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/MoreTabView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/NetworkLayer.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/PostView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/SettingsView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/SimpleChatView.swift -primary-file /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/SpecializedViews.swift -primary-file /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/TypingIndicator.swift -primary-file /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/UserDataManager.swift -primary-file /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/DataManager.swift -primary-file /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/VoiceActivationService.swift -primary-file /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/VoiceRecognizer.swift -primary-file /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/WebSocketService.swift -primary-file /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/AnalyticsManager.swift -primary-file /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/DownloadManagerService.swift -primary-file /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/ContentPlayerService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/LearningDataService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/KeychainManager.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/NotificationManager.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/GemmaService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/RealAPIService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/DownloadManager.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/NetworkMonitor.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/AuthenticationService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/StorageManager.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Models/LearningResource.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Services/LearningAPIService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/ViewModels/LearningAssistantViewModel.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/ViewModels/LearningSearchViewModel.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/ViewModels/SearchViewModel.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/ContentDisplayComponents.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/ContentSection.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/FeaturedContentCarousel.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/LearnView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/LearningAssistantView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/LearningCardView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/LearningHubView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/LearningResourceCards.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/SearchComponents.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/SearchHeaderView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/SearchResultsView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/SearchSuggestionsView.swift /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/DerivedSources/GeneratedAssetSymbols.swift -supplementary-output-file-map /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/supplementaryOutputs-5 -target x86_64-apple-ios17.0-simulator -enable-objc-interop -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -I /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Products/Debug-iphonesimulator -F /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Products/Debug-iphonesimulator -no-color-diagnostics -enable-testing -g -debug-info-format\=dwarf -dwarf-version\=4 -module-cache-path /Users/republicalatuya/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -swift-version 5 -enforce-exclusivity\=checked -Onone -D DEBUG -serialize-debugging-options -const-gather-protocols-file /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/LyoApp_const_extract_protocols.json -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -empty-abi-descriptor -validate-clang-modules-once -clang-build-session-file /Users/republicalatuya/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -working-directory -Xcc /Users/republicalatuya/Desktop/LyoApp\ July -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift -enable-anonymous-context-mangled-names -file-compilation-dir /Users/republicalatuya/Desktop/LyoApp\ July -Xcc -ivfsstatcache -Xcc /Users/republicalatuya/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-d5fc8ad4295d2ef488fb7d0f804ce0c4.sdkstatcache -Xcc -I/Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/swift-overrides.hmap -Xcc -iquote -Xcc /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/LyoApp-generated-files.hmap -Xcc -I/Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/LyoApp-own-target-headers.hmap -Xcc -I/Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/LyoApp-all-target-headers.hmap -Xcc -iquote -Xcc /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/LyoApp-project-headers.hmap -Xcc -I/Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/DerivedSources-normal/x86_64 -Xcc -I/Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/DerivedSources/x86_64 -Xcc -I/Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/DerivedSources -Xcc -DDEBUG\=1 -module-name LyoApp -frontend-parseable-output -disable-clang-spi -target-sdk-version 18.5 -target-sdk-name iphonesimulator18.5 -external-plugin-path /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server -external-plugin-path /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/local/lib/swift/host/plugins\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server -in-process-plugin-server-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/local/lib/swift/host/plugins -o /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/SpecializedViews.o -o /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/TypingIndicator.o -o /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/UserDataManager.o -o /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/DataManager.o -o /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/VoiceActivationService.o -o /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/VoiceRecognizer.o -o /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/WebSocketService.o -o /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/AnalyticsManager.o -o /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/DownloadManagerService.o -o /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/ContentPlayerService.o -index-unit-output-path /LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/SpecializedViews.o -index-unit-output-path /LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/TypingIndicator.o -index-unit-output-path /LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/UserDataManager.o -index-unit-output-path /LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/DataManager.o -index-unit-output-path /LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/VoiceActivationService.o -index-unit-output-path /LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/VoiceRecognizer.o -index-unit-output-path /LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/WebSocketService.o -index-unit-output-path /LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/AnalyticsManager.o -index-unit-output-path /LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/DownloadManagerService.o -index-unit-output-path /LyoApp.build/Debug-iphonesimulator/LyoApp.build/Objects-normal/x86_64/ContentPlayerService.o -index-store-path /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Index.noindex/DataStore -index-system-modules
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/SpecializedViews.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/TypingIndicator.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/UserDataManager.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:49:50: error: type 'String' has no member 'login'
+        AnalyticsManager.shared.trackUserAction(.login)
+                                                ~^~~~~
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:77:50: error: type 'String' has no member 'logout'
+        AnalyticsManager.shared.trackUserAction(.logout)
+                                                ~^~~~~~
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:95:54: error: type 'String' has no member 'courseEnrollment'
+            AnalyticsManager.shared.trackUserAction(.courseEnrollment)
+                                                    ~^~~~~~~~~~~~~~~~
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:119:50: error: type 'String' has no member 'postCreated'
+        AnalyticsManager.shared.trackUserAction(.postCreated)
+                                                ~^~~~~~~~~~~
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:127:54: error: type 'String' has no member 'userFollowed'
+            AnalyticsManager.shared.trackUserAction(.userFollowed)
+                                                    ~^~~~~~~~~~~~
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:135:50: error: type 'String' has no member 'userUnfollowed'
+        AnalyticsManager.shared.trackUserAction(.userUnfollowed)
+                                                ~^~~~~~~~~~~~~~
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:185:76: error: cannot convert value of type 'UUID' to expected argument type 'String'
+            coursesCompleted: userCourses.filter { getUserProgress(for: $0.id) >= 1.0 }.count,
+                                                                           ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:205:54: error: type 'String' has no member 'badgeEarned'
+            AnalyticsManager.shared.trackUserAction(.badgeEarned)
+                                                    ~^~~~~~~~~~~
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:309:19: error: extra arguments at positions #4, #10, #11 in call
+            Course(
+                  ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:198:5: note: 'init(id:title:description:instructor:thumbnailURL:duration:difficulty:category:lessons:progress:isEnrolled:rating:studentsCount:)' declared here
+    init(
+    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:313:36: error: missing argument for parameter 'thumbnailURL' in call
+                imageURL: "course1",
+                                   ^
+                                   , thumbnailURL: <#String#>
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:198:5: note: 'init(id:title:description:instructor:thumbnailURL:duration:difficulty:category:lessons:progress:isEnrolled:rating:studentsCount:)' declared here
+    init(
+    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:310:21: error: cannot convert value of type 'String' to expected argument type 'UUID'
+                id: "course1",
+                    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:322:19: error: extra arguments at positions #4, #10, #11 in call
+            Course(
+                  ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:198:5: note: 'init(id:title:description:instructor:thumbnailURL:duration:difficulty:category:lessons:progress:isEnrolled:rating:studentsCount:)' declared here
+    init(
+    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:326:36: error: missing argument for parameter 'thumbnailURL' in call
+                imageURL: "course2",
+                                   ^
+                                   , thumbnailURL: <#String#>
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:198:5: note: 'init(id:title:description:instructor:thumbnailURL:duration:difficulty:category:lessons:progress:isEnrolled:rating:studentsCount:)' declared here
+    init(
+    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:323:21: error: cannot convert value of type 'String' to expected argument type 'UUID'
+                id: "course2",
+                    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:344:45: error: missing argument for parameter 'videoURL' in call
+                thumbnailURL: "video1_thumb",
+                                            ^
+                                            , videoURL: <#String#>
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:633:5: note: 'init(id:title:description:thumbnailURL:videoURL:duration:instructor:category:difficulty:tags:rating:viewCount:isBookmarked:watchProgress:publishedDate:language:)' declared here
+    init(
+    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:341:21: error: cannot convert value of type 'String' to expected argument type 'UUID'
+                id: "video1",
+                    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:354:45: error: missing argument for parameter 'videoURL' in call
+                thumbnailURL: "video2_thumb",
+                                            ^
+                                            , videoURL: <#String#>
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:633:5: note: 'init(id:title:description:thumbnailURL:videoURL:duration:instructor:category:difficulty:tags:rating:viewCount:isBookmarked:watchProgress:publishedDate:language:)' declared here
+    init(
+    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:351:21: error: cannot convert value of type 'String' to expected argument type 'UUID'
+                id: "video2",
+                    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:371:36: error: missing argument for parameter 'category' in call
+                pdfURL: "book1.pdf",
+                                   ^
+                                   , category: <#String#>
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:689:5: note: 'init(id:title:author:description:coverImageURL:pdfURL:category:pages:fileSize:rating:downloadCount:isBookmarked:readProgress:publishedDate:language:tags:)' declared here
+    init(
+    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:366:21: error: cannot convert value of type 'String' to expected argument type 'UUID'
+                id: "book1",
+                    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:381:36: error: missing argument for parameter 'category' in call
+                pdfURL: "book2.pdf",
+                                   ^
+                                   , category: <#String#>
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:689:5: note: 'init(id:title:author:description:coverImageURL:pdfURL:category:pages:fileSize:rating:downloadCount:isBookmarked:readProgress:publishedDate:language:tags:)' declared here
+    init(
+    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:376:21: error: cannot convert value of type 'String' to expected argument type 'UUID'
+                id: "book2",
+                    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:390:18: error: extra arguments at positions #2, #3, #5 in call
+            Story(
+                 ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:106:8: note: 'init(id:author:mediaURL:mediaType:isViewed:createdAt:expiresAt:)' declared here
+struct Story: Codable, Identifiable {
+       ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:390:18: error: missing arguments for parameters 'author', 'mediaType', 'isViewed', 'createdAt' in call
+            Story(
+                 ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:106:8: note: 'init(id:author:mediaURL:mediaType:isViewed:createdAt:expiresAt:)' declared here
+struct Story: Codable, Identifiable {
+       ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:391:21: error: cannot convert value of type 'String' to expected argument type 'UUID'
+                id: "story1",
+                    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:398:18: error: extra arguments at positions #2, #3, #5 in call
+            Story(
+                 ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:106:8: note: 'init(id:author:mediaURL:mediaType:isViewed:createdAt:expiresAt:)' declared here
+struct Story: Codable, Identifiable {
+       ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:398:18: error: missing arguments for parameters 'author', 'mediaType', 'isViewed', 'createdAt' in call
+            Story(
+                 ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:106:8: note: 'init(id:author:mediaURL:mediaType:isViewed:createdAt:expiresAt:)' declared here
+struct Story: Codable, Identifiable {
+       ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:399:21: error: cannot convert value of type 'String' to expected argument type 'UUID'
+                id: "story2",
+                    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:411:22: error: extra arguments at positions #1, #4, #6 in call
+            Community(
+                     ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:286:5: note: 'init(name:description:icon:memberCount:isPrivate:category:)' declared here
+    init(name: String, description: String, icon: String, memberCount: Int, isPrivate: Bool, category: String) {
+    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:411:22: error: missing arguments for parameters 'icon', 'isPrivate' in call
+            Community(
+                     ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:286:5: note: 'init(name:description:icon:memberCount:isPrivate:category:)' declared here
+    init(name: String, description: String, icon: String, memberCount: Int, isPrivate: Bool, category: String) {
+    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:420:22: error: extra arguments at positions #1, #4, #6 in call
+            Community(
+                     ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:286:5: note: 'init(name:description:icon:memberCount:isPrivate:category:)' declared here
+    init(name: String, description: String, icon: String, memberCount: Int, isPrivate: Bool, category: String) {
+    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:420:22: error: missing arguments for parameters 'icon', 'isPrivate' in call
+            Community(
+                     ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:286:5: note: 'init(name:description:icon:memberCount:isPrivate:category:)' declared here
+    init(name: String, description: String, icon: String, memberCount: Int, isPrivate: Bool, category: String) {
+    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:435:21: error: extra argument 'id' in call
+                id: "discover1",
+~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:439:38: error: missing argument for parameter 'createdAt' in call
+                contentType: .article,
+                                     ^
+                                     , createdAt: <#Date#>
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:878:8: note: 'init(title:description:category:imageURL:author:createdAt:)' declared here
+struct DiscoverContent: Identifiable {
+       ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:439:31: error: type 'String' has no member 'article'
+                contentType: .article,
+                             ~^~~~~~~
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:443:21: error: extra argument 'id' in call
+                id: "discover2",
+~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:447:36: error: missing argument for parameter 'createdAt' in call
+                contentType: .video,
+                                   ^
+                                   , createdAt: <#Date#>
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:878:8: note: 'init(title:description:category:imageURL:author:createdAt:)' declared here
+struct DiscoverContent: Identifiable {
+       ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:447:31: error: type 'String' has no member 'video'
+                contentType: .video,
+                             ~^~~~~
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:455:17: error: extra arguments at positions #2, #5 in call
+            Post(
+                ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:74:5: note: 'init(id:author:content:imageURLs:videoURL:likes:comments:shares:isLiked:isBookmarked:createdAt:tags:location:)' declared here
+    init(
+    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:456:28: error: missing argument for parameter 'author' in call
+                id: "post1",
+                           ^
+                           , author: <#User#>
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:74:5: note: 'init(id:author:content:imageURLs:videoURL:likes:comments:shares:isLiked:isBookmarked:createdAt:tags:location:)' declared here
+    init(
+    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:456:21: error: cannot convert value of type 'String' to expected argument type 'UUID'
+                id: "post1",
+                    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:459:27: error: cannot convert value of type 'String' to expected argument type '[String]'
+                imageURL: "post1_image",
+                          ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:465:17: error: extra arguments at positions #2, #5 in call
+            Post(
+                ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:74:5: note: 'init(id:author:content:imageURLs:videoURL:likes:comments:shares:isLiked:isBookmarked:createdAt:tags:location:)' declared here
+    init(
+    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:466:28: error: missing argument for parameter 'author' in call
+                id: "post2",
+                           ^
+                           , author: <#User#>
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:74:5: note: 'init(id:author:content:imageURLs:videoURL:likes:comments:shares:isLiked:isBookmarked:createdAt:tags:location:)' declared here
+    init(
+    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:466:21: error: cannot convert value of type 'String' to expected argument type 'UUID'
+                id: "post2",
+                    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:469:27: error: cannot convert value of type 'String' to expected argument type '[String]'
+                imageURL: "post2_image",
+                          ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:486:36: error: extra argument 'unlockedAt' in call
+                unlockedAt: Date().addingTimeInterval(-86400)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:480:22: error: missing arguments for parameters 'color', 'earnedAt' in call
+            UserBadge(
+                     ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:147:8: note: 'init(id:name:description:iconName:color:rarity:earnedAt:)' declared here
+struct UserBadge: Codable, Identifiable {
+       ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:481:21: error: cannot convert value of type 'String' to expected argument type 'UUID'
+                id: "badge1",
+                    ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:494:36: error: extra argument 'unlockedAt' in call
+                unlockedAt: Date().addingTimeInterval(-172800)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:488:22: error: missing arguments for parameters 'color', 'earnedAt' in call
+            UserBadge(
+                     ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Models.swift:147:8: note: 'init(id:name:description:iconName:color:rarity:earnedAt:)' declared here
+struct UserBadge: Codable, Identifiable {
+       ^
+/Users/republicalatuya/Desktop/LyoApp July/LyoApp/UserDataManager.swift:489:21: error: cannot convert value of type 'String' to expected argument type 'UUID'
+                id: "badge2",
+                    ^
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/DataManager.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/VoiceActivationService.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/VoiceRecognizer.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/WebSocketService.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/AnalyticsManager.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/DownloadManagerService.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/ContentPlayerService.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 Compiling\ FloatingActionButton.swift,\ GamificationOverlay.swift,\ HeaderView.swift,\ LearnTabView.swift,\ LessonModels.swift,\ LibraryView.swift,\ HomeFeedView.swift,\ LyoAPIService.swift,\ LyoApp.swift,\ LyoConfiguration.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/FloatingActionButton.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/GamificationOverlay.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/HeaderView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearnTabView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LessonModels.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LibraryView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/HomeFeedView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LyoAPIService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LyoApp.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LyoConfiguration.swift (in target 'LyoApp' from project 'LyoApp')
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/FloatingActionButton.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/GamificationOverlay.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/HeaderView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearnTabView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LessonModels.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LibraryView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/HomeFeedView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LyoAPIService.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LyoApp.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LyoConfiguration.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 Compiling\ LearningAssistantView.swift,\ LearningCardView.swift,\ LearningHubView.swift,\ LearningResourceCards.swift,\ SearchComponents.swift,\ SearchHeaderView.swift,\ SearchResultsView.swift,\ SearchSuggestionsView.swift,\ GeneratedAssetSymbols.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/LearningAssistantView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/LearningCardView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/LearningHubView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/LearningResourceCards.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/SearchComponents.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/SearchHeaderView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/SearchResultsView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/SearchSuggestionsView.swift /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'LyoApp' from project 'LyoApp')
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/LearningAssistantView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/LearningCardView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/LearningHubView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/LearningResourceCards.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/SearchComponents.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/SearchHeaderView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/SearchResultsView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/LearningHub/Views/SearchSuggestionsView.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 /Users/republicalatuya/Library/Developer/Xcode/DerivedData/LyoApp-hfwblekrpenebnenbeknkwwbdrgr/Build/Intermediates.noindex/LyoApp.build/Debug-iphonesimulator/LyoApp.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'LyoApp' from project 'LyoApp')
+    cd /Users/republicalatuya/Desktop/LyoApp\ July
+    
+
+SwiftCompile normal x86_64 Compiling\ AuthenticationView.swift,\ AvatarCompanionCoordinator.swift,\ CompilationVerification.swift,\ ContentView.swift,\ DesignSystem.swift,\ DesignTokens.swift,\ DiscoverView.swift,\ ErrorHandlingService.swift,\ FeedModels.swift,\ FinalTest.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AuthenticationView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AvatarCompanionCoordinator.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/CompilationVerification.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/ContentView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/DesignSystem.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/DesignTokens.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/DiscoverView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/ErrorHandlingService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/FeedModels.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/FinalTest.swift (in target 'LyoApp' from project 'LyoApp')
+Command SwiftCompile failed with a nonzero exit code
+
+** BUILD FAILED **
+
+
+The following build commands failed:
+	SwiftCompile normal x86_64 Compiling\ SpecializedViews.swift,\ TypingIndicator.swift,\ UserDataManager.swift,\ DataManager.swift,\ VoiceActivationService.swift,\ VoiceRecognizer.swift,\ WebSocketService.swift,\ AnalyticsManager.swift,\ DownloadManagerService.swift,\ ContentPlayerService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/SpecializedViews.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/TypingIndicator.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/UserDataManager.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/DataManager.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/VoiceActivationService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/VoiceRecognizer.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/WebSocketService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/AnalyticsManager.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/DownloadManagerService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/Services/ContentPlayerService.swift (in target 'LyoApp' from project 'LyoApp')
+	SwiftCompile normal x86_64 /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/UserDataManager.swift (in target 'LyoApp' from project 'LyoApp')
+	SwiftCompile normal x86_64 Compiling\ AuthenticationView.swift,\ AvatarCompanionCoordinator.swift,\ CompilationVerification.swift,\ ContentView.swift,\ DesignSystem.swift,\ DesignTokens.swift,\ DiscoverView.swift,\ ErrorHandlingService.swift,\ FeedModels.swift,\ FinalTest.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AuthenticationView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/AvatarCompanionCoordinator.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/CompilationVerification.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/ContentView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/DesignSystem.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/DesignTokens.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/DiscoverView.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/ErrorHandlingService.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/FeedModels.swift /Users/republicalatuya/Desktop/LyoApp\ July/LyoApp/FinalTest.swift (in target 'LyoApp' from project 'LyoApp')
+	Building project LyoApp with scheme LyoApp
+(4 failures)
