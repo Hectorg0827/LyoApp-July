@@ -17,7 +17,9 @@
 			"type": "shell",
 			"label": "Start Backend Server",
 			"command": "python",
-			"args": ["simple_backend.py"],
+			"args": [
+				"simple_backend.py"
+			],
 			"group": "build",
 			"isBackground": true,
 			"problemMatcher": {
@@ -46,11 +48,434 @@
 			"type": "shell",
 			"label": "Test Backend Health",
 			"command": "curl",
-			"args": ["-s", "http://localhost:8000/api/v1/health"],
+			"args": [
+				"-s",
+				"http://localhost:8000/api/v1/health"
+			],
 			"group": "test",
 			"options": {
 				"cwd": "${workspaceFolder}"
 			}
+		},
+		{
+			"label": "Build LyoApp Clean",
+			"type": "shell",
+			"command": "xcodebuild",
+			"args": [
+				"-project",
+				"LyoApp.xcodeproj",
+				"-scheme",
+				"LyoApp",
+				"-configuration",
+				"Debug",
+				"clean",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Regenerate Xcode Project",
+			"type": "shell",
+			"command": "xcodegen",
+			"args": [
+				"generate"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build LyoApp for Simulator",
+			"type": "shell",
+			"command": "xcodebuild",
+			"args": [
+				"-project",
+				"LyoApp.xcodeproj",
+				"-scheme",
+				"LyoApp",
+				"-configuration",
+				"Debug",
+				"-destination",
+				"generic/platform=iOS Simulator",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Regenerate Project",
+			"type": "shell",
+			"command": "xcodegen",
+			"args": [
+				"generate"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Regenerate Project with Exclusion",
+			"type": "shell",
+			"command": "xcodegen",
+			"args": [
+				"generate"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Remove Duplicate and Regenerate",
+			"type": "shell",
+			"command": "/bin/bash",
+			"args": [
+				"-c",
+				"cd ~/Desktop/LyoApp\\ July && rm -f LyoApp/DataManager.swift && echo 'File removed' && xcodegen generate"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build Project After Duplicate Removal",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp -destination 'generic/platform=iOS Simulator'",
+			"args": [
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Remove Root DataManager File",
+			"type": "shell",
+			"command": "/bin/bash",
+			"args": [
+				"-c",
+				"rm -f '/Users/republicalatuya/Desktop/LyoApp July/LyoApp/DataManager.swift' && echo 'Root DataManager.swift removed'"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rename Root DataManager and Regenerate",
+			"type": "shell",
+			"command": "/bin/bash",
+			"args": [
+				"-c",
+				"mv '/Users/republicalatuya/Desktop/LyoApp July/LyoApp/DataManager.swift' '/Users/republicalatuya/Desktop/LyoApp July/LyoApp/DataManagerRoot.swift' && echo 'File renamed' && xcodegen generate"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Check Root DataManager",
+			"type": "shell",
+			"command": "/bin/bash",
+			"args": [
+				"-c",
+				"ls -la '/Users/republicalatuya/Desktop/LyoApp July/LyoApp/' | grep DataManager || echo 'No root DataManager found'"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Regenerate Project Clean",
+			"type": "shell",
+			"command": "xcodegen",
+			"args": [
+				"generate"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rename DataManager File",
+			"type": "shell",
+			"command": "/bin/bash",
+			"args": [
+				"-c",
+				"mv '/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Data/DataManager.swift' '/Users/republicalatuya/Desktop/LyoApp July/LyoApp/Data/DataPersistenceManager.swift'"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rename DataManager and Regenerate",
+			"type": "shell",
+			"command": "/bin/bash",
+			"args": [
+				"-c",
+				"cd '/Users/republicalatuya/Desktop/LyoApp July' && mv 'LyoApp/Data/DataManager.swift' 'LyoApp/Data/DataPersistenceManager.swift' && echo 'DataManager.swift renamed to DataPersistenceManager.swift' && xcodegen generate && echo 'Project regenerated'"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Regenerate Project",
+			"type": "shell",
+			"command": "xcodegen",
+			"args": [],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Remove Duplicates",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"cleanup_duplicates.sh"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Remove All Duplicates",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"cleanup_duplicates.sh"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Final Build Test",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5'",
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Remove All Duplicates Including LearningAssistantView",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"cleanup_duplicates.sh"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Final Comprehensive Build Test",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' | head -100",
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Check for Build Status and Errors",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(BUILD|error:|Filename.*used twice)'",
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Run Enhanced Cleanup Script",
+			"type": "shell",
+			"command": "bash cleanup_duplicates.sh",
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Final Build Status Check",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(BUILD|error:|Filename.*used twice|SwiftDriver.*LyoApp)'",
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Cleanup Duplicates - LearningHubView Pattern",
+			"type": "shell",
+			"command": "bash cleanup_duplicates.sh",
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Check for Next Duplicate",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(BUILD|error:|Filename.*used twice)' | head -10",
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Cleanup Duplicates - LearningSearchViewModel Pattern",
+			"type": "shell",
+			"command": "bash cleanup_duplicates.sh",
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Check for Next Duplicate After LearningSearchViewModel",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(BUILD|error:|Filename.*used twice)' | head -10",
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Enhanced Cleanup Script - Handle LearningSearchViewModel_Clean",
+			"type": "shell",
+			"command": "bash cleanup_duplicates.sh",
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Check for Next Duplicate After LearningSearchViewModel_Clean",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(BUILD|error:|Filename.*used twice|BUILD SUCCEEDED)' | head -10",
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Enhanced Cleanup + Next Duplicate Check",
+			"type": "shell",
+			"command": "bash cleanup_duplicates.sh && echo '=== Running build to check next duplicate ===' && xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(BUILD|error:|Filename.*used twice|BUILD SUCCEEDED)' | head -5",
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Final Test - LioAI.swift Pattern + Success Check",
+			"type": "shell",
+			"command": "bash cleanup_duplicates.sh && echo '=== Running build to check if we are getting close to success ===' && xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(BUILD SUCCEEDED|BUILD FAILED|error:|Filename.*used twice)' | head -10",
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Continue Automated Resolution - LocalSearchService.swift",
+			"type": "shell",
+			"command": "bash cleanup_duplicates.sh && echo '=== Running build to check next duplicate ===' && xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(BUILD SUCCEEDED|BUILD FAILED|error:|Filename.*used twice)' | head -5",
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Final Resolution Check - RemoteAPI.swift",
+			"type": "shell",
+			"command": "bash cleanup_duplicates.sh && echo '=== Running build to check for final success ===' && xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(BUILD SUCCEEDED|BUILD FAILED|error:|Filename.*used twice)' | head -5",
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "FINAL SUCCESS CHECK - SearchViewModel.swift",
+			"type": "shell",
+			"command": "bash cleanup_duplicates.sh && echo '=== FINAL BUILD CHECK FOR SUCCESS ===' && xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(BUILD SUCCEEDED|BUILD FAILED|error:|Filename.*used twice)' | head -5",
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Quick Final Build Status Check",
+			"type": "shell",
+			"command": "cd \"/Users/republicalatuya/Desktop/LyoApp July\" && timeout 60 xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(BUILD SUCCEEDED|BUILD FAILED|\\*\\* BUILD|error:|ld:)' | head -10",
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Get Current Swift Errors",
+			"type": "shell",
+			"command": "cd \"/Users/republicalatuya/Desktop/LyoApp July\" && xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep 'error:' | head -10",
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build Test - Check Swift Errors",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' | head -50"
+		},
+		{
+			"label": "Build Test - Check Remaining Errors",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep 'error:' | head -20"
+		},
+		{
+			"label": "Final Build Test - Check Success",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' | tail -10"
+		},
+		{
+			"label": "Comprehensive Build Test",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5'"
+		},
+		{
+			"label": "Final Build Check",
+			"type": "shell",
+			"command": "timeout 60 xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1"
+		},
+		{
+			"label": "Final Build Validation",
+			"type": "shell",
+			"command": "timeout 90 xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | tee build_final.log"
+		},
+		{
+			"label": "Test Build After Cleanup",
+			"type": "shell",
+			"command": "timeout 90 xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1"
+		},
+		{
+			"label": "Clean Build Test",
+			"type": "shell",
+			"command": "timeout 120 xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5'"
+		},
+		{
+			"label": "Quick Build Test",
+			"type": "shell",
+			"command": "timeout 120 xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | head -50"
+		},
+		{
+			"label": "Current Build Status Check",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(error:|BUILD FAILED|BUILD SUCCEEDED)' | head -10"
+		},
+		{
+			"label": "Quick Build Test",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(error:|BUILD FAILED|BUILD SUCCEEDED)' | head -15"
+		},
+		{
+			"label": "Test Syntax Fix",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(error:|BUILD FAILED|BUILD SUCCEEDED)' | head -15"
+		},
+		{
+			"label": "Test After Syntax Fixes",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(error:|BUILD FAILED|BUILD SUCCEEDED)' | head -10"
+		},
+		{
+			"label": "Test After Brace Fix",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(error:|BUILD FAILED|BUILD SUCCEEDED)' | head -15"
+		},
+		{
+			"label": "Test After Struct Fix",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(error:|BUILD FAILED|BUILD SUCCEEDED)' | head -10"
+		},
+		{
+			"label": "Test After Type Conflict Resolution",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(error:|BUILD FAILED|BUILD SUCCEEDED)' | head -10"
+		},
+		{
+			"label": "Test Compilation After LearningHubView Fix",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | head -20"
+		},
+		{
+			"label": "Get Current Error Status",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(error:|BUILD FAILED|BUILD SUCCEEDED)' | head -15"
+		},
+		{
+			"label": "Quick Error Check",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(error:|BUILD FAILED|BUILD SUCCEEDED)' | head -5"
+		},
+		{
+			"label": "Test Build After File Removal",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(error:|BUILD FAILED|BUILD SUCCEEDED)' | head -10"
+		},
+		{
+			"label": "Test Current Build Status",
+			"type": "shell",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' 2>&1 | grep -E '(error:|BUILD FAILED|BUILD SUCCEEDED)' | head -5"
 		}
 	]
 }
