@@ -1,4 +1,4 @@
-INFO:     Started server process [84905]
+INFO:     Started server process [27870]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
@@ -6,17 +6,19 @@ INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 📱 Features: Professional Messenger, AI Search, Smart Library
 🔗 WebSocket: ws://localhost:8000/api/v1/ws/{user_id}
 📚 API Docs: http://localhost:8000/docs
-INFO:     127.0.0.1:54203 - "GET /api/v1/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54210 - "POST /api/v1/auth/register HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54216 - "POST /api/v1/auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54260 - "GET /api/v1/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54262 - "POST /api/v1/auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54264 - "POST /api/v1/auth/register HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54266 - "GET /api/v1/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54351 - "GET /api/v1/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54351 - "POST /api/v1/auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54351 - "GET /api/v1/feed HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:54351 - "GET /api/v1/courses HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:54356 - "GET /api/v1/communities HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:54356 - "GET /api/v1/feed HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:54362 - "GET /api/v1/courses HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50520 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50600 - "POST /api/v1/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50607 - "POST /api/v1/auth/register HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50835 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50837 - "POST /api/v1/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50839 - "POST /api/v1/auth/register HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50940 - "GET /api/v1/users/profile HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50941 - "GET /api/v1/users/profile HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50942 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50943 - "GET /api/v1/feed HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50940 - "GET /api/v1/courses HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50940 - "GET /api/v1/communities HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51132 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51134 - "POST /api/v1/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51136 - "POST /api/v1/auth/register HTTP/1.1" 200 OK
+INFO:     192.168.1.1:48356 - "GET / HTTP/1.1" 404 Not Found

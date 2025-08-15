@@ -99,7 +99,7 @@ struct MoreTabView: View {
             .background(DesignTokens.Colors.primaryBg.ignoresSafeArea())
         }
         .sheet(isPresented: $showingProfile) {
-            ProfileView()
+            MoreTabProfileView()
                 .environmentObject(appState)
         }
         .sheet(isPresented: $showingSettings) {
@@ -130,8 +130,8 @@ struct MoreTabView: View {
     }
 }
 
-// MARK: - Profile View
-struct ProfileView: View {
+// MARK: - Profile View (Local to MoreTabView)
+struct MoreTabProfileView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) var dismiss
     @State private var showingEditProfile = false
@@ -272,7 +272,7 @@ struct ProfileView: View {
         HStack {
             Spacer()
             
-            StatCard(
+            MoreTabStatCard(
                 title: "Posts",
                 value: "\(appState.currentUser?.posts ?? 0)",
                 icon: "doc.text",
@@ -281,7 +281,7 @@ struct ProfileView: View {
             
             Spacer()
             
-            StatCard(
+            MoreTabStatCard(
                 title: "Followers",
                 value: formatNumber(appState.currentUser?.followers ?? 0),
                 icon: "person.3",
@@ -290,7 +290,7 @@ struct ProfileView: View {
             
             Spacer()
             
-            StatCard(
+            MoreTabStatCard(
                 title: "Following",
                 value: formatNumber(appState.currentUser?.following ?? 0),
                 icon: "person.2",
@@ -299,7 +299,7 @@ struct ProfileView: View {
             
             Spacer()
             
-            StatCard(
+            MoreTabStatCard(
                 title: "XP",
                 value: "\(appState.currentUser?.experience ?? 0)",
                 icon: "star",
@@ -381,7 +381,7 @@ struct ProfileView: View {
     private var postsTab: some View {
         LazyVStack(spacing: DesignTokens.Spacing.md) {
             ForEach(0..<5) { index in
-                UserPostCard(index: index)
+                MoreTabUserPostCard(index: index)
             }
         }
         .padding(.horizontal, DesignTokens.Spacing.lg)
@@ -455,7 +455,7 @@ struct ProfileView: View {
 }
 
 // MARK: - Supporting Views
-struct StatCard: View {
+struct MoreTabStatCard: View {
     let title: String
     let value: String
     let icon: String
@@ -485,7 +485,7 @@ struct StatCard: View {
     }
 }
 
-struct UserPostCard: View {
+struct MoreTabUserPostCard: View {
     let index: Int
     
     var body: some View {
@@ -748,7 +748,7 @@ struct LearningAnalyticsView: View {
                 
                 Spacer()
                 
-                CircularProgressView(progress: 0.85, color: DesignTokens.Colors.primary)
+                MoreTabCircularProgressView(progress: 0.85, color: DesignTokens.Colors.primary)
                     .frame(width: 80, height: 80)
             }
         }
@@ -1103,7 +1103,7 @@ struct ProgressBarWithLabel: View {
     }
 }
 
-struct CircularProgressView: View {
+struct MoreTabCircularProgressView: View {
     let progress: Double
     let color: Color
     
@@ -1541,11 +1541,5 @@ struct CreateStudyGroupView: View {
                 }
             }
         }
-    }
-}
-
-struct CommunityView: View {
-    var body: some View {
-        Text("Community View")
     }
 }

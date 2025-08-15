@@ -15,7 +15,7 @@ struct TikTokStyleHomeView: View {
                 // Video Feed
                 TabView(selection: $currentIndex) {
                     ForEach(Array(viewModel.videos.enumerated()), id: \.offset) { index, video in
-                        VideoPlayerView(video: video)
+                        TikTokVideoPlayerView(video: video)
                             .tag(index)
                             .ignoresSafeArea()
                     }
@@ -286,8 +286,8 @@ struct VideoActionButton: View {
     }
 }
 
-// MARK: - Video Player View
-struct VideoPlayerView: View {
+// MARK: - TikTok Video Player View
+struct TikTokVideoPlayerView: View {
     let video: VideoPost
     @State private var player: AVPlayer?
     @State private var isPlaying = true

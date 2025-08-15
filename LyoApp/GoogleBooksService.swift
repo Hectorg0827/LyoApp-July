@@ -50,10 +50,10 @@ class GoogleBooksService: ObservableObject {
         
         let (data, response) = try await URLSession.shared.data(from: url)
         
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
-            throw APIError.networkError("Failed to fetch Google Books data")
-        }
+                guard let httpResponse = response as? HTTPURLResponse,
+                            httpResponse.statusCode == 200 else {
+                        throw APIError.networkError(NSError(domain: "GoogleBooks", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to fetch Google Books data"]))
+                }
         
         let booksResponse = try JSONDecoder().decode(GoogleBooksResponse.self, from: data)
         
@@ -76,7 +76,7 @@ class GoogleBooksService: ObservableObject {
         let bookItem = try JSONDecoder().decode(GoogleBookItem.self, from: data)
         
         guard let ebook = convertToEbook(bookItem) else {
-            throw APIError.noData("Unable to convert book data")
+            throw APIError.noData
         }
         
         return ebook

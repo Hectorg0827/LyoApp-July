@@ -36,13 +36,11 @@ class CourseRepository: ObservableObject {
         let coreDataCourse = coreDataManager.createCourse(
             title: title,
             description: description,
-            instructor: instructor,
-            imageURL: imageURL,
-            category: category,
-            difficulty: difficulty.rawValue,
-            duration: Int32(duration),
-            price: price
+            instructor: instructor
         )
+        // Best-effort set additional fields available on CourseEntity
+        coreDataCourse.duration = String(Int(duration / 60))
+        coreDataCourse.rating = 0.0
         
         guard let course = convertToSwiftUICourse(coreDataCourse) else {
             let error = CourseRepositoryError.conversionFailed
@@ -88,31 +86,60 @@ class CourseRepository: ObservableObject {
     
     // MARK: - Helper Methods
     private func convertToSwiftUICourse(_ coreDataCourse: CourseEntity) -> Course? {
-        guard let id = coreDataCourse.id,
-              let title = coreDataCourse.title,
-              let description = coreDataCourse.courseDescription,
-              let instructor = coreDataCourse.instructor,
-              let imageURL = coreDataCourse.imageURL,
-              let category = coreDataCourse.category,
-              let difficultyString = coreDataCourse.difficulty,
-              let difficulty = Course.Difficulty(rawValue: difficultyString) else {
-            return nil
-        }
+        // Map using available Core Data fields in CoreDataEntities.swift
+        let idString = coreDataCourse.id
+        let title = coreDataCourse.title
+        let description = coreDataCourse.desc
+        let instructor = coreDataCourse.instructor
+        let durationString = coreDataCourse.duration // Stored as String in CoreData
+        let rating = coreDataCourse.rating
+        let enrollmentCount = Int(coreDataCourse.enrollmentCount)
         
+        // Convert duration string (e.g., "120" or "2h 30m") to seconds best-effort
+        let duration: TimeInterval = {
+            // Try plain number of minutes
+            if let minutes = Int(durationString.trimmingCharacters(in: .whitespacesAndNewlines)) {
+                return TimeInterval(minutes * 60)
+            }
+            // Try formats like "2h 30m"
+            let pattern = #"(?:(\d+)h)?\s*(?:(\d+)m)?"#
+            if let regex = try? NSRegularExpression(pattern: pattern) {
+                let range = NSRange(durationString.startIndex..., in: durationString)
+                if let match = regex.firstMatch(in: durationString, range: range) {
+                    var total: Int = 0
+                    if let hrRange = Range(match.range(at: 1), in: durationString) {
+                        total += (Int(durationString[hrRange]) ?? 0) * 60
+                    }
+                    if let minRange = Range(match.range(at: 2), in: durationString) {
+                        total += Int(durationString[minRange]) ?? 0
+                    }
+                    return TimeInterval(total * 60)
+                }
+            }
+            return 0
+        }()
+        
+        // Default fields not present in Core Data
+        let thumbnailURL = ""
+        let category = "General"
+        let difficulty: Course.Difficulty = .beginner
+        
+        // Build Course
+        let uuid = UUID(uuidString: idString) ?? UUID()
         return Course(
-            id: UUID(uuidString: id) ?? UUID(),
+            id: uuid,
             title: title,
             description: description,
             instructor: instructor,
-            thumbnailURL: imageURL,
-            duration: TimeInterval(coreDataCourse.duration * 60), // Convert minutes to seconds
+            thumbnailURL: thumbnailURL,
+            duration: duration,
             difficulty: difficulty,
             category: category,
-            lessons: [], // TODO: Load lessons from relationship
-            progress: 0.0, // TODO: Calculate from enrollments
-            isEnrolled: false, // TODO: Check enrollment status
-            rating: coreDataCourse.rating,
-            studentsCount: Int(coreDataCourse.enrollments?.count ?? 0)
+            lessons: [],
+            progress: 0.0,
+            isEnrolled: false,
+            rating: rating,
+            studentsCount: enrollmentCount
         )
     }
 }

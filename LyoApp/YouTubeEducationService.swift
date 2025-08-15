@@ -20,7 +20,7 @@ class YouTubeEducationService: ObservableObject {
     ) async throws -> [EducationalVideo] {
         
         guard !apiKey.isEmpty && apiKey != "YOUR_YOUTUBE_API_KEY" else {
-            throw APIError.invalidAPIKey("YouTube API key not configured")
+            throw APIError.apiKeyMissing
         }
         
         let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
@@ -32,10 +32,10 @@ class YouTubeEducationService: ObservableObject {
         
         let (data, response) = try await URLSession.shared.data(from: url)
         
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
-            throw APIError.networkError("Failed to fetch YouTube data")
-        }
+                guard let httpResponse = response as? HTTPURLResponse,
+                            httpResponse.statusCode == 200 else {
+                        throw APIError.networkError(NSError(domain: "YouTube", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to fetch YouTube data"]))
+                }
         
         let searchResponse = try JSONDecoder().decode(YouTubeSearchResponse.self, from: data)
         
@@ -64,7 +64,7 @@ class YouTubeEducationService: ObservableObject {
         let response = try JSONDecoder().decode(YouTubeVideoResponse.self, from: data)
         
         guard let item = response.items.first else {
-            throw APIError.noData("Video not found")
+            throw APIError.noData
         }
         
         return EducationalVideo(
@@ -252,26 +252,4 @@ struct YouTubeChannel {
     let videoCount: Int
 }
 
-// MARK: - API Error Types
-enum APIError: LocalizedError {
-    case invalidAPIKey(String)
-    case invalidURL
-    case networkError(String)
-    case noData(String)
-    case decodingError(Error)
-    
-    var errorDescription: String? {
-        switch self {
-        case .invalidAPIKey(let message):
-            return "Invalid API Key: \(message)"
-        case .invalidURL:
-            return "Invalid URL"
-        case .networkError(let message):
-            return "Network Error: \(message)"
-        case .noData(let message):
-            return "No Data: \(message)"
-        case .decodingError(let error):
-            return "Decoding Error: \(error.localizedDescription)"
-        }
-    }
-}
+// Note: Using canonical APIError defined in APIKeys.swift

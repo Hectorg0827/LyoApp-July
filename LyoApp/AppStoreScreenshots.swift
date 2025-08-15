@@ -3,7 +3,7 @@ import UIKit
 
 // MARK: - App Store Screenshot Generator
 /// Professional screenshot generator for Lyo app iOS submission
-struct AppStoreScreenshotGenerator: View {
+struct AppStoreScreenshotGeneratorClassic: View {
     let deviceType: ScreenshotDeviceType
     @State private var animateElements = false
     
@@ -292,7 +292,7 @@ struct StatBadge: View {
 
 // MARK: - Screenshot Export Utility
 struct ScreenshotExportView: View {
-    @State private var selectedDevice: AppStoreScreenshotGenerator.ScreenshotDeviceType = .iPhone67
+    @State private var selectedDevice: AppStoreScreenshotGeneratorClassic.ScreenshotDeviceType = .iPhone67
     @State private var isExporting = false
     
     var body: some View {
@@ -308,7 +308,7 @@ struct ScreenshotExportView: View {
                         GridItem(.flexible()),
                         GridItem(.flexible())
                     ], spacing: 12) {
-                        ForEach(AppStoreScreenshotGenerator.ScreenshotDeviceType.allCases, id: \.self) { device in
+                        ForEach(AppStoreScreenshotGeneratorClassic.ScreenshotDeviceType.allCases, id: \.self) { device in
                             Button {
                                 selectedDevice = device
                             } label: {
@@ -346,7 +346,7 @@ struct ScreenshotExportView: View {
                         .font(.headline)
                         .foregroundColor(.primary)
                     
-                    AppStoreScreenshotGenerator(deviceType: selectedDevice)
+                    AppStoreScreenshotGeneratorClassic(deviceType: selectedDevice)
                         .scaleEffect(0.15)
                         .frame(
                             width: selectedDevice.size.width * 0.15,
@@ -401,12 +401,12 @@ struct ScreenshotExportView: View {
 
 // MARK: - Preview
 #Preview("iPhone 6.7\" Screenshot") {
-    AppStoreScreenshotGenerator(deviceType: .iPhone67)
+    AppStoreScreenshotGeneratorClassic(deviceType: .iPhone67)
         .scaleEffect(0.3)
 }
 
 #Preview("iPad Pro 12.9\" Screenshot") {
-    AppStoreScreenshotGenerator(deviceType: .iPadPro129)
+    AppStoreScreenshotGeneratorClassic(deviceType: .iPadPro129)
         .scaleEffect(0.25)
 }
 

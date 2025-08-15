@@ -3,7 +3,8 @@ import Combine
 
 // MARK: - AI Learning Assistant (Lio) Integration
 /// Enhanced AI assistant specifically designed for learning support
-struct LearningAssistantView: View {
+/// Note: Use unique name to avoid conflicts.
+struct LearningAssistantOverlayView: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var assistantViewModel = LearningAssistantViewModel()
     
@@ -332,7 +333,7 @@ struct AssistantMessageRow: View {
     ZStack {
         Color.black.ignoresSafeArea()
         
-        LearningAssistantView()
+        LearningAssistantOverlayView()
             .environmentObject(AppState())
     }
     .preferredColorScheme(.dark)
