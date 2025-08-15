@@ -15,6 +15,8 @@ targets:
       - path: LyoApp
         excludes:
           - "**/*_Clean*"
+          - "**/*_Simple*"
+          - "**/*_Fixed*"
           - "**/*_Old*" 
           - "**/*_backup*"
           - "**/*.xcdatamodeld"

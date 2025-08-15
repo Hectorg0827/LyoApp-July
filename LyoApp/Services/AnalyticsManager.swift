@@ -1,43 +1,22 @@
 import Foundation
+import OSLog
 
-// MARK: - Analytics Manager
-class AnalyticsManager {
-    static let shared = AnalyticsManager()
-    
-    private init() {}
-    
-    func trackScreenView(_ screenName: String) {
-        // Placeholder for analytics tracking
-        print("📊 Screen View: \(screenName)")
-    }
-    
-    func trackUserAction(_ action: String, parameters: [String: Any] = [:]) {
-        // Placeholder for analytics tracking
-        print("📊 User Action: \(action) with parameters: \(parameters)")
-    }
-    
-    func trackLearningProgress(_ progress: CoreLearningProgress) {
-        // Placeholder for learning progress tracking
-        print("📊 Learning Progress: Course \(progress.courseId), Lesson \(progress.lessonId), \(progress.percentage)%")
-    }
-}
+// MARK: - Lightweight Analytics Manager
+@MainActor
+class AnalyticsManager: ObservableObject {
+	static let shared = AnalyticsManager()
+	private let logger = Logger(subsystem: "com.lyo.analytics", category: "events")
+	private init() {}
 
-// MARK: - Error Tracker
-class ErrorTracker {
-    static let shared = ErrorTracker()
-    
-    private init() {}
-    
-    func trackError(_ error: Error, context: String = "") {
-        // Placeholder for error tracking
-        print("🚨 Error tracked: \(error.localizedDescription) in context: \(context)")
-    }
-}
+	func trackScreenView(_ name: String) {
+		logger.info("screen_view: \(name, privacy: .public)")
+	}
 
-// MARK: - Core Learning Progress Model
-struct CoreLearningProgress: Codable {
-    let courseId: String
-    let lessonId: String
-    let percentage: Double
-    let timeSpent: TimeInterval
+	func trackUserAction(_ action: String, parameters: [String: Any] = [:]) {
+		logger.info("user_action: \(action, privacy: .public) params: \(String(describing: parameters), privacy: .auto)")
+	}
+
+	func trackLearningProgress(_ progress: CoreLearningProgress) {
+		logger.info("learning_progress: course=\(progress.courseId, privacy: .public) percent=\(progress.percentage, privacy: .public)")
+	}
 }

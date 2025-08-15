@@ -57,64 +57,6 @@ class ErrorHandler: ObservableObject {
     }
 }
 
-// MARK: - App Error Types
-enum AppError: LocalizedError, Identifiable {
-    case networkError(String)
-    case authenticationError(String)
-    case dataError(String)
-    case validationError(String)
-    case genericError(String)
-    
-    var id: String {
-        return localizedDescription
-    }
-    
-    var errorDescription: String? {
-        switch self {
-        case .networkError(let message):
-            return "Network Error: \(message)"
-        case .authenticationError(let message):
-            return "Authentication Error: \(message)"
-        case .dataError(let message):
-            return "Data Error: \(message)"
-        case .validationError(let message):
-            return "Validation Error: \(message)"
-        case .genericError(let message):
-            return "Error: \(message)"
-        }
-    }
-    
-    var userFriendlyMessage: String {
-        switch self {
-        case .networkError:
-            return "Please check your internet connection and try again."
-        case .authenticationError:
-            return "Please log in again to continue."
-        case .dataError:
-            return "There was a problem loading your data. Please try again."
-        case .validationError(let message):
-            return message
-        case .genericError:
-            return "Something went wrong. Please try again later."
-        }
-    }
-    
-    var severity: ErrorSeverity {
-        switch self {
-        case .networkError:
-            return .medium
-        case .authenticationError:
-            return .high
-        case .dataError:
-            return .medium
-        case .validationError:
-            return .low
-        case .genericError:
-            return .medium
-        }
-    }
-}
-
 // MARK: - Error Severity
 enum ErrorSeverity {
     case low

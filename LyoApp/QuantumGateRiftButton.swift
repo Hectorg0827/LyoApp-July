@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Quantum Learning Gate - Organic Energy Rift Button
-struct FloatingActionButton: View {
+struct QuantumGateRiftButton: View {
     @State private var expansion: CGFloat = 0
     @EnvironmentObject var appState: AppState
     
@@ -61,7 +61,7 @@ struct VortexSwirl: View {
 #Preview {
     ZStack {
         Color.black.ignoresSafeArea()
-        FloatingActionButton()
+        QuantumGateRiftButton()
             .environmentObject(AppState())
     }
 }

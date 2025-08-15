@@ -83,7 +83,7 @@ extension LearningAPIService {
             }
             
             guard 200...299 ~= httpResponse.statusCode else {
-                return .failure(APIError.serverError(httpResponse.statusCode))
+                return .failure(APIError.serverError(httpResponse.statusCode, nil))
             }
             
             // Decode JSON safely

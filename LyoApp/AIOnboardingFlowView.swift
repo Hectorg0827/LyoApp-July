@@ -107,7 +107,7 @@ struct AIOnboardingFlowView: View {
                     isGenerating = false
                     transitionToClassroom()
                 } else {
-                    throw APIError.decodingError("Failed to decode response")
+                    throw APIError.decodingError(NSError(domain: "Decode", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to decode response"]))
                 }
                 
             } catch {

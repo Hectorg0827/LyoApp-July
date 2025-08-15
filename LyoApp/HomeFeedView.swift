@@ -254,7 +254,6 @@ class FeedManager: ObservableObject, FeedDataProvider {
     func cleanup() {}
     func preloadNextVideo(at index: Int) {}
 }
-}
 
 class FeedbackManager: ObservableObject {
     static let shared = FeedbackManager()

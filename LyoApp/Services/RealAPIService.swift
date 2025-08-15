@@ -219,7 +219,7 @@ class RealAPIService: ObservableObject {
         
         guard let httpResponse = response as? HTTPURLResponse,
               200...299 ~= httpResponse.statusCode else {
-            throw APIError.networkError("UpdateProgressError")
+            throw APIError.networkError(NSError(domain: "UpdateProgressError", code: -1))
         }
     }
     
@@ -281,7 +281,7 @@ class RealAPIService: ObservableObject {
         do {
             (data, response) = try await session.data(for: request)
         } catch {
-            throw APIError.networkError(error.localizedDescription)
+            throw APIError.networkError(error)
         }
         
         // Handle response
@@ -299,27 +299,28 @@ class RealAPIService: ObservableObject {
             // Bad request - could be invalid credentials or user already exists
             if let errorData = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                let message = errorData["message"] as? String {
+                // Map to canonical errors
                 if message.lowercased().contains("credential") || message.lowercased().contains("password") {
-                    throw APIError.invalidCredentials
+                    throw APIError.unauthorized
                 } else if message.lowercased().contains("already exists") || message.lowercased().contains("duplicate") {
-                    throw APIError.userAlreadyExists
+                    throw APIError.serverError(httpResponse.statusCode, message)
                 }
             }
-            throw APIError.serverError(httpResponse.statusCode)
+            throw APIError.serverError(httpResponse.statusCode, nil)
         case 401:
             // Try to refresh token
             if KeychainManager.shared.retrieve(.refreshToken) != nil {
                 try await refreshToken()
                 throw APIError.unauthorized
             } else {
-                throw APIError.invalidCredentials
+                throw APIError.unauthorized
             }
         case 409:
-            throw APIError.userAlreadyExists
+            throw APIError.serverError(httpResponse.statusCode, "Conflict")
         case 429:
-            throw APIError.rateLimited
+            throw APIError.rateLimitExceeded
         default:
-            throw APIError.serverError(httpResponse.statusCode)
+            throw APIError.serverError(httpResponse.statusCode, nil)
         }
     }
 }
