@@ -97,15 +97,67 @@ class FeedManager: ObservableObject, FeedDataProvider {
     private let courseRepository = CourseRepository()
 
     init() {
-        // Load feed data from repositories
+        // Initialize with some basic fallback content immediately
+        generateFallbackContent()
+        
+        // Load feed data from repositories asynchronously
         Task {
             await loadFeedFromBackend()
         }
     }
     
+    private func generateFallbackContent() {
+        // Create immediate fallback content to prevent blank screen
+        let fallbackUser = User(
+            username: "lyoapp_demo",
+            email: "demo@lyo.app", 
+            fullName: "Lyo Demo User"
+        )
+        
+        // Create a variety of demo content
+        let demoItems: [FeedItem] = [
+            // Demo video content
+            FeedItem(
+                id: UUID(),
+                creator: fallbackUser,
+                contentType: .video(VideoContent(
+                    url: URL(string: "https://example.com/demo-video.mp4")!,
+                    thumbnailURL: URL(string: "https://picsum.photos/400/600?random=1")!,
+                    title: "Welcome to LyoApp",
+                    description: "Discover amazing learning content",
+                    quality: .hd,
+                    duration: 120
+                )),
+                timestamp: Date(),
+                engagement: EngagementMetrics(likes: 42, comments: 8, shares: 3, saves: 12, isLiked: false, isSaved: false),
+                duration: 120
+            ),
+            // Demo article content
+            FeedItem(
+                id: UUID(),
+                creator: User(username: "tech_expert", email: "expert@lyo.app", fullName: "Tech Expert"),
+                contentType: .article(ArticleContent(
+                    title: "Getting Started with iOS Development",
+                    excerpt: "Learn the fundamentals of iOS app development with Swift and SwiftUI",
+                    content: "SwiftUI makes it easier than ever to create beautiful, interactive user interfaces...",
+                    heroImageURL: URL(string: "https://picsum.photos/400/300?random=2"),
+                    readTime: 300
+                )),
+                timestamp: Date().addingTimeInterval(-3600),
+                engagement: EngagementMetrics(likes: 128, comments: 24, shares: 15, saves: 67, isLiked: false, isSaved: false),
+                duration: 300
+            )
+        ]
+        
+        feedItems = demoItems
+        print("📱 Feed: Generated \(feedItems.count) demo items")
+    }
+    
     func loadFeedFromBackend() async {
         isLoading = true
         defer { isLoading = false }
+        
+        print("📱 Feed: Starting to load feed from backend...")
         
         do {
             // Try to load feed from backend via LyoAPIService
@@ -120,9 +172,12 @@ class FeedManager: ObservableObject, FeedDataProvider {
             
             // If we have no data, create some sample data for first-time users
             if feedItems.isEmpty {
+                print("📱 Feed: Creating initial sample data...")
                 await createInitialSampleData()
             }
         }
+        
+        print("📱 Feed: Load complete. Final feed items count: \(feedItems.count)")
     }
     
     private func loadRealFeedData() async {
