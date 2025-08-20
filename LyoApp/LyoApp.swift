@@ -33,7 +33,7 @@ class SafeAppManager: ObservableObject {
     @Published var initializationError: String?
     
     func initializeServices() {
-        Task {
+        Task { @MainActor in
             do {
                 print("📱 Starting safe service initialization...")
                 
