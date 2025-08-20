@@ -14,7 +14,19 @@ class RealContentService: ObservableObject {
     @Published var contentLoadingProgress: Double = 0.0
     
     private init() {
-        loadRealContent()
+        // Initialize empty, load content asynchronously when needed
+        print("🎓 RealContentService initialized - content will load asynchronously")
+    }
+    
+    // MARK: - Public Methods
+    
+    /// Load content asynchronously when needed
+    func loadContentIfNeeded() async {
+        guard realCourses.isEmpty && !isLoading else { return }
+        
+        await MainActor.run {
+            loadRealContent()
+        }
     }
     
     // MARK: - Real Course Data
