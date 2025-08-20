@@ -12,18 +12,18 @@ struct LyoButton: View {
         
         var backgroundColor: Color {
             switch self {
-            case .primary: return Tokens.Colors.brand
-            case .secondary: return Tokens.Colors.secondaryBg
+            case .primary: return DesignTokens.Colors.primary
+            case .secondary: return DesignTokens.Colors.glassBg
             case .tertiary: return Color.clear
-            case .destructive: return Tokens.Colors.error
+            case .destructive: return DesignTokens.Colors.error
             }
         }
         
         var foregroundColor: Color {
             switch self {
             case .primary: return .white
-            case .secondary: return Tokens.Colors.textPrimary
-            case .tertiary: return Tokens.Colors.brand
+            case .secondary: return DesignTokens.Colors.textPrimary
+            case .tertiary: return DesignTokens.Colors.primary
             case .destructive: return .white
             }
         }
@@ -31,8 +31,8 @@ struct LyoButton: View {
         var borderColor: Color? {
             switch self {
             case .primary, .destructive: return nil
-            case .secondary: return Tokens.Colors.border
-            case .tertiary: return Tokens.Colors.brand
+            case .secondary: return DesignTokens.Colors.glassBorder
+            case .tertiary: return DesignTokens.Colors.primary
             }
         }
     }

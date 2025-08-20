@@ -57,7 +57,7 @@ struct AppStoreIconGenerator: View {
 }
 
 // MARK: - 2. Real Content Integration Manager
-struct ContentIntegrationManager: ObservableObject {
+class ContentIntegrationManager: ObservableObject {
     @Published var isLoadingRealContent = false
     @Published var realContentAvailable = false
     
@@ -74,7 +74,7 @@ struct ContentIntegrationManager: ObservableObject {
     
     // Real course data structure
     struct RealCourse: Identifiable, Codable {
-        let id = UUID()
+        let id: UUID
         let title: String
         let provider: String
         let imageURL: String
@@ -90,6 +90,7 @@ struct ContentIntegrationManager: ObservableObject {
     // Sample real courses to replace mock data
     static let realCourses: [RealCourse] = [
         RealCourse(
+            id: UUID(),
             title: "Introduction to Computer Science",
             provider: "Harvard University",
             imageURL: "https://img.youtube.com/vi/y62zj9ozPOM/maxresdefault.jpg",
@@ -102,6 +103,7 @@ struct ContentIntegrationManager: ObservableObject {
             courseURL: "https://cs50.harvard.edu/x/2024/"
         ),
         RealCourse(
+            id: UUID(),
             title: "Machine Learning",
             provider: "Stanford University",
             imageURL: "https://img.youtube.com/vi/PPLop4L2eGk/maxresdefault.jpg",
@@ -114,6 +116,7 @@ struct ContentIntegrationManager: ObservableObject {
             courseURL: "https://www.coursera.org/learn/machine-learning"
         ),
         RealCourse(
+            id: UUID(),
             title: "Introduction to Psychology",
             provider: "Yale University",
             imageURL: "https://img.youtube.com/vi/P3FKHH2RzjI/maxresdefault.jpg",

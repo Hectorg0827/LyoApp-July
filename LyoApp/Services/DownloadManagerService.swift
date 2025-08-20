@@ -345,9 +345,9 @@ extension DownloadManagerService: URLSessionDownloadDelegate {
                 
                 print("✅ Download completed: \(download.title)")
                 
-                // Update resource in database
+                // Update database: mark queue entry with local file path
                 Task {
-                    await self.markResourceAsDownloaded(download.resourceId, localPath: destinationURL.path)
+                    await self.markQueueItemAsDownloaded(download.resourceId, localPath: destinationURL.path)
                     await self.updateDownloadInDatabase(self.downloads[index])
                     await self.startNextDownload()
                 }
@@ -402,17 +402,12 @@ extension DownloadManagerService: URLSessionDownloadDelegate {
         }
     }
     
-    private func markResourceAsDownloaded(_ resourceId: String, localPath: String) async {
+    private func markQueueItemAsDownloaded(_ resourceId: String, localPath: String) async {
         do {
             let dataService = LearningDataService.shared
-            if let resource = try await dataService.fetchLearningResource(id: resourceId) {
-                resource.isDownloaded = true
-                resource.localFilePath = localPath
-                resource.downloadDate = Date()
-                // Save changes would be handled by SwiftData context
-            }
+            try await dataService.setLocalPathOnQueue(resourceId: resourceId, localPath: localPath)
         } catch {
-            print("⚠️ Failed to mark resource as downloaded: \(error)")
+            print("⚠️ Failed to mark queue item as downloaded: \(error)")
         }
     }
 }

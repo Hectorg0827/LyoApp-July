@@ -344,10 +344,12 @@ extension AppState {
     // MARK: - Enhanced Learning Progress
     func trackLearningProgress(courseId: String, lessonId: String, timeSpent: TimeInterval) {
         let progress = CoreLearningProgress(
+            id: UUID(),
             courseId: courseId,
             lessonId: lessonId,
             percentage: 100.0, // Assuming lesson completed
-            timeSpent: timeSpent
+            timeSpent: timeSpent,
+            timestamp: Date()
         )
         
         AnalyticsManager.shared.trackLearningProgress(progress)

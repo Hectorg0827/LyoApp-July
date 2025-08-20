@@ -78,40 +78,7 @@ protocol ProfileService {
 }
 
 // MARK: - Error Types
-enum APIError: Error, LocalizedError {
-    case unauthorized
-    case forbidden
-    case notFound
-    case serverError(String)
-    case networkError(Error)
-    case decodingError(Error)
-    case validationError(String)
-    case rateLimited
-    case maintenance
-    
-    var errorDescription: String? {
-        switch self {
-        case .unauthorized:
-            return "You need to log in to access this feature."
-        case .forbidden:
-            return "You don't have permission to perform this action."
-        case .notFound:
-            return "The requested content could not be found."
-        case .serverError(let message):
-            return "Server error: \(message)"
-        case .networkError(let error):
-            return "Network error: \(error.localizedDescription)"
-        case .decodingError:
-            return "Failed to parse server response."
-        case .validationError(let message):
-            return "Invalid input: \(message)"
-        case .rateLimited:
-            return "Too many requests. Please try again later."
-        case .maintenance:
-            return "Service temporarily unavailable for maintenance."
-        }
-    }
-}
+// Use the app-wide canonical APIError from LyoApp/APIKeys.swift
 
 // MARK: - HTTP Client
 protocol HTTPClient {
@@ -148,7 +115,11 @@ struct APIEndpoint {
 }
 
 enum HTTPMethod: String {
-    case GET, POST, PUT, DELETE, PATCH
+    case GET = "GET"
+    case POST = "POST"
+    case PUT = "PUT"
+    case DELETE = "DELETE"
+    case PATCH = "PATCH"
 }
 
 // MARK: - WebSocket Client

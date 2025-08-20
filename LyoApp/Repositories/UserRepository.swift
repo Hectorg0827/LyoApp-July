@@ -63,7 +63,7 @@ class UserRepository: ObservableObject {
     }
     
     func fetchUser(by id: UUID) async -> User? {
-        return coreDataManager.fetchUser(by: id)?.toUser()
+        return coreDataManager.fetchUser(by: id.uuidString)?.toUser()
     }
     
     func loadAllUsers() async {
@@ -78,7 +78,7 @@ class UserRepository: ObservableObject {
         isLoading = true
         defer { isLoading = false }
         
-        guard let coreDataUser = coreDataManager.fetchUser(by: user.id) else {
+    guard let coreDataUser = coreDataManager.fetchUser(by: user.id.uuidString) else {
             let error = UserRepositoryError.userNotFound
             errorMessage = error.localizedDescription
             return .failure(error)
@@ -89,11 +89,11 @@ class UserRepository: ObservableObject {
         coreDataUser.email = user.email
         coreDataUser.fullName = user.fullName
         coreDataUser.bio = user.bio
-        coreDataUser.profileImageURL = user.profileImageURL
-        coreDataUser.followerCount = Int32(user.followers)
-        coreDataUser.followingCount = Int32(user.following)
-        coreDataUser.level = Int32(user.level)
-        coreDataUser.experience = Int32(user.experience)
+        // Note: CoreDataUserEntity does not have profile image URL/level/experience fields in current schema
+        // Map numeric counters to Int32 fields present in Core Data
+        coreDataUser.followers = Int32(user.followers)
+        coreDataUser.following = Int32(user.following)
+        coreDataUser.posts = Int32(user.posts)
         
         coreDataManager.save()
         await loadAllUsers()

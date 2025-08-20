@@ -51,12 +51,12 @@ struct LoadingView: View {
     @State private var rotation: Double = 0
     
     var body: some View {
-        VStack(spacing: Tokens.Spacing.lg) {
+        VStack(spacing: DesignTokens.Spacing.lg) {
             Image(systemName: "book.circle.fill")
                 .font(.system(size: 60))
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [Tokens.Colors.primary, Tokens.Colors.accent],
+                        colors: [DesignTokens.Colors.primary, DesignTokens.Colors.accent],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
@@ -70,63 +70,24 @@ struct LoadingView: View {
             
             Text("Lyo")
                 .font(.system(size: 32, weight: .bold, design: .rounded))
-                .foregroundColor(Tokens.Colors.primary)
+                .foregroundColor(DesignTokens.Colors.primary)
             
             Text("Connecting to learning platform...")
                 .font(.body)
-                .foregroundColor(Tokens.Colors.textSecondary)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Tokens.Colors.surfaceBackground.ignoresSafeArea())
+        .background(DesignTokens.Colors.primaryBg.ignoresSafeArea())
     }
 }
 
-// Temporary main app view - will be replaced with proper navigation
+// Main app view with proper navigation
 struct MainAppView: View {
     @EnvironmentObject var container: AppContainer
     
     var body: some View {
-        NavigationView {
-            VStack(spacing: Tokens.Spacing.lg) {
-                Text("Welcome to Lyo!")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                
-                if let user = container.currentUser {
-                    Text("Hello, \(user.displayName)!")
-                        .font(.title2)
-                        .foregroundColor(Tokens.Colors.textSecondary)
-                    
-                    Text("Email: \(user.email)")
-                        .font(.body)
-                        .foregroundColor(Tokens.Colors.textSecondary)
-                    
-                    Text("Points: \(user.stats.totalPoints)")
-                        .font(.body)
-                        .foregroundColor(Tokens.Colors.primary)
-                    
-                    Text("Streak: \(user.stats.streak) days")
-                        .font(.body)
-                        .foregroundColor(Tokens.Colors.accent)
-                }
-                
-                Spacer()
-                
-                AccessibleButton(
-                    title: "Sign Out",
-                    style: .secondary,
-                    size: .large
-                ) {
-                    Task {
-                        await container.signOut()
-                    }
-                }
-            }
-            .padding(Tokens.Spacing.lg)
-            .navigationTitle("Lyo")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-        .background(Tokens.Colors.surfaceBackground.ignoresSafeArea())
+        MainTabView()
+            .environmentObject(container)
     }
 }
 

@@ -154,19 +154,19 @@ class APIClient: APIClientProtocol, ObservableObject {
     
     // MARK: - Protocol Methods
     func get<T: Codable>(endpoint: String) async throws -> T {
-        return try await request(endpoint: endpoint, method: .get)
+        return try await request(endpoint: endpoint, method: HTTPMethod.GET)
     }
     
     func post<T: Codable, U: Codable>(endpoint: String, body: U) async throws -> T {
-        return try await request(endpoint: endpoint, method: .post, body: body)
+        return try await request(endpoint: endpoint, method: HTTPMethod.POST, body: body)
     }
     
     func put<T: Codable, U: Codable>(endpoint: String, body: U) async throws -> T {
-        return try await request(endpoint: endpoint, method: .put, body: body)
+        return try await request(endpoint: endpoint, method: HTTPMethod.PUT, body: body)
     }
     
     func delete(endpoint: String) async throws {
-        let _: EmptyResponse = try await request(endpoint: endpoint, method: .delete)
+        let _: EmptyResponse = try await request(endpoint: endpoint, method: HTTPMethod.DELETE)
     }
     
     // MARK: - Token Management
@@ -215,7 +215,7 @@ class APIClient: APIClientProtocol, ObservableObject {
             throw APIError.unauthorized
         }
         
-        let response: LoginResponse = try await post(endpoint: "auth/refresh", body: EmptyRequest())
+    let response: LoginResponse = try await post(endpoint: "auth/refresh", body: EmptyRequest())
         setAuthToken(response.token)
         logger.info("🔄 Token refreshed successfully")
         

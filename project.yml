@@ -17,13 +17,22 @@ targets:
           - "**/*_Clean*"
           - "**/*_Simple*"
           - "**/*_Fixed*"
+          - "**/*_Enhanced*"
           - "**/*_Old*" 
           - "**/*_backup*"
+          - "**/*_clean*"
+          - "**/*_simple*"
+          - "**/*_fixed*"
+          - "**/*_enhanced*"
+          - "**/*_old*"
+          - "**/*.backup"
+          - "**/*.disabled"
+          - "**/*.bak"
           - "**/*.xcdatamodeld"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.lyo.app
-        DEVELOPMENT_TEAM: ""
+        DEVELOPMENT_TEAM: "5QZDMJGN7B"
         CODE_SIGN_STYLE: Automatic
         TARGETED_DEVICE_FAMILY: "1,2"
         IPHONEOS_DEPLOYMENT_TARGET: "17.0"
@@ -32,8 +41,8 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         SUPPORTS_MACCATALYST: NO
-        CODE_SIGN_IDENTITY: ""
-        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGN_IDENTITY: "Apple Development"
+        CODE_SIGNING_REQUIRED: YES
       debug:
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
       release:

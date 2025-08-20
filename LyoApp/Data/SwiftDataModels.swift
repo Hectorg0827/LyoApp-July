@@ -41,11 +41,18 @@ class LearningResourceEntity {
     var audioData: Data?
     var thumbnailData: Data?
     var timeSpent: TimeInterval
+
+    // AI-enhanced metadata
+    var aiSummary: String?
+    var studyQuestions: [String]?
+    var personalizedInsights: String?
+    // Store embeddings as Double for better persistence compatibility
+    var embeddings: [Double]?
     
     init(from resource: LearningResource) {
         self.id = resource.id.uuidString
         self.title = resource.title
-        self.description = resource.description
+    self.resourceDescription = resource.description
         self.contentType = resource.contentType.rawValue
         self.sourcePlatform = resource.sourcePlatform.rawValue
         self.authorCreator = resource.authorCreator
@@ -80,8 +87,8 @@ class LearningResourceEntity {
     // Convert to LearningResource for UI
     func toLearningResource() -> LearningResource? {
         guard let uuid = UUID(uuidString: id),
-              let contentType = ContentType(rawValue: contentType),
-              let sourcePlatform = SourcePlatform(rawValue: sourcePlatform),
+              let contentType = LearningResource.ContentType(rawValue: contentType),
+              let sourcePlatform = LearningResource.SourcePlatform(rawValue: sourcePlatform),
               let thumbnailURL = URL(string: thumbnailURLString),
               let contentURL = URL(string: contentURLString) else {
             return nil
@@ -90,7 +97,7 @@ class LearningResourceEntity {
         return LearningResource(
             id: uuid,
             title: title,
-            description: description,
+            description: resourceDescription,
             contentType: contentType,
             sourcePlatform: sourcePlatform,
             authorCreator: authorCreator,
@@ -98,7 +105,7 @@ class LearningResourceEntity {
             thumbnailURL: thumbnailURL,
             contentURL: contentURL,
             publishedAt: publishedAt,
-            difficultyLevel: difficultyLevel != nil ? DifficultyLevel(rawValue: difficultyLevel!) : nil,
+            difficultyLevel: difficultyLevel.flatMap { LearningResource.DifficultyLevel(rawValue: $0) },
             estimatedDuration: estimatedDuration,
             rating: rating,
             language: language,
@@ -250,14 +257,21 @@ class UserEntity {
     
     // Convert to User for UI
     func toUser() -> User {
+        let uuid = UUID(uuidString: id) ?? UUID()
         return User(
-            id: id,
+            id: uuid,
             username: username,
             email: email,
-            fullName: fullName,
+            fullName: fullName ?? "",
+            bio: nil,
             profileImageURL: profileImageURL,
-            isOnline: isOnline,
-            lastActiveDate: lastActiveDate
+            followers: 0,
+            following: 0,
+            posts: 0,
+            badges: [],
+            level: 1,
+            experience: 0,
+            joinDate: createdAt
         )
     }
 }

@@ -129,13 +129,9 @@ class ProfessionalMessengerViewModel: ObservableObject {
     }
     
     func setupWebSocket() {
-        webSocketService = LyoWebSocketService()
-        webSocketService?.onMessageReceived = { [weak self] message in
-            Task { @MainActor in
-                await self?.handleRealtimeMessage(message)
-            }
-        }
-        webSocketService?.connect()
+    webSocketService = LyoWebSocketService.shared
+    // Connect with a real user id; TODO: wire from authenticated user context
+    webSocketService?.connect(userId: 1)
     }
     
     func loadConversations() async {
@@ -567,7 +563,7 @@ struct ConversationRowView: View {
     
     private func timeString(from date: Date) -> String {
         let formatter = DateFormatter()
-        if Calendar.current.isToday(date) {
+    if Calendar.current.isDateInToday(date) {
             formatter.dateFormat = "HH:mm"
         } else if Calendar.current.isDate(date, equalTo: Date(), toGranularity: .weekOfYear) {
             formatter.dateFormat = "EEE"
