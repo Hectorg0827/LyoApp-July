@@ -2,19 +2,31 @@ import Foundation
 
 // MARK: - Core Learning Progress Model
 struct CoreLearningProgress: Codable, Identifiable {
-    let id = UUID()
+    let id: UUID
     let courseId: String
     let lessonId: String
     let percentage: Double
     let timeSpent: TimeInterval
     let timestamp: Date
     
+    // Custom initializer for convenience
     init(courseId: String, lessonId: String, percentage: Double, timeSpent: TimeInterval) {
+        self.id = UUID()
         self.courseId = courseId
         self.lessonId = lessonId
         self.percentage = percentage
         self.timeSpent = timeSpent
         self.timestamp = Date()
+    }
+    
+    // Full initializer for Codable
+    init(id: UUID = UUID(), courseId: String, lessonId: String, percentage: Double, timeSpent: TimeInterval, timestamp: Date = Date()) {
+        self.id = id
+        self.courseId = courseId
+        self.lessonId = lessonId
+        self.percentage = percentage
+        self.timeSpent = timeSpent
+        self.timestamp = timestamp
     }
 }
 

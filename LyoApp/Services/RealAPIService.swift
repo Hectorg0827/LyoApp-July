@@ -16,7 +16,7 @@ struct ResetPasswordRequest: Codable {
     let email: String
 }
 
-struct EmptyResponse: Codable {}
+// Use the shared EmptyResponse from APIResponseModels.swift
 
 // MARK: - Production API Service
 @MainActor
@@ -226,7 +226,8 @@ class RealAPIService: ObservableObject {
     // MARK: - Token Management
     private func refreshToken() async throws {
         guard let refreshToken = KeychainManager.shared.retrieve(.refreshToken) else {
-            throw APIError.noAuthToken
+            // Map missing token to canonical unauthorized error
+            throw APIError.unauthorized
         }
         
         let refreshRequest = RefreshTokenRequest(refreshToken: refreshToken)

@@ -55,16 +55,16 @@ class CoreDataManager: ObservableObject {
         bio: String? = nil,
         profileImageURL: String? = nil
     ) -> CoreDataUserEntity {
-        let user = CoreDataUserEntity(context: context)
-        user.id = UUID().uuidString
+    let user = CoreDataUserEntity(context: context)
+    user.id = UUID().uuidString
         user.username = username
         user.email = email
         user.fullName = fullName
         user.bio = bio ?? ""
-        user.followers = 0
-        user.following = 0
-        user.posts = 0
-        user.createdAt = Date()
+    user.followers = Int32(0)
+    user.following = Int32(0)
+    user.posts = Int32(0)
+    user.createdAt = Date()
         
         save()
         return user
@@ -161,10 +161,6 @@ class CoreDataManager: ObservableObject {
     
     func fetchCourses(category: String? = nil) -> [CourseEntity] {
         let request: NSFetchRequest<CourseEntity> = NSFetchRequest<CourseEntity>(entityName: "CourseEntity")
-        
-        if let category = category {
-            request.predicate = NSPredicate(format: "category == %@", category)
-        }
         
         request.sortDescriptors = [NSSortDescriptor(keyPath: \CourseEntity.rating, ascending: false)]
         
@@ -309,12 +305,12 @@ class CoreDataManager: ObservableObject {
 // MARK: - CoreDataUserEntity Extension for User Conversion
 extension CoreDataUserEntity {
     func toUser() -> User {
-    let uuid = UUID(uuidString: self.id) ?? UUID()
+        let uuid = UUID(uuidString: self.id) ?? UUID()
         return User(
             id: uuid,
-            username: self.username ?? "",
-            email: self.email ?? "",
-            fullName: self.fullName ?? "",
+            username: self.username,
+            email: self.email,
+            fullName: self.fullName,
             bio: self.bio,
             profileImageURL: nil,
             followers: Int(self.followers),
@@ -323,7 +319,7 @@ extension CoreDataUserEntity {
             badges: [],
             level: 1,
             experience: 0,
-            joinDate: self.createdAt ?? Date()
+            joinDate: self.createdAt
         )
     }
 }
@@ -333,15 +329,15 @@ extension User {
     func toCoreDataEntity(context: NSManagedObjectContext) -> CoreDataUserEntity {
         let entity = CoreDataUserEntity(context: context)
     entity.id = self.id.uuidString // CoreData uses String for id
-        entity.username = self.username
-        entity.email = self.email
-        entity.fullName = self.fullName
-        entity.bio = self.bio ?? ""
-        // Other fields like followers/following/posts are Int16 in CoreData; set if available
-        entity.followers = Int16(self.followers)
-        entity.following = Int16(self.following)
-        entity.posts = Int16(self.posts)
-        entity.createdAt = self.joinDate
+    entity.username = self.username
+    entity.email = self.email
+    entity.fullName = self.fullName
+    entity.bio = self.bio ?? ""
+    // Map to Core Data Int32 fields
+    entity.followers = Int32(self.followers)
+    entity.following = Int32(self.following)
+    entity.posts = Int32(self.posts)
+    entity.createdAt = self.joinDate
         return entity
     }
 }

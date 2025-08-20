@@ -5,6 +5,7 @@ import SwiftUI
  * YouTube Education API Service
  * Integrates with YouTube Data API v3 to fetch educational content
  */
+@MainActor
 class YouTubeEducationService: ObservableObject {
     private let baseURL = "https://www.googleapis.com/youtube/v3"
     private let apiKey = APIKeys.youtubeAPIKey // You'll need to add this to APIKeys
@@ -44,7 +45,8 @@ class YouTubeEducationService: ObservableObject {
         
         for item in searchResponse.items {
             // Get additional video details
-            if let videoDetails = try? await getVideoDetails(videoId: item.id.videoId) {
+            if let videoId = item.id.videoId,
+               let videoDetails = try? await getVideoDetails(videoId: videoId) {
                 videos.append(videoDetails)
             }
         }

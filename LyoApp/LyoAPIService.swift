@@ -569,9 +569,7 @@ class LyoAPIService: ObservableObject {
 
 // MARK: - Request Models
 
-struct EmptyRequest: Codable {
-    // Empty request for GET endpoints
-}
+// Use the shared EmptyRequest from APIResponseModels.swift
 
 struct CourseOutlineRequest: Codable {
     let title: String

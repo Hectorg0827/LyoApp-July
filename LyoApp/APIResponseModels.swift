@@ -76,3 +76,7 @@ struct ErrorResponse: Codable {
         self.message = message
     }
 }
+
+// MARK: - Common Empty Types
+struct EmptyRequest: Codable {}
+struct EmptyResponse: Codable {}

@@ -700,7 +700,8 @@ struct FeaturedContentSkeletonAlt: View {
                 }
             }
         }
-        .shimmer()
+        .opacity(0.6)
+        .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: UUID())
     }
 }
 
@@ -727,7 +728,8 @@ struct SkeletonCard: View {
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color.white.opacity(0.02))
         )
-        .shimmer()
+        .opacity(0.6)
+        .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: UUID())
     }
 }
 
@@ -756,7 +758,8 @@ struct SkeletonListItem: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color.white.opacity(0.02))
         )
-        .shimmer()
+        .opacity(0.6)
+        .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: UUID())
     }
 }
 

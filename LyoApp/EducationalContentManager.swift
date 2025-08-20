@@ -1,360 +1,147 @@
 import Foundation
 import SwiftUI
 
-/**
- * Comprehensive Educational Content Manager
- * Integrates multiple educational content APIs and provides unified search
- */
+// MARK: - Educational Content Models
+struct EducationalContentItem: Identifiable, Codable {
+    let id: String
+    let title: String
+    let description: String
+    let type: ContentType
+    let url: String
+    let thumbnailURL: String?
+    let duration: TimeInterval?
+    let rating: Double?
+    let provider: ContentProvider
+    let tags: [String]
+    let difficulty: ContentDifficulty
+    let createdAt: Date
+    
+    enum ContentType: String, CaseIterable, Codable {
+        case video = "video"
+        case article = "article"
+        case podcast = "podcast"
+        case course = "course"
+        case ebook = "ebook"
+        case interactive = "interactive"
+    }
+    
+    enum ContentProvider: String, CaseIterable, Codable {
+        case youtube = "youtube"
+        case coursera = "coursera"
+        case edx = "edx"
+        case khanAcademy = "khan_academy"
+        case udemy = "udemy"
+        case mit = "mit"
+        case harvard = "harvard"
+        case stanford = "stanford"
+        case googleBooks = "google_books"
+        case podcast = "podcast"
+        case custom = "custom"
+    }
+    
+    enum ContentDifficulty: String, CaseIterable, Codable {
+        case beginner = "beginner"
+        case intermediate = "intermediate"
+        case advanced = "advanced"
+        case expert = "expert"
+    }
+}
+
+// MARK: - Educational Content Manager
 @MainActor
 class EducationalContentManager: ObservableObject {
-    // MARK: - Published Properties
     @Published var isLoading = false
-    @Published var searchResults: [EducationalContentItem] = []
-    @Published var featuredContent: [EducationalContentItem] = []
-    @Published var recentlyViewed: [EducationalContentItem] = []
-    @Published var bookmarkedContent: [EducationalContentItem] = []
-    @Published var error: String?
+    @Published var error: Error?
+    @Published var content: [EducationalContentItem] = []
+    @Published var categories: [String] = []
     
-    // MARK: - Services
-    private let youtubeService = YouTubeEducationService()
-    private let booksService = GoogleBooksService()
-    private let podcastService = PodcastEducationService()
-    private let coursesService = FreeCoursesService()
+    private let networkManager = NetworkManager.shared
     
-    // MARK: - Cache
-    private var contentCache: [String: [EducationalContentItem]] = [:]
-    private let cacheExpirationTime: TimeInterval = 300 // 5 minutes
-    private var cacheTimestamps: [String: Date] = [:]
-    
-    // MARK: - Search All Content Types
-    func searchAllContent(query: String) async {
-        guard !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return
-        }
-        
-        isLoading = true
-        error = nil
-        searchResults = []
-        
-        do {
-            // Check cache first
-            if let cachedResults = getCachedResults(for: query) {
-                searchResults = cachedResults
-                isLoading = false
-                return
-            }
-            
-            // Perform parallel searches across all content types
-            async let youtubeVideos = searchYouTubeContent(query: query)
-            async let googleBooks = searchBooksContent(query: query)
-            async let podcasts = searchPodcastContent(query: query)
-            async let freeCourses = searchFreeCourses(query: query)
-            
-            // Collect all results
-            let (videos, books, podcastEpisodes, courses) = try await (youtubeVideos, googleBooks, podcasts, freeCourses)
-            
-            // Combine and sort results
-            var allContent: [EducationalContentItem] = []
-            allContent.append(contentsOf: videos.map { .video($0) })
-            allContent.append(contentsOf: books.map { .ebook($0) })
-            allContent.append(contentsOf: podcastEpisodes.map { .podcast($0) })
-            allContent.append(contentsOf: courses.map { .course($0) })
-            
-            // Sort by relevance (you can implement your own scoring algorithm)
-            allContent = sortByRelevance(allContent, query: query)
-            
-            // Cache the results
-            cacheResults(allContent, for: query)
-            
-            searchResults = allContent
-            
-        } catch {
-            self.error = "Search failed: \(error.localizedDescription)"
-            print("Search error: \(error)")
-        }
-        
-        isLoading = false
-    }
-    
-    // MARK: - Search by Category
-    func searchByCategory(_ category: String) async {
-        isLoading = true
-        error = nil
-        
-        do {
-            async let videos = youtubeService.searchEducationalVideos(query: category, maxResults: 10)
-            async let books = booksService.searchByCategory(category: category, maxResults: 10)
-            async let podcasts = podcastService.searchByCategory(category: category, maxResults: 10)
-            
-            let (videoResults, bookResults, podcastResults) = try await (videos, books, podcasts)
-            
-            var categoryContent: [EducationalContentItem] = []
-            categoryContent.append(contentsOf: videoResults.map { .video($0) })
-            categoryContent.append(contentsOf: bookResults.map { .ebook($0) })
-            categoryContent.append(contentsOf: podcastResults.map { .podcast($0) })
-            
-            searchResults = categoryContent.shuffled()
-            
-        } catch {
-            self.error = "Category search failed: \(error.localizedDescription)"
-        }
-        
-        isLoading = false
-    }
-    
-    // MARK: - Load Featured Content
-    func loadFeaturedContent() async {
-        do {
-            async let popularVideos = youtubeService.getPopularEducationalVideos()
-            async let popularBooks = booksService.getPopularEducationalBooks()
-            async let trendingPodcasts = podcastService.getTrendingEducationalPodcasts()
-            
-            let (videos, books, podcasts) = try await (popularVideos, popularBooks, trendingPodcasts)
-            
-            var featured: [EducationalContentItem] = []
-            featured.append(contentsOf: Array(videos.prefix(5)).map { .video($0) })
-            featured.append(contentsOf: Array(books.prefix(5)).map { .ebook($0) })
-            featured.append(contentsOf: Array(podcasts.prefix(5)).map { .podcast($0) })
-            
-            featuredContent = featured.shuffled()
-            
-        } catch {
-            print("Failed to load featured content: \(error)")
-        }
-    }
-    
-    // MARK: - Bookmark Content
-    func toggleBookmark(for item: EducationalContentItem) {
-        if bookmarkedContent.contains(where: { $0.id == item.id }) {
-            bookmarkedContent.removeAll { $0.id == item.id }
-        } else {
-            bookmarkedContent.append(item)
-        }
-        
-        // Save to UserDefaults or your preferred persistence layer
-        saveBookmarkedContent()
-    }
-    
-    func isBookmarked(_ item: EducationalContentItem) -> Bool {
-        return bookmarkedContent.contains { $0.id == item.id }
-    }
-    
-    // MARK: - Recently Viewed
-    func addToRecentlyViewed(_ item: EducationalContentItem) {
-        // Remove if already exists
-        recentlyViewed.removeAll { $0.id == item.id }
-        
-        // Add to beginning
-        recentlyViewed.insert(item, at: 0)
-        
-        // Keep only last 20 items
-        if recentlyViewed.count > 20 {
-            recentlyViewed = Array(recentlyViewed.prefix(20))
-        }
-        
-        saveRecentlyViewed()
-    }
-    
-    // MARK: - Private Search Methods
-    private func searchYouTubeContent(query: String) async throws -> [EducationalVideo] {
-        return try await youtubeService.searchEducationalVideos(query: query, maxResults: 15)
-    }
-    
-    private func searchBooksContent(query: String) async throws -> [Ebook] {
-        return try await booksService.searchBooks(query: query, maxResults: 15, filter: .freeEbooks)
-    }
-    
-    private func searchPodcastContent(query: String) async throws -> [PodcastEpisode] {
-        return try await podcastService.searchEducationalPodcasts(query: query, maxResults: 10)
-    }
-    
-    private func searchFreeCourses(query: String) async throws -> [Course] {
-        return try await coursesService.searchCourses(query: query, maxResults: 10)
-    }
-    
-    // MARK: - Relevance Sorting
-    private func sortByRelevance(_ content: [EducationalContentItem], query: String) -> [EducationalContentItem] {
-        let queryWords = query.lowercased().components(separatedBy: .whitespacesAndNewlines)
-        
-        return content.sorted { item1, item2 in
-            let score1 = calculateRelevanceScore(for: item1, queryWords: queryWords)
-            let score2 = calculateRelevanceScore(for: item2, queryWords: queryWords)
-            return score1 > score2
-        }
-    }
-    
-    private func calculateRelevanceScore(for item: EducationalContentItem, queryWords: [String]) -> Double {
-        let title = item.title.lowercased()
-        let description = item.description.lowercased()
-        
-        var score: Double = 0
-        
-        for word in queryWords {
-            // Title matches are worth more
-            if title.contains(word) {
-                score += 3.0
-            }
-            
-            // Description matches
-            if description.contains(word) {
-                score += 1.0
-            }
-            
-            // Exact title match gets bonus
-            if title == word {
-                score += 5.0
-            }
-        }
-        
-        // Boost certain content types
-        switch item {
-        case .course:
-            score += 1.0 // Courses are comprehensive
-        case .video:
-            score += 0.5 // Videos are engaging
-        case .ebook:
-            score += 0.7 // Books are detailed
-        case .podcast:
-            score += 0.3 // Podcasts are supplementary
-        }
-        
-        return score
-    }
-    
-    // MARK: - Cache Management
-    private func getCachedResults(for query: String) -> [EducationalContentItem]? {
-        guard let timestamp = cacheTimestamps[query],
-              Date().timeIntervalSince(timestamp) < cacheExpirationTime,
-              let cachedContent = contentCache[query] else {
-            return nil
-        }
-        
-        return cachedContent
-    }
-    
-    private func cacheResults(_ content: [EducationalContentItem], for query: String) {
-        contentCache[query] = content
-        cacheTimestamps[query] = Date()
-    }
-    
-    // MARK: - Persistence
-    private func saveBookmarkedContent() {
-        // Implement persistence to UserDefaults or Core Data
-        // For now, using UserDefaults as simple example
-        if let data = try? JSONEncoder().encode(bookmarkedContent.map { $0.id }) {
-            UserDefaults.standard.set(data, forKey: "bookmarked_content_ids")
-        }
-    }
-    
-    private func loadBookmarkedContent() {
-        // Load from persistence layer
-        // This is a simplified implementation
-        if let data = UserDefaults.standard.data(forKey: "bookmarked_content_ids"),
-           let ids = try? JSONDecoder().decode([String].self, from: data) {
-            // You would need to reconstruct the full objects from IDs
-            print("Loaded \(ids.count) bookmarked items")
-        }
-    }
-    
-    private func saveRecentlyViewed() {
-        if let data = try? JSONEncoder().encode(recentlyViewed.map { $0.id }) {
-            UserDefaults.standard.set(data, forKey: "recently_viewed_ids")
-        }
-    }
-    
-    // MARK: - Initialization
     init() {
-        loadBookmarkedContent()
-        Task {
-            await loadFeaturedContent()
-        }
+        loadMockContent()
     }
-}
-
-// MARK: - Extended EducationalContentItem
-extension EducationalContentItem {
-    var description: String {
-        switch self {
-        case .course(let course):
-            return course.description
-        case .video(let video):
-            return video.description
-        case .ebook(let ebook):
-            return ebook.description
-        case .podcast(let podcast):
-            return podcast.description
+    
+    // MARK: - Public Methods
+    func loadContent(for category: String? = nil) {
+        isLoading = true
+        error = nil
+        
+        // Simulate network delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            self?.isLoading = false
+            if category != nil {
+                self?.content = self?.content.filter { $0.tags.contains(category!) } ?? []
+            }
         }
     }
     
-    var instructor: String {
-        switch self {
-        case .course(let course):
-            return course.instructor
-        case .video(let video):
-            return video.instructor
-        case .ebook(let ebook):
-            return ebook.author
-        case .podcast(let podcast):
-            return podcast.showName
+    func searchContent(_ query: String) -> [EducationalContentItem] {
+        return content.filter { item in
+            item.title.localizedCaseInsensitiveContains(query) ||
+            item.description.localizedCaseInsensitiveContains(query) ||
+            item.tags.contains { $0.localizedCaseInsensitiveContains(query) }
         }
     }
     
-    var rating: Double {
-        switch self {
-        case .course(let course):
-            return course.rating
-        case .video(let video):
-            return video.rating
-        case .ebook(let ebook):
-            return ebook.rating
-        case .podcast(let podcast):
-            return podcast.rating
-        }
+    func getContentByType(_ type: EducationalContentItem.ContentType) -> [EducationalContentItem] {
+        return content.filter { $0.type == type }
     }
     
-    var contentType: EducationalContentType {
-        switch self {
-        case .course:
-            return .course
-        case .video:
-            return .video
-        case .ebook:
-            return .ebook
-        case .podcast:
-            return .podcast
-        }
+    func getContentByProvider(_ provider: EducationalContentItem.ContentProvider) -> [EducationalContentItem] {
+        return content.filter { $0.provider == provider }
     }
-}
-
-// MARK: - Search Suggestions
-extension EducationalContentManager {
-    func getSearchSuggestions(for query: String) -> [String] {
-        let suggestions = [
-            // Programming
-            "Swift programming", "Python basics", "JavaScript fundamentals", "Web development",
-            "iOS development", "Android development", "Data structures", "Algorithms",
-            
-            // Science
-            "Physics", "Chemistry", "Biology", "Mathematics", "Statistics", "Calculus",
-            "Linear algebra", "Quantum physics", "Organic chemistry", "Genetics",
-            
-            // Business
-            "Marketing", "Finance", "Accounting", "Entrepreneurship", "Management",
-            "Business strategy", "Economics", "Investment", "Leadership",
-            
-            // Design
-            "UI/UX design", "Graphic design", "Web design", "Adobe Photoshop",
-            "Figma", "Design thinking", "Typography", "Color theory",
-            
-            // Languages
-            "Spanish", "French", "German", "Japanese", "Chinese", "English grammar",
-            "Language learning", "Vocabulary", "Pronunciation",
-            
-            // General
-            "History", "Philosophy", "Psychology", "Art", "Music theory",
-            "Creative writing", "Public speaking", "Critical thinking"
+    
+    func getContentByDifficulty(_ difficulty: EducationalContentItem.ContentDifficulty) -> [EducationalContentItem] {
+        return content.filter { $0.difficulty == difficulty }
+    }
+    
+    // MARK: - Private Methods
+    private func loadMockContent() {
+        content = [
+            EducationalContentItem(
+                id: "1",
+                title: "Introduction to SwiftUI",
+                description: "Learn the basics of SwiftUI with this comprehensive tutorial",
+                type: .video,
+                url: "https://example.com/swiftui-intro",
+                thumbnailURL: "https://example.com/thumb1.jpg",
+                duration: 3600,
+                rating: 4.8,
+                provider: .youtube,
+                tags: ["SwiftUI", "iOS", "Programming"],
+                difficulty: .beginner,
+                createdAt: Date()
+            ),
+            EducationalContentItem(
+                id: "2",
+                title: "Advanced iOS Architecture",
+                description: "Deep dive into iOS app architecture patterns",
+                type: .course,
+                url: "https://example.com/ios-architecture",
+                thumbnailURL: "https://example.com/thumb2.jpg",
+                duration: 7200,
+                rating: 4.9,
+                provider: .coursera,
+                tags: ["iOS", "Architecture", "Advanced"],
+                difficulty: .advanced,
+                createdAt: Date()
+            ),
+            EducationalContentItem(
+                id: "3",
+                title: "Machine Learning Fundamentals",
+                description: "Introduction to machine learning concepts",
+                type: .article,
+                url: "https://example.com/ml-fundamentals",
+                thumbnailURL: "https://example.com/thumb3.jpg",
+                duration: nil,
+                rating: 4.7,
+                provider: .mit,
+                tags: ["Machine Learning", "AI", "Programming"],
+                difficulty: .intermediate,
+                createdAt: Date()
+            )
         ]
         
-        return suggestions.filter { $0.lowercased().contains(query.lowercased()) }
+        categories = Array(Set(content.flatMap { $0.tags })).sorted()
     }
 }

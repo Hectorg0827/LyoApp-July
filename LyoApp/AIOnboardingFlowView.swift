@@ -50,7 +50,11 @@ struct AIOnboardingFlowView: View {
                             dismiss()
                         },
                         generateCourse: generateCourse,
-                        generateMockCourse: generateMockCourse
+                        generateMockCourse: {
+                            #if DEBUG
+                            generateMockCourse()
+                            #endif
+                        }
                     )
                     
                 case .classroomActive:
@@ -114,9 +118,13 @@ struct AIOnboardingFlowView: View {
                 generationError = error.localizedDescription
                 isGenerating = false
                 
-                // Fallback to mock data if API fails
+                // In production, do not use mock data
+                #if DEBUG
                 print("⚠️ API failed, using mock data: \(error)")
                 generateMockCourse()
+                #else
+                print("⚠️ API failed: \(error)")
+                #endif
             }
         }
     }

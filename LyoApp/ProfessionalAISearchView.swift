@@ -229,6 +229,7 @@ class ProfessionalAISearchViewModel: ObservableObject {
                 description: "Master \(queryLower) with hands-on projects and real-world applications. Learn from industry experts.",
                 contentType: .course,
                 url: "/courses/advanced-\(queryLower)",
+                thumbnailURL: nil,
                 relevanceScore: 0.95,
                 metadata: SearchMetadata(
                     duration: "6 hours",
@@ -245,6 +246,7 @@ class ProfessionalAISearchViewModel: ObservableObject {
                 description: "A comprehensive video tutorial covering \(queryLower) basics and best practices.",
                 contentType: .video,
                 url: "/videos/\(queryLower)-fundamentals",
+                thumbnailURL: nil,
                 relevanceScore: 0.87,
                 metadata: SearchMetadata(
                     duration: "45 minutes",
@@ -260,6 +262,7 @@ class ProfessionalAISearchViewModel: ObservableObject {
                 description: "Industry-standard practices and tips for \(queryLower) development.",
                 contentType: .article,
                 url: "/articles/\(queryLower)-best-practices",
+                thumbnailURL: nil,
                 relevanceScore: 0.82,
                 metadata: SearchMetadata(
                     duration: "8 min read",
@@ -274,6 +277,7 @@ class ProfessionalAISearchViewModel: ObservableObject {
                 description: "Build a professional \(queryLower) project for your portfolio.",
                 contentType: .project,
                 url: "/projects/\(queryLower)-portfolio",
+                thumbnailURL: nil,
                 relevanceScore: 0.79,
                 metadata: SearchMetadata(
                     duration: "3 weeks",
@@ -378,7 +382,7 @@ struct ProfessionalAISearchView: View {
                             await viewModel.performSearch()
                         }
                     }
-                    .onChange(of: viewModel.query) { newValue in
+                    .onChange(of: viewModel.query) { oldValue, newValue in
                         if !newValue.isEmpty {
                             Task {
                                 await viewModel.loadSuggestions()

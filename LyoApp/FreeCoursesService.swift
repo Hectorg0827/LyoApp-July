@@ -5,6 +5,7 @@ import SwiftUI
  * Free Courses Service
  * Integrates with multiple free education platforms to fetch course content
  */
+@MainActor
 class FreeCoursesService: ObservableObject {
     @Published var isLoading = false
     @Published var error: String?
@@ -297,16 +298,6 @@ struct KhanAcademyContentItem: Codable {
     let description: String?
     let kind: String // "Exercise", "Video", "Article"
     let url: String?
-}
-
-// MARK: - Extended EducationalContentItem for Podcast Support
-extension EducationalContentItem {
-    case podcast(PodcastEpisode)
-}
-
-// Make sure PodcastEpisode has a rating property
-extension PodcastEpisode {
-    var rating: Double { 4.0 } // Default rating for podcasts
 }
 
 // MARK: - Quick Setup Instructions

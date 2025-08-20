@@ -37,7 +37,7 @@ struct LaunchScreenView: View {
                         lineWidth: 3
                     )
                     .frame(width: CGFloat(80 + ring * 30), height: CGFloat(80 + ring * 30))
-                    .rotationEffect(.degrees(animationPhase * Double(ring + 1) * 60))
+                    .rotationEffect(.degrees(animationPhase * Double(ring + 1) * 60.0))
                     .scaleEffect(ringScale)
                     .opacity(0.7)
             }
