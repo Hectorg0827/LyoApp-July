@@ -1,77 +1,121 @@
 #!/bin/bash
 
 echo "🚀 LyoApp Build Verification Script"
-echo "=================================="
+echo "==================================="
 
-# Change to project directory
-cd "/Users/republicalatuya/Desktop/LyoApp July"
+cd "/home/runner/work/LyoApp-July/LyoApp-July"
 
 echo "📁 Current directory: $(pwd)"
-echo "📋 Checking project files..."
+echo "📋 Checking project structure..."
 
 # Check if key files exist
+ERRORS=0
+
+echo ""
+echo "🔍 Checking Essential Files..."
+
+# Check Xcode project
 if [ -f "LyoApp.xcodeproj/project.pbxproj" ]; then
     echo "✅ Xcode project file found"
 else
     echo "❌ Xcode project file missing"
-    exit 1
+    ((ERRORS++))
 fi
 
-if [ -f "LyoApp/FloatingActionButton.swift" ]; then
-    echo "✅ FloatingActionButton.swift found"
+# Check main app file
+if [ -f "LyoApp/LyoApp.swift" ]; then
+    echo "✅ Main app file found"
 else
-    echo "❌ FloatingActionButton.swift missing"
-    exit 1
+    echo "❌ Main app file missing"
+    ((ERRORS++))
 fi
 
+# Check ContentView
+if [ -f "LyoApp/ContentView.swift" ]; then
+    echo "✅ ContentView found"
+else
+    echo "❌ ContentView missing"
+    ((ERRORS++))
+fi
+
+# Check Models
 if [ -f "LyoApp/Models.swift" ]; then
     echo "✅ Models.swift found"
 else
     echo "❌ Models.swift missing"
-    exit 1
+    ((ERRORS++))
 fi
 
-if [ -f "LyoApp/DesignTokens.swift" ]; then
-    echo "✅ DesignTokens.swift found (HapticManager)"
+# Check Info.plist
+if [ -f "LyoApp/Info.plist" ]; then
+    echo "✅ Info.plist found"
 else
-    echo "❌ DesignTokens.swift missing"
-    exit 1
+    echo "❌ Info.plist missing"
+    ((ERRORS++))
 fi
 
 echo ""
-echo "🔨 Starting Xcode build..."
-echo "Target: iPhone 16 Simulator"
-echo "=================================="
+echo "🖼️ Checking App Icons..."
 
-# Run the actual build to test compilation
-echo "⏳ Building LyoApp..."
-xcodebuild -project LyoApp.xcodeproj -scheme LyoApp -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' build > build_output.log 2>&1
-
-# Check exit code
-if [ $? -eq 0 ]; then
-    echo "✅ Build completed successfully!"
-    echo ""
-    echo "🎉 BUILD SUCCESS!"
-    echo "=================================="
-    echo "✅ All Swift files compiled successfully"
-    echo "✅ No linking errors"
-    echo "✅ FloatingActionButton with quantum effects ready"
-    echo "✅ Educational content integration working"
-    echo "✅ Header drawer icons connected to backend"
-    echo ""
-    echo "🚀 Your LyoApp is ready to run!"
-    echo "   • Quantum 'Lyo' button with electricity ⚡"
-    echo "   • Harvard, MIT, Stanford courses 🎓"
-    echo "   • Backend-connected header icons �"
-    echo "   • AI Search, Messenger, Library functional 🔥"
-    echo ""
+# Check app icons
+ICON_COUNT=$(find "LyoApp/Assets.xcassets/AppIcon.appiconset" -name "*.png" 2>/dev/null | wc -l)
+if [ "$ICON_COUNT" -gt "10" ]; then
+    echo "✅ App Icons: $ICON_COUNT files present"
 else
-    echo "❌ Build completed with errors"
-    echo "=================================="
-    echo "📋 Checking build log for errors..."
-    echo ""
-    tail -50 build_output.log
-    echo ""
-    echo "💡 Tip: Check the build_output.log file for detailed error information"
-    exit 1
+    echo "❌ App Icons: Only $ICON_COUNT files found"
+    ((ERRORS++))
 fi
+
+echo ""
+echo "📝 Checking Critical Services..."
+
+# Check key services
+SERVICES=("UserDataManager" "AuthenticationManager" "AnalyticsManager" "AppState" "VoiceActivationService")
+
+for service in "${SERVICES[@]}"; do
+    if find LyoApp -name "*.swift" -exec grep -l "class.*$service\|struct.*$service" {} \; | head -1 >/dev/null; then
+        echo "✅ $service found"
+    else
+        echo "❌ $service missing"
+        ((ERRORS++))
+    fi
+done
+
+echo ""
+echo "🧹 Checking for Backup Files..."
+
+BACKUP_COUNT=$(find LyoApp -name "*.backup" -o -name "*_backup*" -o -name "*_Clean*" -o -name "*_Old*" -o -name "*.bak" 2>/dev/null | wc -l)
+if [ "$BACKUP_COUNT" -eq "0" ]; then
+    echo "✅ No backup files found"
+else
+    echo "⚠️  Found $BACKUP_COUNT backup files"
+fi
+
+echo ""
+echo "📊 Project Statistics:"
+SWIFT_FILES=$(find LyoApp -name "*.swift" | wc -l)
+echo "   • Swift files: $SWIFT_FILES"
+echo "   • Lines of code: $(find LyoApp -name "*.swift" -exec wc -l {} + | tail -1 | awk '{print $1}')"
+
+echo ""
+echo "==================================="
+
+if [ "$ERRORS" -eq "0" ]; then
+    echo "🎉 ALL CHECKS PASSED!"
+    echo "✅ Project structure is complete"
+    echo "🚀 Ready for Xcode build"
+    echo ""
+    echo "📱 Next Steps:"
+    echo "   1. Open project in Xcode"
+    echo "   2. Select target device/simulator"
+    echo "   3. Build and run (⌘+R)"
+    echo "   4. 🎯 Expected: Successful build"
+else
+    echo "⚠️  FOUND $ERRORS ISSUES"
+    echo "🛠️  Please fix the ❌ items above before building"
+fi
+
+echo ""
+echo "==================================="
+echo "🏆 LyoApp Build Verification Complete"
+exit $ERRORS

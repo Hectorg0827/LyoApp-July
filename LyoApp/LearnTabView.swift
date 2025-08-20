@@ -12,7 +12,7 @@ struct LearnTabView: View {
                 .environmentObject(appState)
             
             // AI Learning Assistant Overlay
-            LearningAssistantView()
+            LearningAssistantOverlayView()
                 .environmentObject(appState)
         }
         .onAppear {

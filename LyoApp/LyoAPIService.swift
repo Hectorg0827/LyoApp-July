@@ -108,11 +108,11 @@ class LyoAPIService: ObservableObject {
         let (data, response) = try await session.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw APIError.networkError("Invalid response")
+            throw APIError.networkError(NSError(domain: "Invalid response", code: 0))
         }
         
         guard httpResponse.statusCode == 200 else {
-            throw APIError.serverError(httpResponse.statusCode)
+            throw APIError.serverError(httpResponse.statusCode, nil)
         }
         
         return try JSONSerialization.jsonObject(with: data) as? [String: Any] ?? [:]
@@ -145,7 +145,7 @@ class LyoAPIService: ObservableObject {
             lastError = error
             throw error
         } catch {
-            let apiError = APIError.networkError(error.localizedDescription)
+            let apiError = APIError.networkError(error)
             lastError = apiError
             throw apiError
         }
@@ -166,11 +166,11 @@ class LyoAPIService: ObservableObject {
         let (data, response) = try await session.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw APIError.networkError("Invalid response")
+            throw APIError.networkError(NSError(domain: "Invalid response", code: 0))
         }
         
         guard httpResponse.statusCode == 200 else {
-            throw APIError.serverError(httpResponse.statusCode)
+            throw APIError.serverError(httpResponse.statusCode, nil)
         }
         
         return try JSONDecoder().decode(LoginResponse.self, from: data)
@@ -240,7 +240,7 @@ class LyoAPIService: ObservableObject {
             lastError = error
             throw error
         } catch {
-            let apiError = APIError.networkError(error.localizedDescription)
+            let apiError = APIError.networkError(error)
             lastError = apiError
             throw apiError
         }
@@ -266,16 +266,16 @@ class LyoAPIService: ObservableObject {
         let (data, response) = try await session.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw APIError.networkError("Invalid response")
+            throw APIError.networkError(NSError(domain: "Invalid response", code: 0))
         }
         
         guard httpResponse.statusCode == 201 || httpResponse.statusCode == 200 else {
             // Try to parse error message from response
             if let errorData = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                let _ = errorData["message"] as? String {
-                throw APIError.serverError(httpResponse.statusCode)
+                throw APIError.serverError(httpResponse.statusCode, nil)
             }
-            throw APIError.serverError(httpResponse.statusCode)
+            throw APIError.serverError(httpResponse.statusCode, nil)
         }
         
         return try JSONDecoder().decode(LoginResponse.self, from: data)
@@ -286,7 +286,8 @@ class LyoAPIService: ObservableObject {
             // All endpoints failed
             DispatchQueue.main.async {
                 self.isConnected = false
-                self.lastError = .networkError("Backend server not reachable at \(self.baseURL). Please start your backend server.")
+                // Map to a canonical error without using a String associated value
+                self.lastError = .serverError(0, "Backend server not reachable at \(self.baseURL). Please start your backend server.")
                 print("❌ Backend server not running at \(self.baseURL)")
                 print("🔧 To fix: Start your backend server on port 8000")
             }
@@ -499,7 +500,7 @@ class LyoAPIService: ObservableObject {
             do {
                 request.httpBody = try JSONEncoder().encode(body)
             } catch {
-                throw APIError.decodingError(error.localizedDescription)
+                    throw APIError.decodingError(error)
             }
         }
         
@@ -515,7 +516,7 @@ class LyoAPIService: ObservableObject {
             
             // Check HTTP response
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw APIError.networkError("Invalid response")
+                throw APIError.networkError(NSError(domain: "Invalid response", code: 0))
             }
             
             // Handle different status codes
@@ -529,21 +530,21 @@ class LyoAPIService: ObservableObject {
                     return result
                 } catch {
                     print("Decoding error: \(error)")
-                    throw APIError.decodingError(error.localizedDescription)
+                    throw APIError.decodingError(error)
                 }
                 
             case 400:
-                throw APIError.serverError(400)
+                throw APIError.serverError(400, nil)
             case 401:
                 throw APIError.unauthorized
             case 403:
-                throw APIError.serverError(403)
+                throw APIError.serverError(403, nil)
             case 404:
-                throw APIError.serverError(404)
+                throw APIError.serverError(404, nil)
             case 500...599:
-                throw APIError.serverError(httpResponse.statusCode)
+                throw APIError.serverError(httpResponse.statusCode, nil)
             default:
-                throw APIError.unknown(NSError(domain: "UnknownError", code: httpResponse.statusCode))
+                throw APIError.serverError(httpResponse.statusCode, "Unknown error")
             }
             
         } catch {
@@ -552,8 +553,8 @@ class LyoAPIService: ObservableObject {
                 lastError = apiError
                 throw apiError
             } else {
-                lastError = .networkError(error.localizedDescription)
-                throw APIError.networkError(error.localizedDescription)
+                lastError = .networkError(error)
+                throw APIError.networkError(error)
             }
         }
     }
@@ -568,9 +569,7 @@ class LyoAPIService: ObservableObject {
 
 // MARK: - Request Models
 
-struct EmptyRequest: Codable {
-    // Empty request for GET endpoints
-}
+// Use the shared EmptyRequest from APIResponseModels.swift
 
 struct CourseOutlineRequest: Codable {
     let title: String

@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+@_exported import Foundation
 
 /**
  * Educational Content Performance Monitor
@@ -102,10 +103,12 @@ class EducationalContentPerformanceMonitor: ObservableObject {
         switch service {
         case .youtube:
             // Lightweight YouTube API check
-            return APIKeys.youtubeAPIKey != "YOUR_YOUTUBE_API_KEY" && !APIKeys.youtubeAPIKey.isEmpty
+            let key = ProcessInfo.processInfo.environment["YOUTUBE_API_KEY"] ?? ""
+            return !key.isEmpty
         case .googleBooks:
             // Lightweight Google Books API check
-            return APIKeys.googleBooksAPIKey != "YOUR_GOOGLE_BOOKS_API_KEY" && !APIKeys.googleBooksAPIKey.isEmpty
+            let key = ProcessInfo.processInfo.environment["GOOGLE_BOOKS_API_KEY"] ?? ""
+            return !key.isEmpty
         case .podcastIndex:
             // Podcast Index API is always available
             return true

@@ -3,18 +3,78 @@ import Foundation
 
 // MARK: - AI Search Models
 
+// Represents rich metadata returned with a search result
+struct SearchMetadata: Codable {
+    var duration: String?
+    var difficulty: String?
+    var rating: Double?
+    var author: String?
+    var tags: [String]?
+    var lastUpdated: String?
+}
+
+// Search content types for AI results
+enum SearchContentType: String, Codable, CaseIterable, Identifiable {
+    case course
+    case video
+    case article
+    case project
+    
+    var id: String { rawValue }
+    
+    // Icon name to display alongside the content type
+    var icon: String {
+        switch self {
+        case .course: return "book.closed"
+        case .video: return "play.rectangle.fill"
+        case .article: return "doc.text"
+        case .project: return "hammer"
+        }
+    }
+    
+    // Accent color per content type
+    var color: Color {
+        switch self {
+        case .course: return DesignTokens.Colors.primary
+        case .video: return DesignTokens.Colors.accent
+        case .article: return DesignTokens.Colors.textSecondary
+        case .project: return DesignTokens.Colors.success
+        }
+    }
+}
+
+// Sorting options for AI search
+enum SearchSortBy: String, Codable, CaseIterable, Identifiable {
+    case relevance
+    case newest
+    case rating
+    case popularity
+
+    var id: String { rawValue }
+}
+
+// Local filters for AI search to avoid cross-file ambiguity
+struct AISearchFilters: Equatable, Codable {
+    var contentTypes: Set<SearchContentType> = Set(SearchContentType.allCases)
+    var difficulty: String? = nil
+    var duration: String? = nil
+    var sortBy: SearchSortBy = .relevance
+}
+
 struct AISearchResult: Identifiable, Codable {
-    let id = UUID()
+    let id: String
     let title: String
     let description: String
-    let type: String
-    let relevance: Double
+    let contentType: SearchContentType
     let url: String?
     let thumbnailURL: String?
-    let metadata: [String: String]?
+    let relevanceScore: Double
+    let metadata: SearchMetadata?
     
     enum CodingKeys: String, CodingKey {
-        case title, description, type, relevance, url, thumbnailURL, metadata
+        case id, title, description, url, thumbnailURL, metadata
+        case contentType = "type"
+        case relevanceScore = "relevance"
     }
 }
 
@@ -24,7 +84,7 @@ struct AISearchResult: Identifiable, Codable {
 class AISearchService: ObservableObject {
     private let baseURL = LyoConfiguration.backendURL
     
-    func search(query: String, filters: SearchFilters) async throws -> [AISearchResult] {
+    func search(query: String, filters: AISearchFilters) async throws -> [AISearchResult] {
         guard let url = URL(string: "\(baseURL)/api/v1/search") else {
             throw URLError(.badURL)
         }
@@ -70,7 +130,7 @@ class ProfessionalAISearchViewModel: ObservableObject {
     @Published var suggestions: [String] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
-    @Published var filters = SearchFilters()
+    @Published var filters = AISearchFilters()
     @Published var showingFilters = false
     @Published var searchHistory: [String] = []
     
@@ -169,6 +229,7 @@ class ProfessionalAISearchViewModel: ObservableObject {
                 description: "Master \(queryLower) with hands-on projects and real-world applications. Learn from industry experts.",
                 contentType: .course,
                 url: "/courses/advanced-\(queryLower)",
+                thumbnailURL: nil,
                 relevanceScore: 0.95,
                 metadata: SearchMetadata(
                     duration: "6 hours",
@@ -185,6 +246,7 @@ class ProfessionalAISearchViewModel: ObservableObject {
                 description: "A comprehensive video tutorial covering \(queryLower) basics and best practices.",
                 contentType: .video,
                 url: "/videos/\(queryLower)-fundamentals",
+                thumbnailURL: nil,
                 relevanceScore: 0.87,
                 metadata: SearchMetadata(
                     duration: "45 minutes",
@@ -200,6 +262,7 @@ class ProfessionalAISearchViewModel: ObservableObject {
                 description: "Industry-standard practices and tips for \(queryLower) development.",
                 contentType: .article,
                 url: "/articles/\(queryLower)-best-practices",
+                thumbnailURL: nil,
                 relevanceScore: 0.82,
                 metadata: SearchMetadata(
                     duration: "8 min read",
@@ -214,6 +277,7 @@ class ProfessionalAISearchViewModel: ObservableObject {
                 description: "Build a professional \(queryLower) project for your portfolio.",
                 contentType: .project,
                 url: "/projects/\(queryLower)-portfolio",
+                thumbnailURL: nil,
                 relevanceScore: 0.79,
                 metadata: SearchMetadata(
                     duration: "3 weeks",
@@ -318,7 +382,7 @@ struct ProfessionalAISearchView: View {
                             await viewModel.performSearch()
                         }
                     }
-                    .onChange(of: viewModel.query) { _, newValue in
+                    .onChange(of: viewModel.query) { oldValue, newValue in
                         if !newValue.isEmpty {
                             Task {
                                 await viewModel.loadSuggestions()
@@ -553,19 +617,19 @@ struct SearchResultCardView: View {
                 }
                 
                 HStack {
-                    if let author = result.metadata.author {
+                    if let author = result.metadata?.author {
                         Label(author, systemImage: "person.fill")
                             .font(DesignTokens.Typography.caption)
                             .foregroundColor(DesignTokens.Colors.textSecondary)
                     }
                     
-                    if let duration = result.metadata.duration {
+                    if let duration = result.metadata?.duration {
                         Label(duration, systemImage: "clock")
                             .font(DesignTokens.Typography.caption)
                             .foregroundColor(DesignTokens.Colors.textSecondary)
                     }
                     
-                    if let rating = result.metadata.rating {
+                    if let rating = result.metadata?.rating {
                         Label(String(format: "%.1f", rating), systemImage: "star.fill")
                             .font(DesignTokens.Typography.caption)
                             .foregroundColor(.orange)
@@ -652,19 +716,19 @@ struct SearchResultDetailView: View {
                 .foregroundColor(DesignTokens.Colors.textPrimary)
             
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: DesignTokens.Spacing.md) {
-                if let author = result.metadata.author {
+                if let author = result.metadata?.author {
                     MetadataItem(icon: "person.fill", title: "Author", value: author)
                 }
                 
-                if let duration = result.metadata.duration {
+                if let duration = result.metadata?.duration {
                     MetadataItem(icon: "clock", title: "Duration", value: duration)
                 }
                 
-                if let difficulty = result.metadata.difficulty {
+                if let difficulty = result.metadata?.difficulty {
                     MetadataItem(icon: "chart.bar", title: "Difficulty", value: difficulty)
                 }
                 
-                if let rating = result.metadata.rating {
+                if let rating = result.metadata?.rating {
                     MetadataItem(icon: "star.fill", title: "Rating", value: String(format: "%.1f/5", rating))
                 }
             }

@@ -84,13 +84,13 @@ struct LioAI {
     }
     
     /// Get learning path suggestions
-    static func suggestLearningPath(for topic: String, level: String = "beginner") async -> LearningPath {
+    static func suggestLearningPath(for topic: String, level: String = "beginner") async -> LioAILearningPath {
         print("🗺️ Generating learning path for '\(topic)' at \(level) level...")
         
         try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
         
         // Generate a structured learning path
-        return LearningPath(
+        return LioAILearningPath(
             title: "Master \(topic.capitalized)",
             description: "A comprehensive learning path to become proficient in \(topic)",
             estimatedDuration: "4-6 weeks",
@@ -142,7 +142,7 @@ struct LioAI {
 }
 
 // MARK: - Supporting Models
-struct LearningPath {
+struct LioAILearningPath {
     let title: String
     let description: String
     let estimatedDuration: String

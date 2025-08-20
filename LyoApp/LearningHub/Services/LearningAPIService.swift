@@ -377,7 +377,7 @@ enum LearningAPIError: Error, LocalizedError {
 // MARK: - Request Models
 // Note: LearningSearchRequest is defined in LearningResource.swift
 
-struct SearchFilters: Codable {
+struct LearningSearchFilters: Codable {
     let categories: [String]?
     let difficulty: String?
     let duration: String?

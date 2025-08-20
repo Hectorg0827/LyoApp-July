@@ -3,7 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var voiceActivationService: VoiceActivationService
-    @StateObject private var userDataManager = UserDataManager.shared
+    @EnvironmentObject var userDataManager: UserDataManager
     @State private var showingAIFlow = false
     @State private var showingStoryDrawer = false
     @State private var videos: [VideoPost] = []
@@ -12,6 +12,11 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             VStack {
+                // Debug information
+                Text("Debug: ContentView loaded")
+                    .foregroundColor(.red)
+                    .font(.caption)
+                
                 if isLoading {
                     ProgressView("Loading content...")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -26,20 +31,27 @@ struct ContentView: View {
                 }
             }
             .onAppear {
+                print("🔍 ContentView appeared, loading content...")
                 loadContent()
             }
             .refreshable {
+                print("🔄 Refreshing content...")
                 await refreshContent()
             }
         }
     }
     
     private func loadContent() {
+        print("🔍 loadContent() called")
         Task {
+            print("🔍 Starting Task for loadContent")
             // For now, create some sample videos until UserDataManager is fully integrated
             await MainActor.run {
+                print("🔍 MainActor.run - creating sample videos")
                 self.videos = createSampleVideos()
+                print("🔍 Created \(self.videos.count) sample videos")
                 self.isLoading = false
+                print("🔍 Set isLoading = false")
             }
             
             // Track analytics
@@ -265,6 +277,7 @@ struct VideoFeedItemView: View {
 
 #Preview {
     ContentView()
-        .environmentObject(AppState())
+        .environmentObject(AppState.shared)
         .environmentObject(VoiceActivationService.shared)
+        .environmentObject(UserDataManager.shared)
 }

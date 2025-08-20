@@ -317,11 +317,17 @@ class ContentPlayerService: NSObject, ObservableObject {
     private func getLocalContentPath(for resourceId: String) async -> String? {
         do {
             let dataService = LearningDataService.shared
-            let resource = try await dataService.fetchLearningResource(id: resourceId)
-            return resource?.localFilePath
-        } catch {
-            return nil
-        }
+            if let resource = try await dataService.fetchLearningResource(id: resourceId) {
+                // Prefer an existing downloaded file path if tracked elsewhere; otherwise return stored content URL
+                if resource.isDownloaded {
+                    // If downloads are tracked via DownloadEntity, this is where we'd resolve it.
+                    // For now, no explicit local path is stored on LearningResourceEntity.
+                    return nil
+                }
+                return resource.contentURLString
+            }
+        } catch { /* ignore */ }
+        return nil
     }
     
     private func saveProgress(for content: LearningResource, time: TimeInterval, completed: Bool = false) async {
@@ -432,7 +438,8 @@ enum ContentPlayerError: LocalizedError {
 
 // MARK: - Content Player Views
 
-struct VideoPlayerView: UIViewControllerRepresentable {
+// Renamed to avoid collisions with any other VideoPlayerView types
+struct LyoVideoPlayerView: UIViewControllerRepresentable {
     let player: AVPlayer
     
     func makeUIViewController(context: Context) -> AVPlayerViewController {
@@ -540,3 +547,5 @@ struct PDFViewerView: UIViewRepresentable {
         // Update if needed
     }
 }
+
+// Intentionally no global typealias for `VideoPlayerView` to avoid duplicate declarations.

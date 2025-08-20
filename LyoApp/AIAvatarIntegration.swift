@@ -197,7 +197,7 @@ class AIAvatarAPIClient: ObservableObject {
             do {
                 request.httpBody = try JSONEncoder().encode(body)
             } catch {
-                throw APIError.decodingError(error.localizedDescription)
+                throw APIError.decodingError(error)
             }
         }
         
@@ -209,7 +209,7 @@ class AIAvatarAPIClient: ObservableObject {
             let (data, response) = try await session.data(for: request)
             
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw APIError.networkError("Invalid response")
+                throw APIError.networkError(NSError(domain: "Invalid response", code: 0))
             }
             
             if DevelopmentConfig.enableDebugLogging {
@@ -227,13 +227,13 @@ class AIAvatarAPIClient: ObservableObject {
             case 404:
                 throw APIError.invalidResponse
             case 400...499:
-                let _ = try? JSONDecoder().decode(ErrorResponse.self, from: data)
-                throw APIError.serverError(httpResponse.statusCode)
+                let parsed = try? JSONDecoder().decode(ErrorResponse.self, from: data)
+                throw APIError.serverError(httpResponse.statusCode, parsed?.detail ?? parsed?.message)
             case 500...599:
-                let _ = try? JSONDecoder().decode(ErrorResponse.self, from: data)
-                throw APIError.serverError(httpResponse.statusCode)
+                let parsed = try? JSONDecoder().decode(ErrorResponse.self, from: data)
+                throw APIError.serverError(httpResponse.statusCode, parsed?.detail ?? parsed?.message)
             default:
-                throw APIError.serverError(httpResponse.statusCode)
+                throw APIError.serverError(httpResponse.statusCode, nil)
             }
             
             do {
@@ -241,14 +241,14 @@ class AIAvatarAPIClient: ObservableObject {
                 return result
             } catch {
                 logger.error("❌ Decoding error: \(error)")
-                throw APIError.decodingError(error.localizedDescription)
+                throw APIError.decodingError(error)
             }
             
         } catch let error as APIError {
             throw error
         } catch {
             logger.error("❌ Network error: \(error)")
-            throw APIError.networkError(error.localizedDescription)
+            throw APIError.networkError(error)
         }
     }
     

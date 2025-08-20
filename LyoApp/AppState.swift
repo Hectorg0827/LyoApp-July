@@ -24,6 +24,19 @@ enum LoadingState: Equatable {
         if case .failure(let error) = self { return error }
         return nil
     }
+    
+    static func == (lhs: LoadingState, rhs: LoadingState) -> Bool {
+        switch (lhs, rhs) {
+        case (.idle, .idle), (.success, .success):
+            return true
+        case (.loading(let lhsMessage), .loading(let rhsMessage)):
+            return lhsMessage == rhsMessage
+        case (.failure(let lhsError), .failure(let rhsError)):
+            return lhsError == rhsError
+        default:
+            return false
+        }
+    }
 }
 
 // MARK: - Avatar State

@@ -37,81 +37,36 @@ class ErrorHandler: ObservableObject {
         if let appError = error as? AppError {
             return appError
         }
-        
-        // Convert common errors to app errors
-        if error.localizedDescription.contains("network") || error.localizedDescription.contains("connection") {
-            return .networkError(error.localizedDescription)
+        // Map APIError into AppError (defined in AppState.swift)
+        if let apiError = error as? APIError {
+            switch apiError {
+            case .unauthorized:
+                return .authenticationFailed
+            case .invalidResponse, .decodingError, .noData, .invalidURL:
+                return .invalidResponse
+            case .serverError(_, let message):
+                return .serverError(message: message ?? "Server error")
+            case .networkError:
+                return .networkError
+            case .forbidden, .notFound, .rateLimitExceeded, .apiKeyMissing:
+                return .serverError(message: apiError.localizedDescription)
+            }
         }
-        
-        if error.localizedDescription.contains("authentication") || error.localizedDescription.contains("unauthorized") {
-            return .authenticationError(error.localizedDescription)
+        // Fallback mapping
+        let message = error.localizedDescription
+        if message.localizedCaseInsensitiveContains("network") || message.localizedCaseInsensitiveContains("connection") {
+            return .networkError
         }
-        
-        return .genericError(error.localizedDescription)
+        if message.localizedCaseInsensitiveContains("authentication") || message.localizedCaseInsensitiveContains("unauthorized") {
+            return .authenticationFailed
+        }
+        return .unknownError(message)
     }
     
     // MARK: - Error Reporting
     private func reportError(_ error: AppError) {
         // In production, this would send to a crash reporting service
         print("🔴 Reporting error: \(error)")
-    }
-}
-
-// MARK: - App Error Types
-enum AppError: LocalizedError, Identifiable {
-    case networkError(String)
-    case authenticationError(String)
-    case dataError(String)
-    case validationError(String)
-    case genericError(String)
-    
-    var id: String {
-        return localizedDescription
-    }
-    
-    var errorDescription: String? {
-        switch self {
-        case .networkError(let message):
-            return "Network Error: \(message)"
-        case .authenticationError(let message):
-            return "Authentication Error: \(message)"
-        case .dataError(let message):
-            return "Data Error: \(message)"
-        case .validationError(let message):
-            return "Validation Error: \(message)"
-        case .genericError(let message):
-            return "Error: \(message)"
-        }
-    }
-    
-    var userFriendlyMessage: String {
-        switch self {
-        case .networkError:
-            return "Please check your internet connection and try again."
-        case .authenticationError:
-            return "Please log in again to continue."
-        case .dataError:
-            return "There was a problem loading your data. Please try again."
-        case .validationError(let message):
-            return message
-        case .genericError:
-            return "Something went wrong. Please try again later."
-        }
-    }
-    
-    var severity: ErrorSeverity {
-        switch self {
-        case .networkError:
-            return .medium
-        case .authenticationError:
-            return .high
-        case .dataError:
-            return .medium
-        case .validationError:
-            return .low
-        case .genericError:
-            return .medium
-        }
     }
 }
 
@@ -150,7 +105,7 @@ struct ErrorAlert: View {
             // Error icon
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.largeTitle)
-                .foregroundColor(error.severity.color)
+                .foregroundColor(error.severityColor)
             
             // Error title
             Text("Oops! Something went wrong")
@@ -241,5 +196,30 @@ extension View {
                 }
             }
         )
+    }
+}
+
+// MARK: - AppError presentation helpers for UI (extending the AppError in AppState.swift)
+extension AppError {
+    var severityColor: Color {
+        switch self {
+        case .networkError:
+            return ErrorSeverity.medium.color
+        case .serverError:
+            return ErrorSeverity.high.color
+        case .authenticationFailed:
+            return ErrorSeverity.high.color
+        case .invalidResponse, .dataCorruption:
+            return ErrorSeverity.medium.color
+        case .microphonePermissionDenied, .cameraPermissionDenied, .photoLibraryPermissionDenied:
+            return ErrorSeverity.low.color
+        case .unknownError:
+            return ErrorSeverity.low.color
+        }
+    }
+    
+    var userFriendlyMessage: String {
+        // Reuse existing LocalizedError description
+        return self.errorDescription ?? "An unexpected error occurred."
     }
 }

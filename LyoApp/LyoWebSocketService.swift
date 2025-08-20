@@ -21,6 +21,9 @@ class LyoWebSocketService: NSObject, ObservableObject {
     @Published var lastMessage: WebSocketMessage?
     @Published var messages: [WebSocketMessage] = []
     @Published var lastError: WebSocketError?
+
+    // Optional callback for consumers that prefer a closure over observation
+    var onMessageReceived: ((WebSocketMessage) -> Void)?
     
     // MARK: - Avatar Companion State
     @Published var liveTranscript: String = ""
@@ -140,6 +143,7 @@ class LyoWebSocketService: NSObject, ObservableObject {
             let message = try JSONDecoder().decode(WebSocketMessage.self, from: data)
             messages.append(message)
             lastMessage = message
+            onMessageReceived?(message)
             
             // Handle specific message types
             switch message.type {

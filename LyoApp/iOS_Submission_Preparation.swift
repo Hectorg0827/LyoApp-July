@@ -148,7 +148,7 @@ struct AppStoreMetadata {
 }
 
 // MARK: - 3. Screenshot Generator for App Store
-struct AppStoreScreenshotGenerator: View {
+struct AppStoreScreenshotGeneratorV2: View {
     let deviceType: DeviceType
     
     enum DeviceType: String, CaseIterable {
@@ -406,7 +406,7 @@ struct ImplementationInstructions {
 }
 
 #Preview("Screenshot iPhone") {
-    AppStoreScreenshotGenerator(deviceType: .iPhone6_7)
+    AppStoreScreenshotGeneratorV2(deviceType: .iPhone6_7)
         .scaleEffect(0.2)
 }
 

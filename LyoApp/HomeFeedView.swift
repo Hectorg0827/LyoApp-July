@@ -78,6 +78,7 @@ extension Array {
 
 // MARK: - Feed Protocol
 
+@MainActor
 protocol FeedDataProvider {
     var feedItems: [FeedItem] { get }
     func loadFeedFromBackend() async
@@ -254,7 +255,6 @@ class FeedManager: ObservableObject, FeedDataProvider {
     func cleanup() {}
     func preloadNextVideo(at index: Int) {}
 }
-}
 
 class FeedbackManager: ObservableObject {
     static let shared = FeedbackManager()
@@ -278,6 +278,13 @@ class FeedbackManager: ObservableObject {
         let impactFeedback = UIImpactFeedbackGenerator(style: .light)
         impactFeedback.impactOccurred()
         print("🔖 Save action triggered")
+    }
+    
+    func shareAction() {
+        // Provide haptic feedback
+        let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+        impactFeedback.impactOccurred()
+        print("📤 Share action triggered")
     }
     
     func buttonTap() {

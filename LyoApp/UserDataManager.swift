@@ -6,7 +6,7 @@ import CoreData
 @MainActor
 class UserDataManager: ObservableObject {
     static let shared = UserDataManager()
-    
+ 
     // MARK: - Published Properties
     @Published var currentUser: User?
     @Published var isAuthenticated = false
@@ -395,6 +395,30 @@ class UserDataManager: ObservableObject {
             )
         ]
     }
+
+    // MARK: - Video Feed Support
+    /// Returns a mapped list of VideoPost for the TikTok-style feed using educational videos and current user as author when available.
+    func getUserVideos() -> [VideoPost] {
+        let author: User = currentUser ?? User(
+            username: "lyo",
+            email: "lyo@example.com",
+            fullName: "Lyo User"
+        )
+        let videos = getEducationalVideos()
+        return videos.map { vid in
+            VideoPost(
+                author: author,
+                title: vid.title,
+                videoURL: vid.videoURL,
+                thumbnailURL: vid.thumbnailURL,
+                likes: Int(vid.viewCount / 10),
+                comments: Int(vid.viewCount / 50),
+                shares: Int(vid.viewCount / 100),
+                hashtags: vid.tags,
+                createdAt: vid.publishedDate
+            )
+        }
+    }
     
     private func loadEbooks() {
         ebooks = [
@@ -460,21 +484,19 @@ class UserDataManager: ObservableObject {
     private func loadCommunities() {
         communities = [
             Community(
-                id: "community1",
                 name: "iOS Developers",
                 description: "Community for iOS developers",
-                imageURL: "ios_community",
+                icon: "ios_community",
                 memberCount: 15000,
-                isJoined: true,
+                isPrivate: false,
                 category: "Programming"
             ),
             Community(
-                id: "community2",
                 name: "SwiftUI Enthusiasts",
                 description: "Share SwiftUI tips and tricks",
-                imageURL: "swiftui_community",
+                icon: "swiftui_community",
                 memberCount: 8500,
-                isJoined: false,
+                isPrivate: false,
                 category: "Programming"
             )
         ]

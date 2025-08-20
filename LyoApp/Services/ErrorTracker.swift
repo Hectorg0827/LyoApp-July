@@ -62,7 +62,7 @@ class ErrorTracker: ObservableObject {
 
 // MARK: - Tracked Error Model
 struct TrackedError: Identifiable, Codable {
-    let id = UUID()
+    let id: UUID
     let errorDescription: String
     let context: String
     let userId: String?
@@ -74,6 +74,7 @@ struct TrackedError: Identifiable, Codable {
     }
     
     init(error: Error, context: String, userId: String?, timestamp: Date) {
+        self.id = UUID()
         self.errorDescription = error.localizedDescription
         self.context = context
         self.userId = userId
