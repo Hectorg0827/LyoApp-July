@@ -251,9 +251,19 @@ class FeedManager: ObservableObject, FeedDataProvider {
         )
     }
     
-    func preload() async {}
-    func cleanup() {}
-    func preloadNextVideo(at index: Int) {}
+    func preload() async {
+        await loadFeedFromBackend()
+    }
+    
+    func cleanup() {
+        // Clean up resources when view disappears
+    }
+    
+    func preloadNextVideo(at index: Int) {
+        // Preload next video for better performance
+        guard index + 1 < feedItems.count else { return }
+        print("📹 Preloading video at index \(index + 1)")
+    }
 }
 
 class FeedbackManager: ObservableObject {
@@ -409,16 +419,59 @@ struct HomeFeedView: View {
     // MARK: - Immersive Content View (Main Feed)
     private var immersiveContentView: some View {
         GeometryReader { geometry in
-            let item = feedManager.feedItems[safe: selectedIndex]
-            switch item?.contentType {
-            case .video(let videoContent):
-                tikTokStyleVideoView(videoContent: videoContent, geometry: geometry)
-            case .article(let articleContent):
-                tikTokStyleArticleView(articleContent: articleContent, geometry: geometry)
-            case .product(let productContent):
-                tikTokStyleProductView(productContent: productContent, geometry: geometry)
-            case .none:
-                Color.black
+            if feedManager.isLoading {
+                // Loading state
+                ZStack {
+                    Color.black
+                    VStack(spacing: 20) {
+                        ProgressView()
+                            .scaleEffect(1.5)
+                            .tint(.white)
+                        
+                        Text("Loading content...")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundColor(.white)
+                    }
+                }
+            } else if feedManager.feedItems.isEmpty {
+                // Empty state
+                ZStack {
+                    Color.black
+                    VStack(spacing: 20) {
+                        Image(systemName: "video.circle")
+                            .font(.system(size: 64))
+                            .foregroundColor(.white.opacity(0.6))
+                        
+                        Text("No content available")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundColor(.white)
+                        
+                        Text("Check back later for new content")
+                            .font(.system(size: 16))
+                            .foregroundColor(.white.opacity(0.7))
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding()
+                }
+            } else {
+                // Content state
+                let item = feedManager.feedItems[safe: selectedIndex]
+                switch item?.contentType {
+                case .video(let videoContent):
+                    tikTokStyleVideoView(videoContent: videoContent, geometry: geometry)
+                case .article(let articleContent):
+                    tikTokStyleArticleView(articleContent: articleContent, geometry: geometry)
+                case .product(let productContent):
+                    tikTokStyleProductView(productContent: productContent, geometry: geometry)
+                case .none:
+                    // Fallback for invalid index
+                    ZStack {
+                        Color.black
+                        Text("Loading next content...")
+                            .font(.system(size: 16))
+                            .foregroundColor(.white.opacity(0.7))
+                    }
+                }
             }
         }
     }
