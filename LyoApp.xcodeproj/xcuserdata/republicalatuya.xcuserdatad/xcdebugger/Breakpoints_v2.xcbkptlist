@@ -47,34 +47,6 @@
                   startingLineNumber = "8"
                   endingLineNumber = "8">
                </Location>
-               <Location
-                  uuid = "D43260FE-41E0-49EE-881D-E4F281EE598A - 40e24a702503692a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "one-time initialization function for shared"
-                  moduleName = "LyoApp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/republicalatuya/Desktop/LyoApp%20July/LyoApp/UserDataManager.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "8"
-                  endingLineNumber = "8">
-               </Location>
-               <Location
-                  uuid = "D43260FE-41E0-49EE-881D-E4F281EE598A - 3db4887c19ebeec4"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "LyoApp.UserDataManager.shared.unsafeMutableAddressor : LyoApp.UserDataManager"
-                  moduleName = "LyoApp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/republicalatuya/Desktop/LyoApp%20July/LyoApp/UserDataManager.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "8"
-                  endingLineNumber = "8">
-               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
