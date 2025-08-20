@@ -1,5 +1,4 @@
 import SwiftUI
-import AuthenticationServices
 
 struct WelcomeView: View {
     var body: some View {

@@ -2,7 +2,7 @@ import SwiftUI
 
 @main
 struct LyoApp: App {
-    @StateObject private var container = AppContainer.production() // Use live backend services
+    @StateObject private var container = AppContainer.development() // Use development mode for better error handling
     
     var body: some Scene {
         WindowGroup {
