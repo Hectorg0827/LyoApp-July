@@ -32,11 +32,38 @@ class UserDataManager: ObservableObject {
     }
     
     private init() {
-        loadUserData()
-        generateSampleData()
+        // Initialize with minimal blocking operations
+        loadUserDataSafely()
         
-        // Integrate real content for market readiness
-        integrateRealContent()
+        // Generate sample data and integrate real content asynchronously
+        Task { @MainActor in
+            await initializeContentAsync()
+        }
+    }
+    
+    /// Safe user data loading that doesn't block
+    private func loadUserDataSafely() {
+        // Only load essential user data synchronously
+        if let savedUser = loadUser() {
+            self.currentUser = savedUser
+            self.isAuthenticated = true
+        }
+        
+        print("👤 UserDataManager initialized safely")
+    }
+    
+    /// Initialize content asynchronously to prevent blocking
+    private func initializeContentAsync() async {
+        do {
+            generateSampleData()
+            
+            // Only integrate real content if absolutely necessary
+            await integrateRealContentSafely()
+            
+            print("✅ UserDataManager content initialization complete")
+        } catch {
+            print("❌ UserDataManager content initialization failed: \(error)")
+        }
     }
     
     // MARK: - Real Content Integration
@@ -54,6 +81,31 @@ class UserDataManager: ObservableObject {
             
             print("✅ Real content integrated successfully")
             print("📊 Content stats: \(realContentService.contentStatistics)")
+        }
+    }
+    
+    /// Safe version of real content integration that won't block
+    private func integrateRealContentSafely() async {
+        do {
+            let realContentService = RealContentService.shared
+            await realContentService.loadContentIfNeeded()
+            
+            realContentService.integrateWithUserDataManager()
+            
+            // Update with real content if available
+            if realContentService.validateContentIntegrity() {
+                await MainActor.run {
+                    self.userCourses = Array(realContentService.realCourses.prefix(3))
+                    self.educationalVideos = realContentService.realEducationalVideos
+                    self.ebooks = realContentService.realEbooks
+                }
+                
+                print("✅ Real content integrated safely")
+            } else {
+                print("⚠️ Real content not available, using sample data")
+            }
+        } catch {
+            print("❌ Safe real content integration failed: \(error)")
         }
     }
     
