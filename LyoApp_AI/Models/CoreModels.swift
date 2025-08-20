@@ -1,4 +1,37 @@
 import Foundation
+import SwiftUI
+
+// MARK: - User Model (Compatible with existing codebase)
+struct User: Codable, Identifiable {
+    var id: String
+    var displayName: String
+    var email: String
+    var profilePictureURL: String?
+    var username: String?
+    var fullName: String?
+    var bio: String?
+    var followers: Int?
+    var following: Int?
+    var posts: Int?
+    var level: Int?
+    var experience: Int?
+    var joinDate: Date?
+    
+    init(id: String, displayName: String, email: String, profilePictureURL: String? = nil) {
+        self.id = id
+        self.displayName = displayName
+        self.email = email
+        self.profilePictureURL = profilePictureURL
+        self.username = displayName.lowercased().replacingOccurrences(of: " ", with: "_")
+        self.fullName = displayName
+        self.followers = 0
+        self.following = 0
+        self.posts = 0
+        self.level = 1
+        self.experience = 0
+        self.joinDate = Date()
+    }
+}
 
 // MARK: - Authentication Models
 struct AuthTokens: Codable {

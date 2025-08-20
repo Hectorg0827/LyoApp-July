@@ -312,8 +312,30 @@ extension View {
     }
 }
 
-// MARK: - Compatibility alias for existing code
+// MARK: - Compatibility aliases for existing code
 typealias Tokens = DesignTokens
+
+// Typography compatibility for WelcomeView and other components
+struct Typography {
+    // Display
+    static let display1 = DesignTokens.Typography.displayLarge
+    static let display2 = DesignTokens.Typography.displayMedium  
+    static let display3 = DesignTokens.Typography.displaySmall
+    
+    // Headings
+    static let h1 = DesignTokens.Typography.headlineLarge
+    static let h2 = DesignTokens.Typography.headlineMedium
+    static let h3 = DesignTokens.Typography.headlineSmall
+    
+    // Body text
+    static let body = DesignTokens.Typography.bodyMedium
+    static let bodyLarge = DesignTokens.Typography.bodyLarge
+    static let bodySmall = DesignTokens.Typography.bodySmall
+    
+    // Labels and captions
+    static let caption = DesignTokens.Typography.labelSmall
+    static let label = DesignTokens.Typography.labelMedium
+}
 
 #Preview {
     VStack(spacing: DesignTokens.Spacing.md) {
