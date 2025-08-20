@@ -50,7 +50,8 @@ class WebSocketService: ObservableObject {
                 case .data(let data):
                     print("Received binary data: \(data)")
                 @unknown default:
-                    fatalError()
+                    print("⚠️ Unknown WebSocket message type received")
+                    break
                 }
                 
                 Task {

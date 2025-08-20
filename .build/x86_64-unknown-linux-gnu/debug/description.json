@@ -1,0 +1,2672 @@
+{
+  "builtTestProducts" : [
+
+  ],
+  "copyCommands" : {
+
+  },
+  "explicitTargetDependencyImportCheckingMode" : {
+    "none" : {
+
+    }
+  },
+  "generatedSourceTargetSet" : [
+
+  ],
+  "pluginDescriptions" : [
+
+  ],
+  "swiftCommands" : {
+    "C.LyoApp-x86_64-unknown-linux-gnu-debug.module" : {
+      "executable" : "/usr/share/swift/usr/bin/swiftc",
+      "fileList" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/sources",
+      "importPath" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIAvatarIntegration.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIAvatarView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIFullChatViewWithCompletion.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIModels.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIOnboardingFlowView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AISearchView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/APIClient.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/APIConfig.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/APIError.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/APIResponseModels.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppIconGenerator.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppIconView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppState.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppStateExtensions.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppStoreScreenshots.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AuthenticationView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AvatarCompanionCoordinator.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/CommunityView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/CompilationVerification.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Components/BlurView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Config/APIKeys.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ContentView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Core/Configuration/BackendConfig.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/CoreDataEntities.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/CoreServices.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Data/CoreDataManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Data/DataPersistenceManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Data/SwiftDataModels.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/DataManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/DesignSystem.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/DesignTokens.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EdXCourseBrowserView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EdXCoursesService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EducationalContentManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EducationalContentPerformanceMonitor.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EnhancedStoryCreationView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ErrorHandlingService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FeedModels.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FloatingActionButton.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FreeCoursesService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FuturisticHeaderView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FuturisticHeaderView_Fixed.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/GamificationOverlay.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/GoogleBooksService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/HapticManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/HeaderView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/HomeFeedView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LaunchScreenView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearnTabView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningComponents.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Models/LearningResource.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Services/LearningAPIService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Services/LioAI.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Services/LocalSearchService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Services/RemoteAPI.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/ViewModels/LearningAssistantViewModel.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/ViewModels/LearningSearchViewModel.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/ViewModels/SearchViewModel.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/ContentDisplayComponents.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/ContentSection.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/FeaturedContentCarousel.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearnView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearningAssistantView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearningCardView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearningHubView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearningResourceCards.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchComponents.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchComponents_clean.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchHeaderView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchResultsView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchSuggestionsView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LessonBlockView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LessonModels.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LibraryView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LyoAPIService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LyoApp.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LyoConfiguration.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LyoWebSocketService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Managers/AuthenticationManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Managers/ConfigurationManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Managers/ErrorHandler.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/MarketReadinessImplementation.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/MessageBubble.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/MessengerView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Models.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Models/CoreLearningProgress.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/MoreTabView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/NetworkLayer.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/PodcastEducationService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/PostView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProductionConfig.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProductionConfiguration.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProfessionalAISearchView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProfessionalLibraryView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProfessionalMessengerView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/QuantumGateRiftButton.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/RealContentService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Repositories/CourseRepository.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Repositories/PostRepository.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Repositories/UserRepository.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SafeJSONDecoding.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SafeLearningCardView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/AnalyticsManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/AppServices.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/AuthenticationService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/ContentPlayerService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/DownloadManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/DownloadManagerService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/ErrorTracker.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/GemmaService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/KeychainManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/LearningAPIService_Production.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/LearningDataService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/NetworkMonitor.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/NotificationManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/RealAPIService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/StorageManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SettingsView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SimpleChatView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SimpleNetworkManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SpecializedViews.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/TypingIndicator.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/UserDataManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Utilities/KeychainHelper.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Utilities/ValidationHelper.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/VoiceActivationService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/VoiceRecognizer.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/WebSocketService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/YouTubeEducationService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/iOSSubmissionDashboard.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/iOS_Submission_Preparation.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/swift-version--1BFCD5C06E9F820A.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/sources"
+        }
+      ],
+      "isLibrary" : false,
+      "moduleName" : "LyoApp",
+      "moduleOutputPath" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/Modules/LyoApp.swiftmodule",
+      "objects" : [
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AIAvatarIntegration.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AIAvatarView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AIFullChatViewWithCompletion.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AIModels.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AIOnboardingFlowView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AISearchView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/APIClient.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/APIConfig.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/APIError.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/APIResponseModels.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AppIconGenerator.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AppIconView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AppState.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AppStateExtensions.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AppStoreScreenshots.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AuthenticationView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AvatarCompanionCoordinator.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CommunityView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CompilationVerification.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/BlurView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/APIKeys.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ContentView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/BackendConfig.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CoreDataEntities.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CoreServices.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CoreDataManager.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/DataPersistenceManager.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SwiftDataModels.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/DataManager.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/DesignSystem.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/DesignTokens.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/EdXCourseBrowserView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/EdXCoursesService.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/EducationalContentManager.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/EducationalContentPerformanceMonitor.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/EnhancedStoryCreationView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ErrorHandlingService.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/FeedModels.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/FloatingActionButton.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/FreeCoursesService.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/FuturisticHeaderView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/FuturisticHeaderView_Fixed.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/GamificationOverlay.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/GoogleBooksService.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/HapticManager.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/HeaderView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/HomeFeedView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LaunchScreenView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearnTabView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningComponents.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningResource.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningAPIService.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LioAI.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LocalSearchService.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/RemoteAPI.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningAssistantViewModel.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningSearchViewModel.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SearchViewModel.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ContentDisplayComponents.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ContentSection.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/FeaturedContentCarousel.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearnView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningAssistantView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningCardView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningHubView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningResourceCards.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SearchComponents.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SearchComponents_clean.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SearchHeaderView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SearchResultsView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SearchSuggestionsView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LessonBlockView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LessonModels.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LibraryView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LyoAPIService.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LyoApp.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LyoConfiguration.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LyoWebSocketService.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AuthenticationManager.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ConfigurationManager.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ErrorHandler.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/MarketReadinessImplementation.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/MessageBubble.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/MessengerView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/Models.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CoreLearningProgress.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/MoreTabView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/NetworkLayer.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/PodcastEducationService.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/PostView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ProductionConfig.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ProductionConfiguration.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ProfessionalAISearchView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ProfessionalLibraryView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ProfessionalMessengerView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/QuantumGateRiftButton.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/RealContentService.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CourseRepository.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/PostRepository.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/UserRepository.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SafeJSONDecoding.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SafeLearningCardView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AnalyticsManager.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AppServices.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AuthenticationService.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ContentPlayerService.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/DownloadManager.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/DownloadManagerService.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ErrorTracker.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/GemmaService.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/KeychainManager.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningAPIService_Production.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningDataService.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/NetworkMonitor.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/NotificationManager.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/RealAPIService.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/StorageManager.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SettingsView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SimpleChatView.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SimpleNetworkManager.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SpecializedViews.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/TypingIndicator.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/UserDataManager.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/KeychainHelper.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ValidationHelper.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/VoiceActivationService.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/VoiceRecognizer.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/WebSocketService.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/YouTubeEducationService.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/iOSSubmissionDashboard.swift.o",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/iOS_Submission_Preparation.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "x86_64-unknown-linux-gnu",
+        "-enable-batch-mode",
+        "-index-store-path",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/index/store",
+        "-Onone",
+        "-enable-testing",
+        "-j4",
+        "-DSWIFT_PACKAGE",
+        "-DDEBUG",
+        "-module-cache-path",
+        "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/ModuleCache",
+        "-parseable-output",
+        "-Xfrontend",
+        "-entry-point-function-name",
+        "-Xfrontend",
+        "LyoApp_main",
+        "-swift-version",
+        "5",
+        "-g",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "lyoapp_july",
+        "-Xcc",
+        "-fno-omit-frame-pointer"
+      ],
+      "outputFileMapPath" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AIAvatarIntegration.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AIAvatarView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AIFullChatViewWithCompletion.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AIModels.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AIOnboardingFlowView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AISearchView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/APIClient.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/APIConfig.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/APIError.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/APIResponseModels.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AppIconGenerator.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AppIconView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AppState.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AppStateExtensions.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AppStoreScreenshots.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AuthenticationView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AvatarCompanionCoordinator.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CommunityView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CompilationVerification.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/BlurView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/APIKeys.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ContentView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/BackendConfig.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CoreDataEntities.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CoreServices.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CoreDataManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/DataPersistenceManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SwiftDataModels.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/DataManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/DesignSystem.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/DesignTokens.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/EdXCourseBrowserView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/EdXCoursesService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/EducationalContentManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/EducationalContentPerformanceMonitor.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/EnhancedStoryCreationView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ErrorHandlingService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/FeedModels.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/FloatingActionButton.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/FreeCoursesService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/FuturisticHeaderView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/FuturisticHeaderView_Fixed.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/GamificationOverlay.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/GoogleBooksService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/HapticManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/HeaderView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/HomeFeedView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LaunchScreenView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearnTabView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningComponents.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningResource.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningAPIService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LioAI.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LocalSearchService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/RemoteAPI.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningAssistantViewModel.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningSearchViewModel.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SearchViewModel.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ContentDisplayComponents.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ContentSection.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/FeaturedContentCarousel.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearnView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningAssistantView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningCardView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningHubView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningResourceCards.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SearchComponents.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SearchComponents_clean.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SearchHeaderView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SearchResultsView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SearchSuggestionsView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LessonBlockView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LessonModels.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LibraryView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LyoAPIService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LyoApp.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LyoConfiguration.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LyoWebSocketService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AuthenticationManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ConfigurationManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ErrorHandler.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/MarketReadinessImplementation.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/MessageBubble.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/MessengerView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/Models.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CoreLearningProgress.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/MoreTabView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/NetworkLayer.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/PodcastEducationService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/PostView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ProductionConfig.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ProductionConfiguration.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ProfessionalAISearchView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ProfessionalLibraryView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ProfessionalMessengerView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/QuantumGateRiftButton.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/RealContentService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CourseRepository.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/PostRepository.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/UserRepository.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SafeJSONDecoding.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SafeLearningCardView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AnalyticsManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AppServices.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AuthenticationService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ContentPlayerService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/DownloadManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/DownloadManagerService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ErrorTracker.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/GemmaService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/KeychainManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningAPIService_Production.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningDataService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/NetworkMonitor.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/NotificationManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/RealAPIService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/StorageManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SettingsView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SimpleChatView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SimpleNetworkManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SpecializedViews.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/TypingIndicator.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/UserDataManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/KeychainHelper.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ValidationHelper.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/VoiceActivationService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/VoiceRecognizer.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/WebSocketService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/YouTubeEducationService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/iOSSubmissionDashboard.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/iOS_Submission_Preparation.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/Modules/LyoApp.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIAvatarIntegration.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIAvatarView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIFullChatViewWithCompletion.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIModels.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIOnboardingFlowView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AISearchView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/APIClient.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/APIConfig.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/APIError.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/APIResponseModels.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppIconGenerator.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppIconView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppState.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppStateExtensions.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppStoreScreenshots.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AuthenticationView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AvatarCompanionCoordinator.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/CommunityView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/CompilationVerification.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Components/BlurView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Config/APIKeys.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ContentView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Core/Configuration/BackendConfig.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/CoreDataEntities.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/CoreServices.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Data/CoreDataManager.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Data/DataPersistenceManager.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Data/SwiftDataModels.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/DataManager.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/DesignSystem.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/DesignTokens.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EdXCourseBrowserView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EdXCoursesService.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EducationalContentManager.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EducationalContentPerformanceMonitor.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EnhancedStoryCreationView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ErrorHandlingService.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FeedModels.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FloatingActionButton.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FreeCoursesService.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FuturisticHeaderView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FuturisticHeaderView_Fixed.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/GamificationOverlay.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/GoogleBooksService.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/HapticManager.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/HeaderView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/HomeFeedView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LaunchScreenView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearnTabView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningComponents.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Models/LearningResource.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Services/LearningAPIService.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Services/LioAI.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Services/LocalSearchService.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Services/RemoteAPI.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/ViewModels/LearningAssistantViewModel.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/ViewModels/LearningSearchViewModel.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/ViewModels/SearchViewModel.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/ContentDisplayComponents.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/ContentSection.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/FeaturedContentCarousel.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearnView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearningAssistantView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearningCardView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearningHubView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearningResourceCards.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchComponents.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchComponents_clean.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchHeaderView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchResultsView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchSuggestionsView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LessonBlockView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LessonModels.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LibraryView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LyoAPIService.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LyoApp.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LyoConfiguration.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LyoWebSocketService.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Managers/AuthenticationManager.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Managers/ConfigurationManager.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Managers/ErrorHandler.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/MarketReadinessImplementation.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/MessageBubble.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/MessengerView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Models.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Models/CoreLearningProgress.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/MoreTabView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/NetworkLayer.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/PodcastEducationService.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/PostView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProductionConfig.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProductionConfiguration.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProfessionalAISearchView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProfessionalLibraryView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProfessionalMessengerView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/QuantumGateRiftButton.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/RealContentService.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Repositories/CourseRepository.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Repositories/PostRepository.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Repositories/UserRepository.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SafeJSONDecoding.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SafeLearningCardView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/AnalyticsManager.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/AppServices.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/AuthenticationService.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/ContentPlayerService.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/DownloadManager.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/DownloadManagerService.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/ErrorTracker.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/GemmaService.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/KeychainManager.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/LearningAPIService_Production.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/LearningDataService.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/NetworkMonitor.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/NotificationManager.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/RealAPIService.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/StorageManager.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SettingsView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SimpleChatView.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SimpleNetworkManager.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SpecializedViews.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/TypingIndicator.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/UserDataManager.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Utilities/KeychainHelper.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Utilities/ValidationHelper.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/VoiceActivationService.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/VoiceRecognizer.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/WebSocketService.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/YouTubeEducationService.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/iOSSubmissionDashboard.swift",
+        "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/iOS_Submission_Preparation.swift"
+      ],
+      "tempsPath" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build",
+      "wholeModuleOptimization" : false
+    }
+  },
+  "swiftFrontendCommands" : {
+
+  },
+  "swiftTargetScanArgs" : {
+    "LyoApp" : [
+      "/usr/share/swift/usr/bin/swiftc",
+      "-module-name",
+      "LyoApp",
+      "-package-name",
+      "lyoapp_july",
+      "-incremental",
+      "-c",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIAvatarIntegration.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIAvatarView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIFullChatViewWithCompletion.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIModels.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIOnboardingFlowView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AISearchView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/APIClient.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/APIConfig.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/APIError.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/APIResponseModels.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppIconGenerator.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppIconView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppState.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppStateExtensions.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppStoreScreenshots.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AuthenticationView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AvatarCompanionCoordinator.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/CommunityView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/CompilationVerification.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Components/BlurView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Config/APIKeys.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ContentView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Core/Configuration/BackendConfig.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/CoreDataEntities.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/CoreServices.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Data/CoreDataManager.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Data/DataPersistenceManager.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Data/SwiftDataModels.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/DataManager.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/DesignSystem.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/DesignTokens.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EdXCourseBrowserView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EdXCoursesService.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EducationalContentManager.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EducationalContentPerformanceMonitor.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EnhancedStoryCreationView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ErrorHandlingService.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FeedModels.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FloatingActionButton.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FreeCoursesService.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FuturisticHeaderView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FuturisticHeaderView_Fixed.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/GamificationOverlay.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/GoogleBooksService.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/HapticManager.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/HeaderView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/HomeFeedView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LaunchScreenView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearnTabView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningComponents.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Models/LearningResource.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Services/LearningAPIService.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Services/LioAI.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Services/LocalSearchService.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Services/RemoteAPI.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/ViewModels/LearningAssistantViewModel.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/ViewModels/LearningSearchViewModel.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/ViewModels/SearchViewModel.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/ContentDisplayComponents.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/ContentSection.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/FeaturedContentCarousel.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearnView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearningAssistantView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearningCardView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearningHubView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearningResourceCards.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchComponents.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchComponents_clean.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchHeaderView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchResultsView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchSuggestionsView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LessonBlockView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LessonModels.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LibraryView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LyoAPIService.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LyoApp.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LyoConfiguration.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LyoWebSocketService.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Managers/AuthenticationManager.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Managers/ConfigurationManager.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Managers/ErrorHandler.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/MarketReadinessImplementation.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/MessageBubble.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/MessengerView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Models.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Models/CoreLearningProgress.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/MoreTabView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/NetworkLayer.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/PodcastEducationService.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/PostView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProductionConfig.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProductionConfiguration.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProfessionalAISearchView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProfessionalLibraryView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProfessionalMessengerView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/QuantumGateRiftButton.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/RealContentService.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Repositories/CourseRepository.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Repositories/PostRepository.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Repositories/UserRepository.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SafeJSONDecoding.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SafeLearningCardView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/AnalyticsManager.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/AppServices.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/AuthenticationService.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/ContentPlayerService.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/DownloadManager.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/DownloadManagerService.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/ErrorTracker.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/GemmaService.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/KeychainManager.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/LearningAPIService_Production.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/LearningDataService.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/NetworkMonitor.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/NotificationManager.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/RealAPIService.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/StorageManager.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SettingsView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SimpleChatView.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SimpleNetworkManager.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SpecializedViews.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/TypingIndicator.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/UserDataManager.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Utilities/KeychainHelper.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Utilities/ValidationHelper.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/VoiceActivationService.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/VoiceRecognizer.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/WebSocketService.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/YouTubeEducationService.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/iOSSubmissionDashboard.swift",
+      "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/iOS_Submission_Preparation.swift",
+      "-I",
+      "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/Modules",
+      "-target",
+      "x86_64-unknown-linux-gnu",
+      "-enable-batch-mode",
+      "-index-store-path",
+      "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/index/store",
+      "-Onone",
+      "-enable-testing",
+      "-j4",
+      "-DSWIFT_PACKAGE",
+      "-DDEBUG",
+      "-module-cache-path",
+      "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/ModuleCache",
+      "-parseable-output",
+      "-Xfrontend",
+      "-entry-point-function-name",
+      "-Xfrontend",
+      "LyoApp_main",
+      "-swift-version",
+      "5",
+      "-g",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "lyoapp_july",
+      "-Xcc",
+      "-fno-omit-frame-pointer",
+      "-driver-use-frontend-path",
+      "/usr/share/swift/usr/bin/swiftc"
+    ]
+  },
+  "targetDependencyMap" : {
+    "LyoApp" : [
+
+    ]
+  },
+  "testDiscoveryCommands" : {
+
+  },
+  "testEntryPointCommands" : {
+
+  },
+  "traitConfiguration" : {
+    "enableAllTraits" : false
+  },
+  "writeCommands" : {
+    "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIAvatarIntegration.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIAvatarView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIFullChatViewWithCompletion.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIModels.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AIOnboardingFlowView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AISearchView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/APIClient.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/APIConfig.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/APIError.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/APIResponseModels.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppIconGenerator.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppIconView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppState.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppStateExtensions.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AppStoreScreenshots.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AuthenticationView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/AvatarCompanionCoordinator.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/CommunityView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/CompilationVerification.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Components/BlurView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Config/APIKeys.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ContentView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Core/Configuration/BackendConfig.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/CoreDataEntities.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/CoreServices.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Data/CoreDataManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Data/DataPersistenceManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Data/SwiftDataModels.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/DataManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/DesignSystem.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/DesignTokens.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EdXCourseBrowserView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EdXCoursesService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EducationalContentManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EducationalContentPerformanceMonitor.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/EnhancedStoryCreationView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ErrorHandlingService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FeedModels.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FloatingActionButton.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FreeCoursesService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FuturisticHeaderView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/FuturisticHeaderView_Fixed.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/GamificationOverlay.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/GoogleBooksService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/HapticManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/HeaderView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/HomeFeedView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LaunchScreenView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearnTabView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningComponents.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Models/LearningResource.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Services/LearningAPIService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Services/LioAI.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Services/LocalSearchService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Services/RemoteAPI.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/ViewModels/LearningAssistantViewModel.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/ViewModels/LearningSearchViewModel.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/ViewModels/SearchViewModel.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/ContentDisplayComponents.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/ContentSection.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/FeaturedContentCarousel.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearnView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearningAssistantView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearningCardView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearningHubView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/LearningResourceCards.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchComponents.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchComponents_clean.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchHeaderView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchResultsView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LearningHub/Views/SearchSuggestionsView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LessonBlockView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LessonModels.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LibraryView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LyoAPIService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LyoApp.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LyoConfiguration.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/LyoWebSocketService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Managers/AuthenticationManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Managers/ConfigurationManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Managers/ErrorHandler.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/MarketReadinessImplementation.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/MessageBubble.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/MessengerView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Models.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Models/CoreLearningProgress.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/MoreTabView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/NetworkLayer.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/PodcastEducationService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/PostView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProductionConfig.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProductionConfiguration.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProfessionalAISearchView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProfessionalLibraryView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/ProfessionalMessengerView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/QuantumGateRiftButton.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/RealContentService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Repositories/CourseRepository.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Repositories/PostRepository.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Repositories/UserRepository.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SafeJSONDecoding.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SafeLearningCardView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/AnalyticsManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/AppServices.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/AuthenticationService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/ContentPlayerService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/DownloadManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/DownloadManagerService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/ErrorTracker.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/GemmaService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/KeychainManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/LearningAPIService_Production.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/LearningDataService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/NetworkMonitor.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/NotificationManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/RealAPIService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Services/StorageManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SettingsView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SimpleChatView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SimpleNetworkManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/SpecializedViews.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/TypingIndicator.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/UserDataManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Utilities/KeychainHelper.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/Utilities/ValidationHelper.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/VoiceActivationService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/VoiceRecognizer.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/WebSocketService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/YouTubeEducationService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/iOSSubmissionDashboard.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/LyoApp/iOS_Submission_Preparation.swift"
+        }
+      ],
+      "outputFilePath" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/sources"
+    },
+    "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AIAvatarIntegration.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AIAvatarView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AIFullChatViewWithCompletion.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AIModels.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AIOnboardingFlowView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AISearchView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/APIClient.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/APIConfig.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/APIError.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/APIKeys.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/APIResponseModels.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AnalyticsManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AppIconGenerator.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AppIconView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AppServices.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AppState.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AppStateExtensions.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AppStoreScreenshots.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AuthenticationManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AuthenticationService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AuthenticationView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/AvatarCompanionCoordinator.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/BackendConfig.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/BlurView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CommunityView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CompilationVerification.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ConfigurationManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ContentDisplayComponents.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ContentPlayerService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ContentSection.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ContentView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CoreDataEntities.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CoreDataManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CoreLearningProgress.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CoreServices.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/CourseRepository.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/DataManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/DataPersistenceManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/DesignSystem.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/DesignTokens.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/DownloadManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/DownloadManagerService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/EdXCourseBrowserView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/EdXCoursesService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/EducationalContentManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/EducationalContentPerformanceMonitor.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/EnhancedStoryCreationView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ErrorHandler.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ErrorHandlingService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ErrorTracker.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/FeaturedContentCarousel.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/FeedModels.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/FloatingActionButton.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/FreeCoursesService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/FuturisticHeaderView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/FuturisticHeaderView_Fixed.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/GamificationOverlay.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/GemmaService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/GoogleBooksService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/HapticManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/HeaderView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/HomeFeedView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/KeychainHelper.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/KeychainManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LaunchScreenView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearnTabView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearnView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningAPIService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningAPIService_Production.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningAssistantView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningAssistantViewModel.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningCardView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningComponents.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningDataService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningHubView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningResource.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningResourceCards.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LearningSearchViewModel.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LessonBlockView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LessonModels.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LibraryView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LioAI.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LocalSearchService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LyoAPIService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LyoApp.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LyoApp.swiftmodule.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LyoConfiguration.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/LyoWebSocketService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/MarketReadinessImplementation.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/MessageBubble.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/MessengerView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/Models.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/MoreTabView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/NetworkLayer.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/NetworkMonitor.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/NotificationManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/PodcastEducationService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/PostRepository.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/PostView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ProductionConfig.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ProductionConfiguration.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ProfessionalAISearchView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ProfessionalLibraryView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ProfessionalMessengerView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/QuantumGateRiftButton.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/RealAPIService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/RealContentService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/RemoteAPI.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SafeJSONDecoding.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SafeLearningCardView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SearchComponents.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SearchComponents_clean.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SearchHeaderView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SearchResultsView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SearchSuggestionsView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SearchViewModel.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SettingsView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SimpleChatView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SimpleNetworkManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SpecializedViews.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/StorageManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/SwiftDataModels.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/TypingIndicator.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/UserDataManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/UserRepository.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/ValidationHelper.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/VoiceActivationService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/VoiceRecognizer.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/WebSocketService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/YouTubeEducationService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/iOSSubmissionDashboard.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.build/iOS_Submission_Preparation.swift.o"
+        }
+      ],
+      "outputFilePath" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/LyoApp.product/Objects.LinkFileList"
+    },
+    "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/swift-version--1BFCD5C06E9F820A.txt" : {
+      "alwaysOutOfDate" : true,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<swift-get-version>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/usr/share/swift/usr/bin/swiftc"
+        }
+      ],
+      "outputFilePath" : "/home/runner/work/LyoApp-July/LyoApp-July/.build/x86_64-unknown-linux-gnu/debug/swift-version--1BFCD5C06E9F820A.txt"
+    }
+  }
+}
