@@ -13,8 +13,8 @@ struct ContentItemViewData: Identifiable {
         self.id = item.id
         self.type = item.type
         self.title = item.title
-        self.url = URL(string: item.url)
-        self.duration = item.duration
+        self.url = URL(string: item.sourceUrl ?? "")
+        self.duration = TimeInterval(item.durationSec ?? 0)
     }
     
     init(from entity: ContentItemEntity) {
@@ -23,6 +23,15 @@ struct ContentItemViewData: Identifiable {
         self.title = entity.title ?? "Untitled"
         self.url = URL(string: entity.url ?? "")
         self.duration = entity.duration > 0 ? entity.duration : nil
+    }
+    
+    // Convenience initializer for testing
+    init(id: String, type: String, title: String, url: URL?, duration: TimeInterval?) {
+        self.id = id
+        self.type = type
+        self.title = title
+        self.url = url
+        self.duration = duration
     }
 }
 
