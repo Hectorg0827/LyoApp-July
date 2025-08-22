@@ -35,7 +35,7 @@ class RealAPIService: ObservableObject {
         #if DEBUG
         self.baseURL = "http://localhost:8000/api/v1"
         #else
-        self.baseURL = "https://api.lyo.app/api/v1"
+        self.baseURL = "https://api.lyoapp.com/api/v1"
         #endif
         
         let config = URLSessionConfiguration.default
