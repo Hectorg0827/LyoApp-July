@@ -96,6 +96,22 @@ struct GenerationSection: View {
                     .foregroundColor(.secondary)
             }
             
+            // Demo mode toggle
+            HStack {
+                Text("Demo Mode")
+                    .font(.subheadline)
+                
+                Toggle("", isOn: $viewModel.useDemoMode)
+                    .disabled(viewModel.isGenerating)
+                
+                Spacer()
+                
+                Text(viewModel.useDemoMode ? "Using simulated backend" : "Using real backend")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.vertical, 8)
+            
             if viewModel.isGenerating {
                 ProgressSection(
                     percentage: viewModel.progressPercentage,
@@ -249,8 +265,10 @@ class CourseGenerationDemoViewModel: ObservableObject {
     @Published var progressMessage = ""
     @Published var generatedCourseId: String?
     @Published var errorMessage: String = ""
+    @Published var useDemoMode = true // Enable demo mode by default
     
     private let orchestrator: TaskOrchestrator
+    private let demoOrchestrator: DemoTaskOrchestrator
     
     var interests: [String] {
         return interestsText
@@ -267,6 +285,7 @@ class CourseGenerationDemoViewModel: ObservableObject {
         let authManager = AuthenticationManager.shared
         let apiClient = LyoAPIService.shared
         self.orchestrator = TaskOrchestrator(apiClient: apiClient)
+        self.demoOrchestrator = DemoTaskOrchestrator()
     }
     
     func generateCourse() {
@@ -280,12 +299,27 @@ class CourseGenerationDemoViewModel: ObservableObject {
         
         Task {
             do {
-                let courseId = try await orchestrator.generateCourse(
-                    topic: topic,
-                    interests: interests
-                ) { [weak self] taskEvent in
-                    await MainActor.run {
-                        self?.updateProgress(from: taskEvent)
+                let courseId: String
+                
+                if useDemoMode {
+                    // Use demo orchestrator for reliable testing
+                    courseId = try await demoOrchestrator.generateCourse(
+                        topic: topic,
+                        interests: interests
+                    ) { [weak self] taskEvent in
+                        await MainActor.run {
+                            self?.updateProgress(from: taskEvent)
+                        }
+                    }
+                } else {
+                    // Use real orchestrator (may fail without backend)
+                    courseId = try await orchestrator.generateCourse(
+                        topic: topic,
+                        interests: interests
+                    ) { [weak self] taskEvent in
+                        await MainActor.run {
+                            self?.updateProgress(from: taskEvent)
+                        }
                     }
                 }
                 

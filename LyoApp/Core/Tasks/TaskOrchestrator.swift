@@ -399,14 +399,154 @@ extension LyoAPIService {
         body: T,
         headers: [String: String]
     ) async throws -> R {
-        // Implementation would use the existing networking infrastructure
-        // For now, this is a placeholder that integrates with the existing API service
-        throw ProblemDetails.internalServerError(detail: "API integration not implemented")
+        // Create the request
+        guard let url = URL(string: "\(self.internalBaseURL)/\(endpoint)") else {
+            throw ProblemDetails.internalServerError(detail: "Invalid URL")
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add custom headers
+        for (key, value) in headers {
+            request.addValue(value, forHTTPHeaderField: key)
+        }
+        
+        // Add authentication if available
+        if let token = self.internalAuthToken {
+            request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        // Encode body
+        let encoder = JSONEncoder()
+        request.httpBody = try encoder.encode(body)
+        
+        do {
+            let (data, response) = try await self.internalSession.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw ProblemDetails.internalServerError(detail: "Invalid response")
+            }
+            
+            // Handle different status codes
+            switch httpResponse.statusCode {
+            case 200...299:
+                let decoder = JSONDecoder()
+                return try decoder.decode(R.self, from: data)
+            case 401:
+                throw ProblemDetails(
+                    type: "about:blank",
+                    title: "Unauthorized",
+                    status: 401,
+                    detail: "Authentication required",
+                    instance: endpoint
+                )
+            case 429:
+                throw ProblemDetails(
+                    type: "about:blank", 
+                    title: "Rate Limited",
+                    status: 429,
+                    detail: "Too many requests",
+                    instance: endpoint
+                )
+            case 500...599:
+                throw ProblemDetails(
+                    type: "about:blank",
+                    title: "Server Error",
+                    status: httpResponse.statusCode,
+                    detail: "Internal server error",
+                    instance: endpoint
+                )
+            default:
+                throw ProblemDetails(
+                    type: "about:blank",
+                    title: "API Error",
+                    status: httpResponse.statusCode,
+                    detail: "Request failed",
+                    instance: endpoint
+                )
+            }
+        } catch {
+            if error is ProblemDetails {
+                throw error
+            }
+            throw ProblemDetails.internalServerError(detail: error.localizedDescription)
+        }
     }
     
     /// GET request for task status
     func get<R: Codable>(_ endpoint: String) async throws -> R {
-        // Implementation would use the existing networking infrastructure
-        throw ProblemDetails.internalServerError(detail: "API integration not implemented")
+        guard let url = URL(string: "\(self.internalBaseURL)/\(endpoint)") else {
+            throw ProblemDetails.internalServerError(detail: "Invalid URL")
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        
+        // Add authentication if available
+        if let token = self.internalAuthToken {
+            request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        do {
+            let (data, response) = try await self.internalSession.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw ProblemDetails.internalServerError(detail: "Invalid response")
+            }
+            
+            switch httpResponse.statusCode {
+            case 200...299:
+                let decoder = JSONDecoder()
+                return try decoder.decode(R.self, from: data)
+            case 401:
+                throw ProblemDetails(
+                    type: "about:blank",
+                    title: "Unauthorized", 
+                    status: 401,
+                    detail: "Authentication required",
+                    instance: endpoint
+                )
+            case 404:
+                throw ProblemDetails(
+                    type: "about:blank",
+                    title: "Not Found",
+                    status: 404,
+                    detail: "Resource not found",
+                    instance: endpoint
+                )
+            case 429:
+                throw ProblemDetails(
+                    type: "about:blank",
+                    title: "Rate Limited",
+                    status: 429,
+                    detail: "Too many requests", 
+                    instance: endpoint
+                )
+            case 500...599:
+                throw ProblemDetails(
+                    type: "about:blank",
+                    title: "Server Error",
+                    status: httpResponse.statusCode,
+                    detail: "Internal server error",
+                    instance: endpoint
+                )
+            default:
+                throw ProblemDetails(
+                    type: "about:blank",
+                    title: "API Error",
+                    status: httpResponse.statusCode,
+                    detail: "Request failed",
+                    instance: endpoint
+                )
+            }
+        } catch {
+            if error is ProblemDetails {
+                throw error
+            }
+            throw ProblemDetails.internalServerError(detail: error.localizedDescription)
+        }
     }
 }
