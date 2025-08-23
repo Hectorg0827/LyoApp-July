@@ -80,4 +80,16 @@ class CoreDataManager {
             return []
         }
     }
+    
+    // MARK: - Course Operations
+    func fetchCourses() -> [CourseEntity] {
+        let request: NSFetchRequest<CourseEntity> = NSFetchRequest<CourseEntity>(entityName: "CourseEntity")
+        
+        do {
+            return try context.fetch(request)
+        } catch {
+            print("❌ Failed to fetch courses: \(error)")
+            return []
+        }
+    }
 }
