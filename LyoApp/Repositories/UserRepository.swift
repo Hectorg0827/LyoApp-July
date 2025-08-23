@@ -45,11 +45,10 @@ class UserRepository: ObservableObject {
             }
             
             let coreDataUser = coreDataManager.createUser(
+                id: UUID().uuidString,
                 username: username,
-                email: email,
-                fullName: fullName,
-                bio: bio,
-                profileImageURL: profileImageURL
+                displayName: fullName,
+                email: email
             )
             
             let user = coreDataUser.toUser()
