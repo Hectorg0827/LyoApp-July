@@ -39,19 +39,17 @@ class CoreDataManager {
     func createUser(
         id: String,
         username: String,
-        displayName: String?,
-        email: String?,
-        isVerified: Bool = false
+        fullName: String?,
+        email: String?
     ) -> CoreDataUserEntity {
         let user = CoreDataUserEntity(context: context)
         user.id = id
         user.username = username
-        user.displayName = displayName
-        user.email = email
-        user.isVerified = isVerified
-        user.followerCount = 0
-        user.followingCount = 0
-        user.postCount = 0
+        user.fullName = fullName ?? username
+        user.email = email ?? ""
+        user.followers = 0
+        user.following = 0
+        user.posts = 0
         user.createdAt = Date()
         user.updatedAt = Date()
         
@@ -79,6 +77,18 @@ class CoreDataManager {
             return try context.fetch(request)
         } catch {
             print("❌ Failed to fetch users: \(error)")
+            return []
+        }
+    }
+    
+    // MARK: - Course Operations
+    func fetchCourses() -> [CourseEntity] {
+        let request: NSFetchRequest<CourseEntity> = NSFetchRequest<CourseEntity>(entityName: "CourseEntity")
+        
+        do {
+            return try context.fetch(request)
+        } catch {
+            print("❌ Failed to fetch courses: \(error)")
             return []
         }
     }

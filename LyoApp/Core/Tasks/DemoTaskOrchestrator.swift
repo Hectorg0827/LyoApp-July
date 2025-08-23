@@ -18,7 +18,7 @@ class DemoTaskOrchestrator {
         let taskId = "task_\(UUID().uuidString.prefix(8))"
         
         // Track analytics for demo
-        Analytics.shared.track("course_generate_requested", properties: [
+        Analytics.log("course_generate_requested", [
             "task_id": taskId,
             "provisional_course_id": courseId,
             "demo_mode": true
@@ -52,14 +52,14 @@ class DemoTaskOrchestrator {
             
             // Track progress analytics
             if progress < 100 {
-                Analytics.shared.track("course_generate_running", properties: [
+                Analytics.log("course_generate_running", [
                     "task_id": taskId,
                     "progress": progress,
                     "message": message,
                     "demo_mode": true
                 ])
             } else {
-                Analytics.shared.track("course_generate_ready", properties: [
+                Analytics.log("course_generate_ready", [
                     "task_id": taskId,
                     "result_id": courseId,
                     "demo_mode": true
@@ -112,7 +112,7 @@ class DemoTaskOrchestrator {
             onProgress(errorEvent)
         }
         
-        Analytics.shared.track("course_generate_error", properties: [
+        Analytics.log("course_generate_error", [
             "task_id": taskId,
             "error": "Demo error",
             "demo_mode": true

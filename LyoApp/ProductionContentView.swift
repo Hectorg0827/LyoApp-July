@@ -7,7 +7,7 @@ struct ProductionContentView: View {
     @EnvironmentObject var networkManager: NetworkManager
     @EnvironmentObject var voiceActivationService: VoiceActivationService
     @EnvironmentObject var userDataManager: UserDataManager
-    @EnvironmentObject var analytics: Analytics
+    @EnvironmentObject var analytics: AnalyticsManager
     
     @State private var showingOnboarding = false
     @State private var isAppReady = false
@@ -573,5 +573,5 @@ struct ProfileView: View {
         .environmentObject(PushNotificationManager.shared)
         .environmentObject(VoiceActivationService.shared)
         .environmentObject(UserDataManager.shared)
-        .environmentObject(Analytics.shared)
+        .environmentObject(AnalyticsManager.shared)
 }

@@ -116,7 +116,7 @@ class UserDataManager: ObservableObject {
         self.currentUser = user
         self.isAuthenticated = true
         saveUserData()
-        Analytics.shared.track("login")
+        Analytics.log("login")
     }
     
     /// Load user from persistent storage
@@ -144,7 +144,7 @@ class UserDataManager: ObservableObject {
         UserDefaults.standard.removeObject(forKey: StorageKeys.userCourses)
         UserDefaults.standard.removeObject(forKey: StorageKeys.userBadges)
         
-        Analytics.shared.track("logout")
+        Analytics.log("logout")
     }
     
     // MARK: - Course Management
@@ -162,7 +162,7 @@ class UserDataManager: ObservableObject {
         if !userCourses.contains(where: { $0.id == course.id }) {
             userCourses.append(course)
             saveUserData()
-            Analytics.shared.track("courseEnrollment")
+            Analytics.log("courseEnrollment")
         }
     }
     
@@ -185,7 +185,7 @@ class UserDataManager: ObservableObject {
     func addPost(_ post: Post) {
         userPosts.insert(post, at: 0)
         saveUserData()
-        Analytics.shared.track("postCreated")
+        Analytics.log("postCreated")
     }
     
     /// Follow a user
@@ -193,7 +193,7 @@ class UserDataManager: ObservableObject {
         if !following.contains(where: { $0.id == user.id }) {
             following.append(user)
             saveUserData()
-            Analytics.shared.track("userFollowed")
+            Analytics.log("userFollowed")
         }
     }
     
@@ -201,7 +201,7 @@ class UserDataManager: ObservableObject {
     func unfollowUser(_ user: User) {
         following.removeAll { $0.id == user.id }
         saveUserData()
-        Analytics.shared.track("userUnfollowed")
+        Analytics.log("userUnfollowed")
     }
     
     // MARK: - Educational Content
@@ -268,7 +268,7 @@ class UserDataManager: ObservableObject {
         if !userBadges.contains(where: { $0.id == badge.id }) {
             userBadges.append(badge)
             saveUserData()
-            Analytics.shared.track("badgeEarned")
+            Analytics.log("badgeEarned")
         }
     }
     

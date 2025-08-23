@@ -1,6 +1,7 @@
 import SwiftUI
 import AVKit
 import SafariServices
+import Foundation
 
 // MARK: - Course View
 struct CourseView: View {
@@ -14,9 +15,8 @@ struct CourseView: View {
     init(courseId: String) {
         self.courseId = courseId
         
-        // Initialize dependencies
-        let authManager = AuthManager()
-        let apiClient = APIClient(environment: .current, authManager: authManager)
+        // Initialize dependencies  
+        let apiClient = LyoAPIService.shared
         let orchestrator = TaskOrchestrator(apiClient: apiClient)
         let repository = CoreDataCourseRepository()
         

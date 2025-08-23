@@ -131,15 +131,15 @@ struct AchievementsView: View {
 // MARK: - Previews
 #Preview {
     LearningAnalyticsView()
-        .environmentObject(AppState.shared)
+        .environmentObject(AppState.shared as AppState)
 }
 
 #Preview {
     StudyGroupsView()
-        .environmentObject(AppState.shared)
+        .environmentObject(AppState.shared as AppState)
 }
 
 #Preview {
     AchievementsView()
-        .environmentObject(AppState.shared)
+        .environmentObject(AppState.shared as AppState)
 }
