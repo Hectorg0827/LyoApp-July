@@ -4,13 +4,13 @@ import Foundation
 struct ProductionConfiguration {
     
     // MARK: - Environment Settings
-    static let isProduction = false // Set to true for App Store builds
+    static let isProduction = true // Set to true for App Store builds
     static let enableAnalytics = true
     static let enableCrashReporting = true
     static let enableDebugLogging = !isProduction
     
     // MARK: - API Configuration
-    static let baseAPIURL = "http://localhost:8000/api/v1"
+    static let baseAPIURL = "https://api.lyoapp.com/api/v1"
     static let apiTimeout: TimeInterval = 30.0
     static let maxRetryAttempts = 3
     
@@ -45,8 +45,8 @@ struct ProductionConfiguration {
     
     // MARK: - App Store Information
     static let appStoreURL = "https://apps.apple.com/app/lyoapp"
-    static let privacyPolicyURL = "https://lyoapp.com/privacy"
-    static let termsOfServiceURL = "https://lyoapp.com/terms"
+    static let privacyPolicyURL = "https://www.lyoapp.com/privacy"
+    static let termsOfServiceURL = "https://www.lyoapp.com/terms"
     static let supportEmail = "support@lyoapp.com"
 }
 
@@ -109,18 +109,24 @@ extension ProductionConfiguration {
     
     static func configureForEnvironment() {
         if isProduction {
+            #if DEBUG
             print("🚀 LyoApp configured for PRODUCTION")
+            #endif
             // Disable debug features
             UserDefaults.standard.set(false, forKey: "debug_mode")
         } else {
+            #if DEBUG
             print("🛠 LyoApp configured for DEVELOPMENT")
+            #endif
             // Enable debug features
             UserDefaults.standard.set(true, forKey: "debug_mode")
         }
         
+        #if DEBUG
         print("📱 Device: \(deviceModel)")
         print("📦 Version: \(versionNumber) (\(buildNumber))")
         print("🌐 API Base: \(baseAPIURL)")
         print("🧠 AI Enabled: \(enableGemmaAI)")
+        #endif
     }
 }
