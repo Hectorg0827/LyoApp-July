@@ -48,6 +48,18 @@ public class CourseEnrollmentEntity: NSManagedObject {
     @NSManaged public var completedAt: Date?
 }
 
+@objc(ContentItemEntity)
+public class ContentItemEntity: NSManagedObject {
+    @NSManaged public var id: String?
+    @NSManaged public var type: String?
+    @NSManaged public var title: String?
+    @NSManaged public var url: String?
+    @NSManaged public var duration: TimeInterval
+    @NSManaged public var courseId: String?
+    @NSManaged public var order: Int32
+    @NSManaged public var createdAt: Date?
+}
+
 @objc(VideoEntity)
 public class VideoEntity: NSManagedObject {
     @NSManaged public var id: String

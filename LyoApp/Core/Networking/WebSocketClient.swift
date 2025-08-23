@@ -1,13 +1,20 @@
 import Foundation
 import Network
 
-/// WebSocket client for real-time communication
+/// WebSocket client for real-time communication with ping/pong support and polling fallback
 final class WebSocketClient {
     private var task: URLSessionWebSocketTask?
     private let session: URLSession
     private var retries = 0
     private let maxRetries = 3
     private var isConnected = false
+    
+    // Ping/Pong mechanism
+    private var pingTimer: Timer?
+    private var missedPongs = 0
+    private let pingInterval: TimeInterval = 25 // 25 seconds
+    private let maxMissedPongs = 3
+    var onFallback: (() -> Void)?
     
     init() {
         let config = URLSessionConfiguration.default
@@ -17,7 +24,7 @@ final class WebSocketClient {
     
     // MARK: - Connection Management
     
-    /// Connect to WebSocket URL and start listening
+    /// Connect to WebSocket URL and start listening with ping support
     func connect(url: URL, onEvent: @escaping (Result<Data, Error>) -> Void) {
         print("🔌 Connecting to WebSocket: \(url)")
         
@@ -25,6 +32,9 @@ final class WebSocketClient {
         task?.resume()
         isConnected = true
         retries = 0
+        
+        // Start ping mechanism
+        startPinging()
         
         // Start listening for messages
         listen(onEvent: onEvent)
@@ -34,8 +44,61 @@ final class WebSocketClient {
     func disconnect() {
         print("🔌 Disconnecting WebSocket")
         isConnected = false
+        stopPinging()
         task?.cancel(with: .goingAway, reason: nil)
         task = nil
+    }
+    
+    // MARK: - Ping/Pong Management
+    
+    private func startPinging() {
+        pingTimer?.invalidate()
+        pingTimer = Timer.scheduledTimer(withTimeInterval: pingInterval, repeats: true) { [weak self] _ in
+            guard let self = self, let task = self.task else { return }
+            
+            task.sendPing { [weak self] error in
+                guard let self = self else { return }
+                
+                if let error = error {
+                    print("❌ WebSocket ping failed: \(error)")
+                    self.missedPongs += 1
+                } else {
+                    print("🏓 WebSocket ping successful")
+                    self.missedPongs = 0
+                }
+                
+                // Check if we should fallback to polling
+                if self.missedPongs >= self.maxMissedPongs {
+                    print("⚠️ WebSocket fallback triggered after \(self.maxMissedPongs) missed pongs")
+                    self.handleFallback()
+                }
+            }
+        }
+    }
+    
+    private func stopPinging() {
+        pingTimer?.invalidate()
+        pingTimer = nil
+    }
+    
+    private func handleFallback() {
+        // Track analytics
+        Analytics.log("websocket_fallback", [
+            "reason": "missed_pongs",
+            "missed_count": maxMissedPongs
+        ])
+        
+        // Close connection and trigger fallback
+        close()
+        onFallback?()
+    }
+    
+    /// Close connection (public method)
+    func close() {
+        stopPinging()
+        task?.cancel(with: .goingAway, reason: nil)
+        task = nil
+        isConnected = false
     }
     
     // MARK: - Message Handling
@@ -192,6 +255,13 @@ extension WebSocketClient {
         isConnected = true
         retries = 0
         
+        // Start ping mechanism
+        startPinging()
+        
         listen(onEvent: onEvent)
+    }
+    
+    deinit {
+        stopPinging()
     }
 }

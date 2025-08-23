@@ -52,6 +52,12 @@ final class TaskOrchestrator {
         
         logger.info("🚀 Course generation started - Task: \(response.task_id), Course: \(response.provisional_course_id)")
         
+        // Track analytics event
+        Analytics.log("course_generate_requested", [
+            "task_id": response.task_id,
+            "provisional_course_id": response.provisional_course_id
+        ])
+        
         return (response.task_id, response.provisional_course_id)
     }
     
@@ -95,6 +101,28 @@ final class TaskOrchestrator {
             case .success(let data):
                 do {
                     let event = try JSONDecoder().decode(TaskEvent.self, from: data)
+                    
+                    // Track analytics based on event state
+                    switch event.state {
+                    case .running:
+                        Analytics.log("course_generate_running", [
+                            "task_id": taskId,
+                            "progress": event.progressPct ?? 0,
+                            "message": event.message ?? ""
+                        ])
+                    case .done:
+                        Analytics.log("course_generate_ready", [
+                            "task_id": taskId,
+                            "result_id": event.resultId ?? ""
+                        ])
+                    case .error:
+                        Analytics.log("course_generate_error", [
+                            "task_id": taskId,
+                            "error": event.error ?? "Unknown error"
+                        ])
+                    default:
+                        break
+                    }
                     
                     DispatchQueue.main.async {
                         onUpdate(event)
@@ -155,6 +183,13 @@ final class TaskOrchestrator {
                 // Check overall timeout
                 if Date().timeIntervalSince(startTime) > overallTimeout {
                     logger.warning("⏰ Task monitoring timeout reached")
+                    
+                    // Track timeout analytics
+                    Analytics.log("course_generate_timeout", [
+                        "task_id": taskId,
+                        "timeout_duration": overallTimeout
+                    ])
+                    
                     let timeoutError = ProblemDetails.internalServerError(
                         detail: "Task monitoring timed out after \(Int(overallTimeout / 60)) minutes. We'll notify you when it's ready."
                     )
