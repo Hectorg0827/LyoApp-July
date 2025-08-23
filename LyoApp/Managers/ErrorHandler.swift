@@ -66,7 +66,10 @@ class ErrorHandler: ObservableObject {
     // MARK: - Error Reporting
     private func reportError(_ error: AppError) {
         // In production, this would send to a crash reporting service
+        #if DEBUG
         print("🔴 Reporting error: \(error)")
+        #endif
+        // TODO: Integrate with Crashlytics or Sentry for production
     }
 }
 

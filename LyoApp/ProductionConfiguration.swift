@@ -109,18 +109,24 @@ extension ProductionConfiguration {
     
     static func configureForEnvironment() {
         if isProduction {
+            #if DEBUG
             print("🚀 LyoApp configured for PRODUCTION")
+            #endif
             // Disable debug features
             UserDefaults.standard.set(false, forKey: "debug_mode")
         } else {
+            #if DEBUG
             print("🛠 LyoApp configured for DEVELOPMENT")
+            #endif
             // Enable debug features
             UserDefaults.standard.set(true, forKey: "debug_mode")
         }
         
+        #if DEBUG
         print("📱 Device: \(deviceModel)")
         print("📦 Version: \(versionNumber) (\(buildNumber))")
         print("🌐 API Base: \(baseAPIURL)")
         print("🧠 AI Enabled: \(enableGemmaAI)")
+        #endif
     }
 }
