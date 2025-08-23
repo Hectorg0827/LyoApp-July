@@ -3,7 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var authManager: AuthenticationManager
-    @EnvironmentObject var networkManager: SimpleNetworkManager
+    @EnvironmentObject var networkManager: NetworkManager
     @EnvironmentObject var voiceActivationService: VoiceActivationService
     @EnvironmentObject var userDataManager: UserDataManager
     
@@ -60,7 +60,7 @@ struct ContentView: View {
     ContentView()
         .environmentObject(AppState.shared)
         .environmentObject(AuthenticationManager.shared)
-        .environmentObject(SimpleNetworkManager.shared)
+        .environmentObject(NetworkManager.shared)
         .environmentObject(VoiceActivationService.shared)
         .environmentObject(UserDataManager.shared)
 }

@@ -24,11 +24,12 @@ struct TaskEvent: Decodable {
 
 /// Task orchestrator for managing long-running operations with WebSocket + polling fallback
 final class TaskOrchestrator {
-    private let apiClient: APIClient
+    private let apiClient: LyoAPIService
     private let environment: APIEnvironment
     private let logger = Logger(subsystem: "com.lyo.app", category: "TaskOrchestrator")
+    private let overallTimeout: TimeInterval = 600.0 // 10 minutes
     
-    init(apiClient: APIClient, environment: APIEnvironment = .current) {
+    init(apiClient: LyoAPIService, environment: APIEnvironment = .current) {
         self.apiClient = apiClient
         self.environment = environment
     }
@@ -51,12 +52,6 @@ final class TaskOrchestrator {
         )
         
         logger.info("🚀 Course generation started - Task: \(response.task_id), Course: \(response.provisional_course_id)")
-        
-        // Track analytics event
-        Analytics.log("course_generate_requested", [
-            "task_id": response.task_id,
-            "provisional_course_id": response.provisional_course_id
-        ])
         
         return (response.task_id, response.provisional_course_id)
     }
@@ -101,28 +96,6 @@ final class TaskOrchestrator {
             case .success(let data):
                 do {
                     let event = try JSONDecoder().decode(TaskEvent.self, from: data)
-                    
-                    // Track analytics based on event state
-                    switch event.state {
-                    case .running:
-                        Analytics.log("course_generate_running", [
-                            "task_id": taskId,
-                            "progress": event.progressPct ?? 0,
-                            "message": event.message ?? ""
-                        ])
-                    case .done:
-                        Analytics.log("course_generate_ready", [
-                            "task_id": taskId,
-                            "result_id": event.resultId ?? ""
-                        ])
-                    case .error:
-                        Analytics.log("course_generate_error", [
-                            "task_id": taskId,
-                            "error": event.error ?? "Unknown error"
-                        ])
-                    default:
-                        break
-                    }
                     
                     DispatchQueue.main.async {
                         onUpdate(event)
@@ -172,9 +145,9 @@ final class TaskOrchestrator {
         onCompletion: @escaping (Result<TaskEvent, Error>) -> Void
     ) {
         Task {
-            var delay: TimeInterval = 1.5 // Start with 1.5 second delay
-            let maxDelay: TimeInterval = 10.0 // Cap at 10 seconds
-            let overallTimeout: TimeInterval = 15 * 60 // 15 minutes total timeout
+            var delay: TimeInterval = 2.0
+            let maxDelay: TimeInterval = 30.0
+            let maxDuration: TimeInterval = 600.0 // 10 minutes
             let startTime = Date()
             
             logger.info("📊 Starting task polling for: \(taskId)")
@@ -183,15 +156,8 @@ final class TaskOrchestrator {
                 // Check overall timeout
                 if Date().timeIntervalSince(startTime) > overallTimeout {
                     logger.warning("⏰ Task monitoring timeout reached")
-                    
-                    // Track timeout analytics
-                    Analytics.log("course_generate_timeout", [
-                        "task_id": taskId,
-                        "timeout_duration": overallTimeout
-                    ])
-                    
                     let timeoutError = ProblemDetails.internalServerError(
-                        detail: "Task monitoring timed out after \(Int(overallTimeout / 60)) minutes. We'll notify you when it's ready."
+                        detail: "Task monitoring timed out after \(maxDuration) seconds"
                     )
                     await MainActor.run {
                         onCompletion(.failure(timeoutError))
@@ -269,7 +235,6 @@ extension TaskOrchestrator {
         interests: [String],
         onProgress: @escaping (TaskEvent) -> Void
     ) async throws -> String {
-        
         // Start generation
         let (taskId, provisionalCourseId) = try await startCourseGeneration(topic: topic, interests: interests)
         
@@ -298,6 +263,266 @@ extension TaskOrchestrator {
                     }
                 }
             )
+        }
+    }
+}
+
+// MARK: - Supporting Types
+
+/// API Environment configuration
+enum APIEnvironment {
+    case development
+    case staging  
+    case production
+    
+    static let current: APIEnvironment = {
+        #if DEBUG
+        return .development
+        #else
+        return .production
+        #endif
+    }()
+    
+    var webSocketBase: URL {
+        switch self {
+        case .development:
+            return URL(string: "ws://localhost:8000")!
+        case .staging:
+            return URL(string: "wss://staging-api.lyoapp.com")!
+        case .production:
+            return URL(string: "wss://api.lyoapp.com")!
+        }
+    }
+}
+
+/// WebSocket client for real-time task monitoring
+private class WebSocketClient {
+    private var webSocketTask: URLSessionWebSocketTask?
+    
+    var connectionStatus: Bool {
+        return webSocketTask != nil
+    }
+    
+    func connect(url: URL, onMessage: @escaping (Result<Data, Error>) -> Void) {
+        webSocketTask = URLSession.shared.webSocketTask(with: url)
+        webSocketTask?.resume()
+        
+        receiveMessage(onMessage: onMessage)
+    }
+    
+    func disconnect() {
+        webSocketTask?.cancel(with: .goingAway, reason: nil)
+        webSocketTask = nil
+    }
+    
+    private func receiveMessage(onMessage: @escaping (Result<Data, Error>) -> Void) {
+        webSocketTask?.receive { result in
+            switch result {
+            case .success(let message):
+                switch message {
+                case .string(let text):
+                    if let data = text.data(using: .utf8) {
+                        onMessage(.success(data))
+                    }
+                case .data(let data):
+                    onMessage(.success(data))
+                @unknown default:
+                    break
+                }
+                
+                // Continue receiving messages
+                self.receiveMessage(onMessage: onMessage)
+                
+            case .failure(let error):
+                onMessage(.failure(error))
+            }
+        }
+    }
+}
+
+/// Problem Details error type for API errors
+struct ProblemDetails: Error, Codable {
+    let type: String
+    let title: String
+    let status: Int
+    let detail: String?
+    let instance: String?
+    
+    var isRateLimitError: Bool {
+        return status == 429
+    }
+    
+    var isServerError: Bool {
+        return status >= 500
+    }
+    
+    static func internalServerError(detail: String) -> ProblemDetails {
+        return ProblemDetails(
+            type: "about:blank",
+            title: "Internal Server Error",
+            status: 500,
+            detail: detail,
+            instance: nil
+        )
+    }
+}
+
+// MARK: - Extensions for existing types
+extension LyoAPIService {
+    /// POST request with custom headers
+    func post<T: Codable, R: Codable>(
+        _ endpoint: String,
+        body: T,
+        headers: [String: String]
+    ) async throws -> R {
+        // Create the request
+        guard let url = URL(string: "\(self.baseURL)/\(endpoint)") else {
+            throw ProblemDetails.internalServerError(detail: "Invalid URL")
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add custom headers
+        for (key, value) in headers {
+            request.addValue(value, forHTTPHeaderField: key)
+        }
+        
+        // Add authentication if available
+        if let token = self.authToken {
+            request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        // Encode body
+        let encoder = JSONEncoder()
+        request.httpBody = try encoder.encode(body)
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw ProblemDetails.internalServerError(detail: "Invalid response")
+            }
+            
+            // Handle different status codes
+            switch httpResponse.statusCode {
+            case 200...299:
+                let decoder = JSONDecoder()
+                return try decoder.decode(R.self, from: data)
+            case 401:
+                throw ProblemDetails(
+                    type: "about:blank",
+                    title: "Unauthorized",
+                    status: 401,
+                    detail: "Authentication required",
+                    instance: endpoint
+                )
+            case 429:
+                throw ProblemDetails(
+                    type: "about:blank", 
+                    title: "Rate Limited",
+                    status: 429,
+                    detail: "Too many requests",
+                    instance: endpoint
+                )
+            case 500...599:
+                throw ProblemDetails(
+                    type: "about:blank",
+                    title: "Server Error",
+                    status: httpResponse.statusCode,
+                    detail: "Internal server error",
+                    instance: endpoint
+                )
+            default:
+                throw ProblemDetails(
+                    type: "about:blank",
+                    title: "API Error",
+                    status: httpResponse.statusCode,
+                    detail: "Request failed",
+                    instance: endpoint
+                )
+            }
+        } catch {
+            if error is ProblemDetails {
+                throw error
+            }
+            throw ProblemDetails.internalServerError(detail: error.localizedDescription)
+        }
+    }
+    
+    /// GET request for task status
+    func get<R: Codable>(_ endpoint: String) async throws -> R {
+        guard let url = URL(string: "\(self.baseURL)/\(endpoint)") else {
+            throw ProblemDetails.internalServerError(detail: "Invalid URL")
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        
+        // Add authentication if available
+        if let token = self.authToken {
+            request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw ProblemDetails.internalServerError(detail: "Invalid response")
+            }
+            
+            switch httpResponse.statusCode {
+            case 200...299:
+                let decoder = JSONDecoder()
+                return try decoder.decode(R.self, from: data)
+            case 401:
+                throw ProblemDetails(
+                    type: "about:blank",
+                    title: "Unauthorized", 
+                    status: 401,
+                    detail: "Authentication required",
+                    instance: endpoint
+                )
+            case 404:
+                throw ProblemDetails(
+                    type: "about:blank",
+                    title: "Not Found",
+                    status: 404,
+                    detail: "Resource not found",
+                    instance: endpoint
+                )
+            case 429:
+                throw ProblemDetails(
+                    type: "about:blank",
+                    title: "Rate Limited",
+                    status: 429,
+                    detail: "Too many requests", 
+                    instance: endpoint
+                )
+            case 500...599:
+                throw ProblemDetails(
+                    type: "about:blank",
+                    title: "Server Error",
+                    status: httpResponse.statusCode,
+                    detail: "Internal server error",
+                    instance: endpoint
+                )
+            default:
+                throw ProblemDetails(
+                    type: "about:blank",
+                    title: "API Error",
+                    status: httpResponse.statusCode,
+                    detail: "Request failed",
+                    instance: endpoint
+                )
+            }
+        } catch {
+            if error is ProblemDetails {
+                throw error
+            }
+            throw ProblemDetails.internalServerError(detail: error.localizedDescription)
         }
     }
 }

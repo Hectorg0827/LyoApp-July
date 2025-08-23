@@ -79,6 +79,19 @@ class LyoAPIService: ObservableObject {
     
     private var cancellables = Set<AnyCancellable>()
     
+    // MARK: - Internal Accessors for Extensions
+    internal var internalBaseURL: String {
+        return baseURL
+    }
+    
+    internal var internalSession: URLSession {
+        return session
+    }
+    
+    internal var internalAuthToken: String? {
+        return authToken
+    }
+    
     // MARK: - Connection Management
     
     func checkConnection() {

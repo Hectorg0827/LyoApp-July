@@ -116,7 +116,7 @@ class UserDataManager: ObservableObject {
         self.currentUser = user
         self.isAuthenticated = true
         saveUserData()
-        AnalyticsManager.shared.trackUserAction("login")
+        Analytics.log("login")
     }
     
     /// Load user from persistent storage
@@ -144,7 +144,7 @@ class UserDataManager: ObservableObject {
         UserDefaults.standard.removeObject(forKey: StorageKeys.userCourses)
         UserDefaults.standard.removeObject(forKey: StorageKeys.userBadges)
         
-        AnalyticsManager.shared.trackUserAction("logout")
+        Analytics.log("logout")
     }
     
     // MARK: - Course Management
@@ -162,7 +162,7 @@ class UserDataManager: ObservableObject {
         if !userCourses.contains(where: { $0.id == course.id }) {
             userCourses.append(course)
             saveUserData()
-            AnalyticsManager.shared.trackUserAction("courseEnrollment")
+            Analytics.log("courseEnrollment")
         }
     }
     
@@ -185,7 +185,7 @@ class UserDataManager: ObservableObject {
     func addPost(_ post: Post) {
         userPosts.insert(post, at: 0)
         saveUserData()
-        AnalyticsManager.shared.trackUserAction("postCreated")
+        Analytics.log("postCreated")
     }
     
     /// Follow a user
@@ -193,7 +193,7 @@ class UserDataManager: ObservableObject {
         if !following.contains(where: { $0.id == user.id }) {
             following.append(user)
             saveUserData()
-            AnalyticsManager.shared.trackUserAction("userFollowed")
+            Analytics.log("userFollowed")
         }
     }
     
@@ -201,7 +201,7 @@ class UserDataManager: ObservableObject {
     func unfollowUser(_ user: User) {
         following.removeAll { $0.id == user.id }
         saveUserData()
-        AnalyticsManager.shared.trackUserAction("userUnfollowed")
+        Analytics.log("userUnfollowed")
     }
     
     // MARK: - Educational Content
@@ -268,7 +268,7 @@ class UserDataManager: ObservableObject {
         if !userBadges.contains(where: { $0.id == badge.id }) {
             userBadges.append(badge)
             saveUserData()
-            AnalyticsManager.shared.trackUserAction("badgeEarned")
+            Analytics.log("badgeEarned")
         }
     }
     

@@ -120,7 +120,8 @@ class AppState: ObservableObject {
     @Published var alertMessage = ""
     @Published var alertActions: [AlertAction] = []
     @Published var errorMessage: String?
-    @Published var learningResources: [LearningResource] = []
+    // Simplified learning resources as courses
+    @Published var learningResources: [Course] = []
     
     // MARK: - User Data Manager Integration
     // TODO: Re-enable after fixing circular dependency

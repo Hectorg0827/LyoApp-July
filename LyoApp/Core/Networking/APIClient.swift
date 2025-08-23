@@ -2,15 +2,16 @@ import Foundation
 import OSLog
 
 /// Production-ready API client with auth injection and automatic token refresh
-struct APIClient {
+public struct APIClient {
     private let environment: APIEnvironment
     private let authManager: AuthManager
     private let session: URLSession
     private let logger = Logger(subsystem: "com.lyo.app", category: "APIClient")
     
-    init(environment: APIEnvironment = .current, authManager: AuthManager) {
+    public init(environment: APIEnvironment = .current) {
         self.environment = environment
-        self.authManager = authManager
+        // Create a temporary AuthManager for initialization - will be replaced
+        self.authManager = AuthManager(apiClient: nil)
         
         // Configure URLSession for production use
         let config = URLSessionConfiguration.default

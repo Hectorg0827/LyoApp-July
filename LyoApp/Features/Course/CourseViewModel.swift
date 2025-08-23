@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import CoreData
 
 // MARK: - Content Item View Data
 struct ContentItemViewData: Identifiable {
@@ -144,19 +145,12 @@ final class CourseViewModel: ObservableObject {
     func retry() {
         // Use orchestrator to retry course generation
         Task {
-            do {
-                // In a real implementation, this would call orchestrator.retryCourseGeneration
-                // For now, just reset state
-                await MainActor.run {
-                    self.state = .generating
-                }
-                Analytics.log("course_generate_requested", ["course_id": courseId, "retry": true])
-            } catch {
-                await MainActor.run {
-                    self.state = .error("Failed to retry: \(error.localizedDescription)")
-                }
-                Analytics.log("course_generate_error", ["course_id": courseId, "error": error.localizedDescription])
+            // In a real implementation, this would call orchestrator.retryCourseGeneration
+            // For now, just reset state
+            await MainActor.run {
+                self.state = .generating
             }
+            Analytics.log("course_generate_requested", ["course_id": courseId, "retry": true])
         }
     }
     

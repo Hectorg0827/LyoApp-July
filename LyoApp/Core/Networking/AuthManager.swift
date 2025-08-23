@@ -1,19 +1,21 @@
 import Foundation
 
 /// Authentication manager with JWT refresh token flow
-actor AuthManager {
+public actor AuthManager {
     // MARK: - Properties
     private var accessToken: String?
     private var refreshToken: String?
     private var isRefreshing = false
     private let keychain = KeychainManager()
+    private weak var apiClient: APIClient?
     
     // Keys for keychain storage
     private let accessTokenKey = "lyo_access_token"
     private let refreshTokenKey = "lyo_refresh_token"
     
     // MARK: - Initialization
-    init() {
+    public init(apiClient: APIClient?) {
+        self.apiClient = apiClient
         Task {
             await loadTokensFromKeychain()
         }

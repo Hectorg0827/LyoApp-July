@@ -95,11 +95,11 @@ class AuthenticationManager: ObservableObject {
         switch result {
         case .success(let user):
             // Store credentials securely
-            keychain.save(password.data(using: .utf8)!, service: "LyoApp", account: "\(user.id)_password")
+            keychain.save(data: password.data(using: .utf8)!, service: "LyoApp", account: "\(user.id)_password")
             
             // Generate and store auth token
             let authToken = generateAuthToken()
-            keychain.save(authToken.data(using: .utf8)!, service: "LyoApp", account: "authToken")
+            keychain.save(data: authToken.data(using: .utf8)!, service: "LyoApp", account: "authToken")
             
             // Set current user
             currentUser = user
@@ -149,7 +149,7 @@ class AuthenticationManager: ObservableObject {
         
         // Generate and store new auth token
         let authToken = generateAuthToken()
-        keychain.save(authToken.data(using: .utf8)!, service: "LyoApp", account: "authToken")
+        keychain.save(data: authToken.data(using: .utf8)!, service: "LyoApp", account: "authToken")
         
         // Set current user
         currentUser = user
@@ -253,47 +253,5 @@ enum AuthenticationError: LocalizedError {
         case .networkError:
             return "Network error. Please check your connection."
         }
-    }
-}
-
-// MARK: - Keychain Helper
-class KeychainHelper {
-    func save(_ data: Data, service: String, account: String) {
-        let query = [
-            kSecValueData: data,
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrService: service,
-            kSecAttrAccount: account
-        ] as CFDictionary
-        
-        // Delete any existing item
-        SecItemDelete(query)
-        
-        // Add new item
-        SecItemAdd(query, nil)
-    }
-    
-    func read(service: String, account: String) -> Data? {
-        let query = [
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrService: service,
-            kSecAttrAccount: account,
-            kSecReturnData: true
-        ] as CFDictionary
-        
-        var result: AnyObject?
-        SecItemCopyMatching(query, &result)
-        
-        return result as? Data
-    }
-    
-    func delete(service: String, account: String) {
-        let query = [
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrService: service,
-            kSecAttrAccount: account
-        ] as CFDictionary
-        
-        SecItemDelete(query)
     }
 }

@@ -19,7 +19,8 @@ class AuthenticationService: ObservableObject {
     
     private var cancellables = Set<AnyCancellable>()
     private let keychain = KeychainManager.shared
-    private let apiService = RealAPIService.shared
+    // Use simple network manager instead of RealAPIService
+    private let networkManager = NetworkManager.shared
     
     private init() {
         loadStoredAuth()

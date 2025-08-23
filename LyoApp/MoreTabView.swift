@@ -9,6 +9,7 @@ struct MoreTabView: View {
     @State private var showingStudyGroups = false
     @State private var showingCommunity = false
     @State private var showingAchievements = false
+    @State private var showingCourseGeneration = false
     
     var body: some View {
         NavigationView {
@@ -44,6 +45,15 @@ struct MoreTabView: View {
                             color: DesignTokens.Colors.neonPurple
                         ) {
                             showingLearningAnalytics = true
+                        }
+                        
+                        MoreMenuItem(
+                            icon: "cpu",
+                            title: "Course Generation",
+                            subtitle: "AI-powered course creation",
+                            color: DesignTokens.Colors.neonOrange
+                        ) {
+                            showingCourseGeneration = true
                         }
                         
                         MoreMenuItem(
@@ -123,8 +133,12 @@ struct MoreTabView: View {
             CommunityView()
                 .environmentObject(appState)
         }
-                        .sheet(isPresented: $showingAchievements) {
+        .sheet(isPresented: $showingAchievements) {
             AchievementsView()
+                .environmentObject(appState)
+        }
+        .sheet(isPresented: $showingCourseGeneration) {
+            CourseGenerationDemoView()
                 .environmentObject(appState)
         }
     }
