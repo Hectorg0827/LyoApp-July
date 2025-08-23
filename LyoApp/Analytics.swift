@@ -30,6 +30,11 @@ class Analytics {
     func setUserId(_ userId: String) {
         print("📊 User ID set: \(userId)")
     }
+    
+    // MARK: - Static convenience methods
+    static func log(_ event: String, _ properties: [String: Any] = [:]) {
+        shared.track(event, properties: properties)
+    }
 }
 
 // MARK: - Analytics Event Types
