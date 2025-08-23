@@ -19,7 +19,11 @@ class LyoAPIService: ObservableObject {
     
     // MARK: - Configuration
     #if DEBUG
+    #if DEBUG
     private let baseURL = "http://localhost:8000"
+    #else
+    private let baseURL = "https://api.lyoapp.com"
+    #endif
     #else
     private let baseURL = "https://api.lyoapp.com"
     #endif

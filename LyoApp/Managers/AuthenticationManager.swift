@@ -28,9 +28,13 @@ class AuthenticationManager: ObservableObject {
                     await loadUserRepositoryAsync()
                 }
             }
+            #if DEBUG
             print("🔐 AuthenticationManager initialized safely")
+            #endif
         } catch {
+            #if DEBUG
             print("❌ AuthenticationManager initialization error: \(error)")
+            #endif
         }
     }
     
@@ -39,9 +43,13 @@ class AuthenticationManager: ObservableObject {
             userRepository.loadCurrentUser()
             currentUser = userRepository.currentUser
             isAuthenticated = currentUser != nil
+            #if DEBUG
             print("✅ User repository loaded")
+            #endif
         } catch {
+            #if DEBUG
             print("❌ Failed to load user repository: \(error)")
+            #endif
         }
     }
     

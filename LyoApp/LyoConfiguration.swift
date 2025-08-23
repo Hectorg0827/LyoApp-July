@@ -4,8 +4,14 @@ import Foundation
 struct LyoConfiguration {
     
     // MARK: - Backend Configuration
+    // Backend Configuration - Use production URLs for release builds
+    #if DEBUG
     static let backendURL = "http://localhost:8000"
     static let webSocketURL = "ws://localhost:8000"
+    #else
+    static let backendURL = "https://api.lyoapp.com"
+    static let webSocketURL = "wss://api.lyoapp.com/ws"
+    #endif
     
     // MARK: - API Configuration
     static let apiTimeout: TimeInterval = 30.0

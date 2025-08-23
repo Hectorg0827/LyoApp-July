@@ -2,8 +2,13 @@ import Foundation
 
 struct APIKeys {
     // Backend Configuration
+    #if DEBUG
     static let baseURL = "http://localhost:8002"
     static let webSocketURL = "ws://localhost:8002/ws"
+    #else
+    static let baseURL = "https://api.lyoapp.com"
+    static let webSocketURL = "wss://api.lyoapp.com/ws"
+    #endif
     
     // Third-party API Keys (Replace with actual keys)
     static let youtubeAPIKey = "YOUR_YOUTUBE_API_KEY"
@@ -16,12 +21,18 @@ struct APIKeys {
     static let buildNumber = "1"
     
     // Features Flags
+    #if DEBUG
     static let isDebugMode = true
     static let enableLogging = true
-    static let enableMockData = true
+    #else
+    static let isDebugMode = false
+    static let enableLogging = false
+    #endif
+    // Mock data configuration - disabled for production
+    static let enableMockData = false
     
     // URLs
-    static let privacyPolicyURL = "https://example.com/privacy"
-    static let termsOfServiceURL = "https://example.com/terms"
-    static let supportURL = "https://example.com/support"
+    static let privacyPolicyURL = "https://www.lyoapp.com/privacy"
+    static let termsOfServiceURL = "https://www.lyoapp.com/terms"
+    static let supportURL = "https://www.lyoapp.com/support"
 }
