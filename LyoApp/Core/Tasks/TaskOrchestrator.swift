@@ -27,6 +27,7 @@ final class TaskOrchestrator {
     private let apiClient: LyoAPIService
     private let environment: APIEnvironment
     private let logger = Logger(subsystem: "com.lyo.app", category: "TaskOrchestrator")
+    private let overallTimeout: TimeInterval = 600.0 // 10 minutes
     
     init(apiClient: LyoAPIService, environment: APIEnvironment = .current) {
         self.apiClient = apiClient
@@ -51,12 +52,6 @@ final class TaskOrchestrator {
         )
         
         logger.info("🚀 Course generation started - Task: \(response.task_id), Course: \(response.provisional_course_id)")
-        
-        // Track analytics event
-        Analytics.shared.track("course_generate_requested", properties: [
-            "task_id": response.task_id,
-            "provisional_course_id": response.provisional_course_id
-        ])
         
         return (response.task_id, response.provisional_course_id)
     }
@@ -101,28 +96,6 @@ final class TaskOrchestrator {
             case .success(let data):
                 do {
                     let event = try JSONDecoder().decode(TaskEvent.self, from: data)
-                    
-                    // Track analytics based on event state
-                    switch event.state {
-                    case .running:
-                        Analytics.shared.track("course_generate_running", properties: [
-                            "task_id": taskId,
-                            "progress": event.progressPct ?? 0,
-                            "message": event.message ?? ""
-                        ])
-                    case .done:
-                        Analytics.shared.track("course_generate_ready", properties: [
-                            "task_id": taskId,
-                            "result_id": event.resultId ?? ""
-                        ])
-                    case .error:
-                        Analytics.shared.track("course_generate_error", properties: [
-                            "task_id": taskId,
-                            "error": event.error ?? "Unknown error"
-                        ])
-                    default:
-                        break
-                    }
                     
                     DispatchQueue.main.async {
                         onUpdate(event)
@@ -177,9 +150,12 @@ final class TaskOrchestrator {
             let maxDuration: TimeInterval = 600.0 // 10 minutes
             let startTime = Date()
             
-            while Date().timeIntervalSince(startTime) < maxDuration {
-                // Check for timeout
-                if Date().timeIntervalSince(startTime) > maxDuration {
+            logger.info("📊 Starting task polling for: \(taskId)")
+            
+            while true {
+                // Check overall timeout
+                if Date().timeIntervalSince(startTime) > overallTimeout {
+                    logger.warning("⏰ Task monitoring timeout reached")
                     let timeoutError = ProblemDetails.internalServerError(
                         detail: "Task monitoring timed out after \(maxDuration) seconds"
                     )
@@ -400,7 +376,7 @@ extension LyoAPIService {
         headers: [String: String]
     ) async throws -> R {
         // Create the request
-        guard let url = URL(string: "\(self.internalBaseURL)/\(endpoint)") else {
+        guard let url = URL(string: "\(self.baseURL)/\(endpoint)") else {
             throw ProblemDetails.internalServerError(detail: "Invalid URL")
         }
         
@@ -414,7 +390,7 @@ extension LyoAPIService {
         }
         
         // Add authentication if available
-        if let token = self.internalAuthToken {
+        if let token = self.authToken {
             request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         
@@ -423,7 +399,7 @@ extension LyoAPIService {
         request.httpBody = try encoder.encode(body)
         
         do {
-            let (data, response) = try await self.internalSession.data(for: request)
+            let (data, response) = try await URLSession.shared.data(for: request)
             
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw ProblemDetails.internalServerError(detail: "Invalid response")
@@ -477,7 +453,7 @@ extension LyoAPIService {
     
     /// GET request for task status
     func get<R: Codable>(_ endpoint: String) async throws -> R {
-        guard let url = URL(string: "\(self.internalBaseURL)/\(endpoint)") else {
+        guard let url = URL(string: "\(self.baseURL)/\(endpoint)") else {
             throw ProblemDetails.internalServerError(detail: "Invalid URL")
         }
         
@@ -486,12 +462,12 @@ extension LyoAPIService {
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         
         // Add authentication if available
-        if let token = self.internalAuthToken {
+        if let token = self.authToken {
             request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         
         do {
-            let (data, response) = try await self.internalSession.data(for: request)
+            let (data, response) = try await URLSession.shared.data(for: request)
             
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw ProblemDetails.internalServerError(detail: "Invalid response")

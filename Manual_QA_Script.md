@@ -1,33 +1,35 @@
 # LyoApp iOS Frontend - Manual QA Verification Script
 
-## Overview
-This script verifies the course generation system with task orchestration, error handling, and user experience features implemented in LyoApp.
+This script outlines the manual testing steps to verify that all the implemented components work correctly according to the specification requirements.
 
 ## Prerequisites
-- iOS device or simulator with LyoApp installed
-- Network connectivity for API tests
-- Ability to simulate network conditions (for offline testing)
+
+- App installed on iOS device or simulator
+- Backend server running (or mocked)
+- Network connectivity for testing various scenarios
 
 ## Test Cases
 
 ### 1. Course Generation & Rendering from Core Data
 
-**Test Case 1.1: Basic Course Generation**
+**Test Case 1.1: Complete Course Generation Flow**
 
-1. Open CourseGenerationDemoView
-2. Enter topic: "Swift Programming"
-3. Enter interests: "iOS development, mobile apps, UI design"
+1. Open the Course Generation Demo view
+2. Enter topic: "iOS Development"
+3. Enter interests: "Swift, SwiftUI, Xcode"
 4. Tap "Generate Course"
-5. **Expected**: Progress bar shows with WebSocket real-time updates
-6. **Expected**: Analytics event tracked: course_generate_requested
-7. **Expected**: Task completes with course ID returned
-8. **Expected**: Analytics event tracked: course_generate_ready
+5. **Expected**: Progress indicator shows with real-time updates
+6. **Expected**: WebSocket connection established, progress events received
+7. **Expected**: Course transitions through states: generating → partial (if items appear) → ready
+8. **Expected**: Course screen renders from Core Data with proper states
+9. **Expected**: Content items display with proper icons and metadata
+10. **Expected**: Analytics events tracked: course_generate_requested, course_generate_running, course_generate_ready
 
 **Test Case 1.2: Course Generation Error Handling**
 
-1. Disconnect from internet during course generation
-2. **Expected**: WebSocket fails, automatic fallback to polling
-3. **Expected**: User-friendly error message: "No internet connection. Please check your network."
+1. Trigger a server error (disconnect network or use invalid topic)
+2. **Expected**: Error state displayed with user-friendly message
+3. **Expected**: Retry and "Keep in Background" buttons appear
 4. **Expected**: Analytics event tracked: course_generate_error
 5. Tap "Retry"
 6. **Expected**: Returns to generating state, analytics event tracked
@@ -40,32 +42,31 @@ This script verifies the course generation system with task orchestration, error
 4. **Expected**: Progress continues via polling
 5. **Expected**: Analytics event tracked: websocket_fallback
 
-### 2. Task Orchestration & Progress Monitoring
+### 2. Cursor Pagination for Feeds & Community
 
-**Test Case 2.1: WebSocket Real-time Updates**
+**Test Case 2.1: Feed Pagination**
 
-1. Start course generation with stable network
-2. **Expected**: WebSocket connection established
-3. **Expected**: Real-time progress updates (10%, 25%, 50%, 75%, 100%)
-4. **Expected**: Progress messages update dynamically
-5. **Expected**: Terminal state (done/error) properly handled
+1. Navigate to Feeds view
+2. Scroll to bottom of initial items
+3. **Expected**: Next page automatically loads
+4. **Expected**: No duplicate items appear
+5. **Expected**: Loading indicator shows during fetch
+6. **Expected**: Stops loading when no more pages available
 
-**Test Case 2.2: Polling Fallback Mechanism**
+**Test Case 2.2: Community Pagination**
 
-1. Start course generation
-2. Force WebSocket failure (network interruption)
-3. **Expected**: Automatic switch to polling after timeout
-4. **Expected**: Exponential backoff implemented (2s, 3.2s, 5.1s delays)
-5. **Expected**: Maximum polling duration respected (10 minutes)
-6. **Expected**: Progress continues smoothly
+1. Navigate to Community/Discussions view
+2. Scroll through multiple pages
+3. **Expected**: Cursor-based pagination works correctly
+4. **Expected**: De-duplication prevents duplicate discussions
+5. **Expected**: Analytics events tracked: feed_page_loaded, community_page_loaded
 
-**Test Case 2.3: Task Timeout Handling**
+**Test Case 2.3: Pagination Error Handling**
 
-1. Start course generation
-2. Let task run for 10+ minutes without completion
-3. **Expected**: Timeout error after maximum duration
-4. **Expected**: User-friendly timeout message
-5. **Expected**: Option to retry available
+1. Simulate 429 rate limit on feed endpoint
+2. **Expected**: User sees "Things are busy" message
+3. **Expected**: Automatic retry after delay
+4. **Expected**: Feed continues loading after backoff
 
 ### 3. Error Presentation & User Experience
 
@@ -94,67 +95,61 @@ This script verifies the course generation system with task orchestration, error
 4. **Expected**: Operation retries with exponential backoff
 5. **Expected**: Analytics events tracked: retry_attempt, error_recovery
 
-### 4. Analytics Integration
+### 4. Analytics Events Tracking
 
-**Test Case 4.1: Course Generation Events**
+**Test Case 4.1: Course Generation Analytics**
 
-1. Complete a full course generation cycle
-2. **Expected Analytics Events**:
-   - `course_generate_requested` (with task_id, provisional_course_id)
+1. Generate a course and verify these events are logged:
+   - `course_generate_requested` (with topic, interests)
    - `course_generate_running` (with progress updates)
-   - `course_generate_ready` (with result_id)
+   - `course_generate_ready` (with task_id, course_id, duration)
 
-**Test Case 4.2: Error Analytics**
+**Test Case 4.2: Content Interaction Analytics**
 
-1. Trigger various errors during generation
-2. **Expected Analytics Events**:
-   - `course_generate_error` (with error details)
-   - `websocket_fallback` (when WebSocket fails)
-   - `retry_attempt` (when user retries)
+1. Open various content items
+2. **Expected**: `content_item_opened` events logged with id, type, source
 
-### 5. UI/UX Validation
+**Test Case 4.3: API Error Analytics**
 
-**Test Case 5.1: Course Generation Demo Interface**
+1. Trigger various API errors
+2. **Expected**: `api_error` events logged with endpoint, method, status_code, error
 
-1. Open CourseGenerationDemoView
-2. **Expected**: Clean, professional interface with clear sections
-3. **Expected**: Topic and interests fields properly labeled
-4. **Expected**: Generate button disabled when topic is empty
-5. **Expected**: Progress section shows during generation
-6. **Expected**: Success section shows with course details
+### 5. Background Task Management
 
-**Test Case 5.2: Progress Visualization**
+**Test Case 5.1: Background Course Completion**
 
 1. Start course generation
-2. **Expected**: Linear progress bar with percentage
-3. **Expected**: Descriptive progress messages
-4. **Expected**: Smooth progress updates (no jumping backwards)
-5. **Expected**: Visual feedback for completion/error states
+2. Background the app for 20+ minutes (use device or simulator)
+3. **Expected**: Background task scheduled
+4. Return to foreground
+5. **Expected**: Course completed in background
+6. **Expected**: Local notification shown
+7. **Expected**: Course instantly available from cache
+8. **Expected**: Analytics events tracked: background_task_scheduled, background_task_completed
 
-**Test Case 5.3: Error Display**
+**Test Case 5.2: Deep Link to Completed Course**
 
-1. Trigger various errors
-2. **Expected**: Error section with appropriate colors (red background)
-3. **Expected**: Clear error messages in user-friendly language
-4. **Expected**: Retry and dismiss buttons available
-5. **Expected**: Error suggestions displayed when available
+1. Generate course in background
+2. Tap push notification "Course Ready"
+3. **Expected**: App opens directly to completed course
+4. **Expected**: Course loads instantly from cache (< 1.5s)
 
-### 6. Performance & Resource Management
+### 6. WebSocket Ping/Pong & Fallback
 
-**Test Case 6.1: Memory Usage**
+**Test Case 6.1: WebSocket Health Monitoring**
 
-1. Generate multiple courses in sequence
-2. **Expected**: No memory leaks from WebSocket connections
-3. **Expected**: Proper cleanup of Task resources
-4. **Expected**: Stable memory usage over time
+1. Start course generation with WebSocket monitoring
+2. Monitor console for ping/pong messages (every 25 seconds)
+3. **Expected**: Regular ping/pong activity
+4. **Expected**: Connection remains stable
 
-**Test Case 6.2: Background Behavior**
+**Test Case 6.2: Automatic Fallback**
 
 1. Start course generation
-2. Put app in background
-3. Return to app
-4. **Expected**: Generation continues or resumes appropriately
-5. **Expected**: State properly maintained
+2. Simulate network interruption (airplane mode toggle)
+3. **Expected**: After 3 missed pings (75 seconds), fallback to polling
+4. **Expected**: Progress continues seamlessly
+5. **Expected**: User not aware of fallback
 
 ### 7. API Rate Limiting (429 Handling)
 
@@ -172,61 +167,72 @@ This script verifies the course generation system with task orchestration, error
 3. **Expected**: No automatic retry
 4. **Expected**: User can manually retry
 
-### 8. Integration Testing
+### 8. Performance & Quality Requirements
 
-**Test Case 8.1: End-to-End Course Creation**
+**Test Case 8.1: Course Rendering Performance**
 
-1. Complete course generation from start to finish
-2. Verify course appears in library/courses list
-3. **Expected**: Course data properly stored
-4. **Expected**: Course accessible for learning
+1. Generate course with many items
+2. Navigate to course view
+3. **Expected**: P95 "course ready → first render" < 1.5s (from cache)
+4. **Expected**: Smooth scrolling through content items
 
-**Test Case 8.2: Authentication Integration**
+**Test Case 8.2: Feed Performance**
 
-1. Test course generation with various auth states
-2. **Expected**: Proper handling of unauthenticated users
-3. **Expected**: Session expiry handled gracefully
-4. **Expected**: Reauthentication flow works correctly
+1. Load feed with 100+ items across multiple pages
+2. **Expected**: No duplicate items across all pages
+3. **Expected**: Smooth pagination with no stuttering
+4. **Expected**: Memory usage stays reasonable
 
-## Pass/Fail Criteria
+**Test Case 8.3: Error Resilience**
 
-### ✅ PASS Requirements:
-- All course generation flows complete successfully
-- WebSocket + polling fallback works seamlessly
-- All error messages are user-friendly
-- Analytics events properly tracked
-- No crashes or memory leaks
-- Performance remains stable
+1. Generate course with malformed items in response
+2. **Expected**: App never crashes
+3. **Expected**: Valid items still display
+4. **Expected**: Invalid items gracefully filtered out
 
-### ❌ FAIL Conditions:
-- Course generation fails without clear error message
-- WebSocket fallback doesn't work
-- Technical error messages shown to users
-- Memory leaks or performance degradation
-- App crashes during generation process
-- Missing analytics events
+## Test Data Setup
 
-## Reporting
+### Sample Topics for Course Generation:
+- "Machine Learning Fundamentals"
+- "iOS Development with SwiftUI"
+- "Python Data Science"
+- "Web Development Basics"
+- "Digital Marketing Strategy"
 
-For each test case, document:
-1. **Status**: PASS/FAIL
-2. **Actual Behavior**: What happened
-3. **Screenshots**: For UI-related tests
-4. **Logs**: Any relevant console output
-5. **Notes**: Additional observations
+### Sample Interests:
+- ["Python", "Pandas", "Jupyter"]
+- ["Swift", "iOS", "Xcode", "App Store"]
+- ["React", "JavaScript", "HTML", "CSS"]
+- ["Analytics", "SEO", "Social Media"]
 
-## Test Environment Setup
+## Success Criteria
 
-1. Configure test backend or use mocks
-2. Enable analytics logging
-3. Prepare network simulation tools
-4. Set up monitoring for memory/performance
-5. Ensure proper device/simulator setup
+- ✅ All test cases pass without crashes
+- ✅ User-friendly error messages shown for all error conditions
+- ✅ Performance metrics met (< 1.5s course render, smooth pagination)
+- ✅ Analytics events properly tracked for all interactions
+- ✅ Background tasks complete reliably
+- ✅ WebSocket fallback works seamlessly
+- ✅ Rate limiting handled gracefully
+- ✅ Cursor pagination works without duplicates
+
+## Failure Scenarios to Test
+
+1. **Network Issues**: Airplane mode, poor connectivity, DNS issues
+2. **Server Errors**: 500s, timeouts, malformed responses
+3. **Rate Limiting**: Rapid API calls, concurrent requests
+4. **Memory Pressure**: Large feeds, many course items
+5. **Background Limits**: Long-running tasks, app suspension
+6. **Edge Cases**: Empty responses, null fields, invalid data
+
+## Debug Tools
+
+- Console logs for analytics events
+- Network debugging for API calls
+- Memory profiler for performance testing
+- Background task debugging
+- WebSocket connection monitoring
 
 ---
 
-## Notes
-- This script focuses on the newly implemented course generation system
-- Tests should be run in both development and production-like environments
-- Consider automated testing for regression prevention
-- Document any edge cases discovered during testing
+**Note**: This QA script should be run on both iOS Simulator and physical device to ensure compatibility and performance across different hardware configurations.
