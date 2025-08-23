@@ -4,6 +4,7 @@ import SwiftUI
 struct LyoApp: App {
     // Create state objects lazily to prevent initialization hanging
     @StateObject private var safeAppManager = SafeAppManager()
+    @Environment(\.scenePhase) private var scenePhase
     
     var body: some Scene {
         WindowGroup {
@@ -12,12 +13,30 @@ struct LyoApp: App {
                 .onAppear {
                     setupApp()
                 }
+                .onChange(of: scenePhase) { newPhase in
+                    handleScenePhaseChange(newPhase)
+                }
         }
     }
     
     private func setupApp() {
         print("🚀 LyoApp started safely")
         safeAppManager.initializeServices()
+    }
+    
+    private func handleScenePhaseChange(_ phase: ScenePhase) {
+        switch phase {
+        case .background:
+            print("📱 App entered background")
+            BackgroundScheduler.shared.handleAppDidEnterBackground()
+        case .active:
+            print("📱 App became active")
+            BackgroundScheduler.shared.handleAppDidBecomeActive()
+        case .inactive:
+            print("📱 App became inactive")
+        @unknown default:
+            break
+        }
     }
 }
 

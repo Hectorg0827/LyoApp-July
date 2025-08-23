@@ -1,11 +1,28 @@
 import Foundation
 import OSLog
 
+/// Static Analytics facade for easy event tracking throughout the app
+enum Analytics {
+    private static let logger = Logger(subsystem: "com.lyo.app", category: "Analytics")
+    
+    /// Log an analytics event
+    static func log(_ name: String, _ props: [String: Any] = [:]) {
+        #if DEBUG
+        logger.info("📊 [Analytics] \(name, privacy: .public) \(String(describing: props), privacy: .auto)")
+        #endif
+        
+        // Forward to the main analytics manager for batching and sending
+        Task { @MainActor in
+            AnalyticsManager.shared.track(name, properties: props)
+        }
+    }
+}
+
 /// Analytics and telemetry manager for tracking user events and app performance
 @MainActor
-class Analytics: ObservableObject {
+class AnalyticsManager: ObservableObject {
     
-    static let shared = Analytics()
+    static let shared = AnalyticsManager()
     
     private let logger = Logger(subsystem: "com.lyo.app", category: "Analytics")
     private let apiClient: APIClient

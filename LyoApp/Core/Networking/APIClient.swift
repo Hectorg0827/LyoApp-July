@@ -90,13 +90,51 @@ struct APIClient {
                     throw try decodeErrorResponse(data) ?? ProblemDetails.unauthorized()
                 }
                 
+            case 429:
+                // Rate limited - auto-retry GETs with backoff
+                if method == "GET" && retryCount == 0 {
+                    let retryAfter = httpResponse.value(forHTTPHeaderField: "Retry-After")
+                        .flatMap(Double.init) ?? 1.0
+                    
+                    logger.info("Rate limited, retrying GET after \(retryAfter) seconds...")
+                    
+                    // Wait for the specified duration
+                    try await Task.sleep(nanoseconds: UInt64(retryAfter * 1_000_000_000))
+                    
+                    // Retry the request
+                    return try await send(path, method: method, body: body, headers: headers, retryCount: 1)
+                } else {
+                    // Non-GET or already retried - throw error
+                    throw try decodeErrorResponse(data) ?? ProblemDetails.rateLimited()
+                }
+                
             case 400...499:
                 // Client error - decode Problem Details if available
-                throw try decodeErrorResponse(data) ?? ProblemDetails.invalidRequest(detail: "Client error: \(httpResponse.statusCode)")
+                let errorDetails = try decodeErrorResponse(data) ?? ProblemDetails.invalidRequest(detail: "Client error: \(httpResponse.statusCode)")
+                
+                // Track API error analytics
+                Analytics.log("api_error", [
+                    "endpoint": path,
+                    "method": method,
+                    "status_code": httpResponse.statusCode,
+                    "error": errorDetails.title
+                ])
+                
+                throw errorDetails
                 
             case 500...599:
                 // Server error - decode Problem Details if available
-                throw try decodeErrorResponse(data) ?? ProblemDetails.internalServerError(detail: "Server error: \(httpResponse.statusCode)")
+                let errorDetails = try decodeErrorResponse(data) ?? ProblemDetails.internalServerError(detail: "Server error: \(httpResponse.statusCode)")
+                
+                // Track API error analytics
+                Analytics.log("api_error", [
+                    "endpoint": path,
+                    "method": method,
+                    "status_code": httpResponse.statusCode,
+                    "error": errorDetails.title
+                ])
+                
+                throw errorDetails
                 
             default:
                 // Unexpected status code
