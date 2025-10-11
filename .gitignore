@@ -1,0 +1,23 @@
+# Build artifacts
+.build/
+*.xcuserstate
+*.xcworkspace/
+DerivedData/
+build/
+.swiftpm/
+*.pbxproj.orig
+
+# Backup files  
+*.backup
+*_backup*
+*_Clean*
+*_Old*
+*.bak
+
+# Temporary files
+.DS_Store
+*~
+.vscode/
+
+# Package Manager
+Package.resolved
