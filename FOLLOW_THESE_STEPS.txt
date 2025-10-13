@@ -1,0 +1,76 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║  🎯 FOLLOW THESE STEPS IN XCODE NOW                                 ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ STEP 1: ADD VIEW FILES (5 files)                                  ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  1. Look at Xcode's LEFT SIDEBAR (Project Navigator)
+  
+  2. Find and RIGHT-CLICK the "Views" folder (📁 Views)
+  
+  3. Click: "Add Files to 'LyoApp'..."
+  
+  4. In the file browser:
+     • Navigate to: LyoApp/Views
+     • Hold ⌘ (Command) and click these 5 files:
+       
+       ☐ CourseBuilderView.swift
+       ☐ CourseCreationView.swift
+       ☐ CourseGeneratingView.swift
+       ☐ CoursePreferencesView.swift
+       ☐ CourseProgressDetailView.swift
+  
+  5. BEFORE clicking "Add", CHECK:
+     ✅ "Add to targets: LyoApp" is CHECKED ← IMPORTANT!
+     ❌ "Copy items if needed" is UNCHECKED
+  
+  6. Click "Add"
+  
+  ✅ You should see the 5 files appear in the Views folder!
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ STEP 2: ADD VIEWMODEL FILE (1 file)                               ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  1. Find and RIGHT-CLICK the "ViewModels" folder (📁 ViewModels)
+  
+  2. Click: "Add Files to 'LyoApp'..."
+  
+  3. In the file browser:
+     • Navigate to: LyoApp/ViewModels
+     • Select:
+       
+       ☐ CourseBuilderCoordinator.swift
+  
+  4. BEFORE clicking "Add", CHECK:
+     ✅ "Add to targets: LyoApp" is CHECKED ← IMPORTANT!
+     ❌ "Copy items if needed" is UNCHECKED
+  
+  5. Click "Add"
+  
+  ✅ You should see the file appear in the ViewModels folder!
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ STEP 3: BUILD                                                      ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  1. Press: ⌘ + B (Command + B)
+  
+  2. Watch the top center of Xcode window
+  
+  3. Wait for: "Build Succeeded ✅"
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ STEP 4: VERIFY (Come back to terminal)                            ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  When done, come back to this terminal and press Enter to verify...
+
+╔══════════════════════════════════════════════════════════════════════╗
+║  💡 TIP: If you can't find the folders, make sure the left sidebar  ║
+║      is visible (View → Navigators → Show Project Navigator)        ║
+╚══════════════════════════════════════════════════════════════════════╝
