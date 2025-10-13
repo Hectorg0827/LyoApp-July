@@ -1,0 +1,56 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║  🚨 URGENT: ADD THESE 2 MISSING FILES TO XCODE                      ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+The build is failing because 2 files are NOT in the Xcode project:
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ FILE 1: CourseBuilderCoordinator.swift (CRITICAL!)                ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+1. In Xcode, RIGHT-CLICK the "ViewModels" folder (📁 ViewModels)
+2. Click: "Add Files to 'LyoApp'..."
+3. Navigate to: LyoApp/ViewModels
+4. Select: CourseBuilderCoordinator.swift
+5. BEFORE clicking "Add", CHECK:
+   ✅ "Add to targets: LyoApp" is CHECKED
+   ❌ "Copy items if needed" is UNCHECKED
+6. Click "Add"
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ FILE 2: CourseCreationView.swift                                  ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+1. In Xcode, RIGHT-CLICK the "Views" folder (📁 Views)
+2. Click: "Add Files to 'LyoApp'..."
+3. Navigate to: LyoApp/Views
+4. Select: CourseCreationView.swift
+5. BEFORE clicking "Add", CHECK:
+   ✅ "Add to targets: LyoApp" is CHECKED
+   ❌ "Copy items if needed" is UNCHECKED
+6. Click "Add"
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ THEN: BUILD                                                        ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+Press: ⌘ + B (Command + B)
+
+╔══════════════════════════════════════════════════════════════════════╗
+║  💡 WHY THIS HAPPENED:                                               ║
+║     CourseBuilderCoordinator.swift is the coordinator class that    ║
+║     all the other views depend on. Without it in the project, the   ║
+║     compiler can't find the type definition and everything fails.   ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+FILES ALREADY ADDED ✅:
+  ✅ CourseBuilderView.swift
+  ✅ CourseGeneratingView.swift
+  ✅ CoursePreferencesView.swift
+  ✅ CourseProgressDetailView.swift
+
+STILL MISSING ❌:
+  ❌ CourseBuilderCoordinator.swift  ← ADD THIS FIRST!
+  ❌ CourseCreationView.swift
