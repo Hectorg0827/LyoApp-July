@@ -1,0 +1,30 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project LyoApp.xcodeproj -scheme LyoApp -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone 15" clean build
+
+Build settings from command line:
+    SDKROOT = iphonesimulator26.0
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  gRPC: https://github.com/google/grpc-binary.git @ 1.69.1
+  NetworkImage: https://github.com/gonzalezreal/NetworkImage @ 6.0.1
+  swift-markdown-ui: https://github.com/gonzalezreal/swift-markdown-ui @ 2.4.1
+  Firebase: https://github.com/firebase/firebase-ios-sdk @ 12.4.0
+  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 8.1.0
+  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 101.0.0
+  AppCheck: https://github.com/google/app-check.git @ 11.2.0
+  SwiftProtobuf: https://github.com/apple/swift-protobuf.git @ 1.32.0
+  abseil: https://github.com/google/abseil-cpp-binary.git @ 1.2024072200.0
+  GoogleAdsOnDeviceConversion: https://github.com/googleads/google-ads-on-device-conversion-ios-sdk @ 3.1.0
+  GoogleAppMeasurement: https://github.com/google/GoogleAppMeasurement.git @ 12.4.0
+  leveldb: https://github.com/firebase/leveldb.git @ 1.22.5
+  nanopb: https://github.com/firebase/nanopb.git @ 2.30910.0
+  Promises: https://github.com/google/promises.git @ 2.4.0
+  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 5.0.0
+  cmark-gfm: https://github.com/swiftlang/swift-cmark @ 0.7.0
+  GoogleDataTransport: https://github.com/google/GoogleDataTransport.git @ 10.1.0
+
+2025-10-20 13:04:03.163 xcodebuild[5773:2401884] Writing error result bundle to /var/folders/52/3qn7_llj0f1bbqvxh5z9_20h0000gn/T/ResultBundle_2025-20-10_13-04-0003.xcresult
+xcodebuild: error: The project named "LyoApp" does not contain a scheme named "LyoApp". The "-list" option can be used to find the names of the schemes in the project.
