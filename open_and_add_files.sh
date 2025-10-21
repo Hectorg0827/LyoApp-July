@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Manual fix for Avatar system files in Xcode project
+# This script directly opens Xcode and provides instructions
+
+echo "🔧 Avatar System Files - Manual Addition Required"
+echo ""
+echo "The Avatar system files have been created but need to be added to Xcode manually."
+echo ""
+echo "📁 Files to add:"
+echo "  1. /Users/hectorgarcia/Desktop/LyoApp July/LyoApp/Models/AvatarModels.swift"
+echo "  2. /Users/hectorgarcia/Desktop/LyoApp July/LyoApp/Managers/AvatarStore.swift"
+echo "  3. /Users/hectorgarcia/Desktop/LyoApp July/LyoApp/QuickAvatarSetupView.swift"
+echo ""
+echo "📝 Steps:"
+echo "  1. Open Xcode: LyoApp.xcodeproj"
+echo "  2. In the Project Navigator (left sidebar):"
+echo "     • Right-click 'Models' folder → Add Files to \"LyoApp\"..."
+echo "     • Navigate to and select: LyoApp/Models/AvatarModels.swift"
+echo "     • ✅ Check 'Add to targets: LyoApp'"
+echo "     • Click 'Add'"
+echo ""
+echo "  3. Right-click 'Managers' folder → Add Files to \"LyoApp\"..."
+echo "     • Navigate to and select: LyoApp/Managers/AvatarStore.swift"
+echo "     • ✅ Check 'Add to targets: LyoApp'"
+echo "     • Click 'Add'"
+echo ""
+echo "  4. Right-click 'LyoApp' (root) → Add Files to \"LyoApp\"..."
+echo "     • Navigate to and select: LyoApp/QuickAvatarSetupView.swift"
+echo "     • ✅ Check 'Add to targets: LyoApp'"
+echo "     • Click 'Add'"
+echo ""
+echo "  5. Build: Cmd+B"
+echo ""
+echo "🚀 Opening Xcode now..."
+open LyoApp.xcodeproj

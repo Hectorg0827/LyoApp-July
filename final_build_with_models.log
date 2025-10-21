@@ -1,0 +1,14 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project LyoApp.xcodeproj -scheme "LyoApp 1" -sdk iphonesimulator clean build
+
+Build settings from command line:
+    SDKROOT = iphonesimulator26.0
+
+2025-10-20 18:35:36.938 xcodebuild[90532:2993263] Error Domain=NSCocoaErrorDomain Code=3840 "JSON text did not start with array or object and option to allow fragments not set. around line 1, column 0." UserInfo={NSDebugDescription=JSON text did not start with array or object and option to allow fragments not set. around line 1, column 0., NSJSONSerializationErrorIndex=0}
+2025-10-20 18:35:36.946 xcodebuild[90532:2993263] Writing error result bundle to /var/folders/52/3qn7_llj0f1bbqvxh5z9_20h0000gn/T/ResultBundle_2025-20-10_18-35-0036.xcresult
+xcodebuild: error: Unable to read project 'LyoApp.xcodeproj'.
+	Reason: The project ‘LyoApp’ is damaged and cannot be opened due to a parse error. Examine the project file for invalid edits or unresolved source control conflicts.
+
+Path: /Users/hectorgarcia/Desktop/LyoApp July/LyoApp.xcodeproj
+
+
