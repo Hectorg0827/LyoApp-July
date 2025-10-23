@@ -6,7 +6,11 @@ import Foundation
 struct LioAI {
     
     // MARK: - Configuration
-    private static let baseURL = "https://api.lyo.app/ai/v1"
+    #if DEBUG
+    private static let baseURL = "http://localhost:8000/ai/v1"
+    #else
+    private static let baseURL = "https://lyo-backend-830162750094.us-central1.run.app/ai/v1"
+    #endif
     private static let timeout: TimeInterval = 30.0
     
     // MARK: - Chat & Assistance

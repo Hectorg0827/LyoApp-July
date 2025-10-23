@@ -49,6 +49,10 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: Optional[str] = None
     openai_model: str = config("OPENAI_MODEL", default="gpt-4-turbo-preview")
     
+    # Google Gemini AI
+    gemini_api_key: Optional[str] = config("GEMINI_API_KEY", default=None)
+    gemini_model: str = config("GEMINI_MODEL", default="gemini-1.5-flash")
+    
     # Feature Flags
     enable_enhanced_ranking: bool = config("ENABLE_ENHANCED_RANKING", default=False, cast=bool)
     enable_exploration: bool = config("ENABLE_EXPLORATION", default=False, cast=bool)

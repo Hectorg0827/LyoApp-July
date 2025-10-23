@@ -6,7 +6,11 @@ import Foundation
 struct RemoteAPI {
     
     // MARK: - Configuration
-    private static let baseURL = "https://api.lyo.app/v1"
+    #if DEBUG
+    private static let baseURL = "http://localhost:8000/v1"
+    #else
+    private static let baseURL = "https://lyo-backend-830162750094.us-central1.run.app/v1"
+    #endif
     
     // MARK: - Semantic Search
     

@@ -7,10 +7,11 @@ class LyoWebSocketService: NSObject, ObservableObject {
     static let shared = LyoWebSocketService()
     
     // MARK: - Configuration
+    // Use environment-aware WebSocket URL
     #if DEBUG
     private let baseURL = "ws://localhost:8000/api/v1/ws"
     #else
-    private let baseURL = "wss://api.lyoapp.com/api/v1/ws"
+    private let baseURL = "wss://lyo-backend-830162750094.us-central1.run.app/api/v1/ws"
     #endif
     private var webSocketTask: URLSessionWebSocketTask?
     private var urlSession: URLSession

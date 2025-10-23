@@ -60,9 +60,9 @@ struct LearnView: View {
         .task {
             await loadInitialContent()
         }
-        .onChange(of: searchText) { newValue in
+        .onChange(of: searchText) { oldSearchText, newSearchText in
             Task {
-                await performSearch(newValue)
+                await performSearch(newSearchText)
             }
         }
     }

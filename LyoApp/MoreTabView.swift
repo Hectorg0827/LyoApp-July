@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MoreTabView: View {
     @EnvironmentObject var appState: AppState
+    @StateObject private var authService = AuthenticationService.shared
     @State private var showingProfile = false
     @State private var showingSettings = false
     @State private var showingAIChat = false
@@ -9,6 +10,7 @@ struct MoreTabView: View {
     @State private var showingStudyGroups = false
     @State private var showingCommunity = false
     @State private var showingAchievements = false
+    @State private var showingLogin = false
     
     var body: some View {
         NavigationView {
@@ -28,6 +30,27 @@ struct MoreTabView: View {
                     
                     // Menu Items
                     VStack(spacing: DesignTokens.Spacing.md) {
+                        // Login/Account Status
+                        if authService.isAuthenticated, let user = authService.currentUser {
+                            MoreMenuItem(
+                                icon: "checkmark.circle.fill",
+                                title: "Logged in as \(user.fullName)",
+                                subtitle: user.email,
+                                color: .green
+                            ) {
+                                // Show logout option
+                            }
+                        } else {
+                            MoreMenuItem(
+                                icon: "person.crop.circle.badge.plus",
+                                title: "Sign In / Sign Up",
+                                subtitle: "Enable AI Avatar & sync data",
+                                color: DesignTokens.Colors.primary
+                            ) {
+                                showingLogin = true
+                            }
+                        }
+                        
                         MoreMenuItem(
                             icon: "sparkles",
                             title: "AI Assistant",
@@ -104,6 +127,10 @@ struct MoreTabView: View {
         }
         .sheet(isPresented: $showingSettings) {
             SettingsView()
+                .environmentObject(appState)
+        }
+        .sheet(isPresented: $showingLogin) {
+            QuickLoginView()
                 .environmentObject(appState)
         }
         .sheet(isPresented: $showingAIChat) {
@@ -1541,5 +1568,182 @@ struct CreateStudyGroupView: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Quick Login View
+struct QuickLoginView: View {
+    @EnvironmentObject var appState: AppState
+    @Environment(\.dismiss) private var dismiss
+    @StateObject private var authService = AuthenticationService.shared
+    
+    @State private var email = "test@lyoapp.com"
+    @State private var password = "password123"
+    @State private var name = "Test User"
+    @State private var isSignUp = false
+    @State private var showError = false
+    @State private var errorMessage = ""
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Header
+                    VStack(spacing: 8) {
+                        Image(systemName: "brain.head.profile")
+                            .font(.system(size: 60))
+                            .foregroundColor(DesignTokens.Colors.primary)
+                        
+                        Text("Welcome to Lyo")
+                            .font(DesignTokens.Typography.title1)
+                            .fontWeight(.bold)
+                        
+                        Text(isSignUp ? "Create your account" : "Sign in to continue")
+                            .font(DesignTokens.Typography.body)
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
+                    }
+                    .padding(.top, 40)
+                    
+                    // Form
+                    VStack(spacing: 16) {
+                        if isSignUp {
+                            TextField("Name", text: $name)
+                                .textFieldStyle(CustomTextFieldStyle())
+                                .autocapitalization(.words)
+                        }
+                        
+                        TextField("Email", text: $email)
+                            .textFieldStyle(CustomTextFieldStyle())
+                            .autocapitalization(.none)
+                            .keyboardType(.emailAddress)
+                        
+                        SecureField("Password", text: $password)
+                            .textFieldStyle(CustomTextFieldStyle())
+                    }
+                    .padding(.horizontal)
+                    
+                    // Login/Sign Up Button
+                    Button {
+                        Task {
+                            await handleAuth()
+                        }
+                    } label: {
+                        HStack {
+                            if authService.isLoading {
+                                ProgressView()
+                                    .tint(.white)
+                            } else {
+                                Text(isSignUp ? "Sign Up" : "Sign In")
+                                    .fontWeight(.semibold)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(DesignTokens.Colors.primary)
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                    }
+                    .disabled(authService.isLoading || email.isEmpty || password.isEmpty || (isSignUp && name.isEmpty))
+                    .padding(.horizontal)
+                    
+                    // Toggle Sign Up/Sign In
+                    Button {
+                        withAnimation {
+                            isSignUp.toggle()
+                        }
+                    } label: {
+                        Text(isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up")
+                            .font(DesignTokens.Typography.caption)
+                            .foregroundColor(DesignTokens.Colors.primary)
+                    }
+                    
+                    // Test Credentials Info
+                    VStack(spacing: 8) {
+                        Text("Quick Test Credentials")
+                            .font(DesignTokens.Typography.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Email: test@lyoapp.com")
+                            Text("Password: password123")
+                        }
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundColor(DesignTokens.Colors.textSecondary)
+                        .padding(12)
+                        .background(DesignTokens.Colors.glassBg)
+                        .cornerRadius(8)
+                    }
+                    .padding(.top, 20)
+                    
+                    // Backend Status
+                    VStack(spacing: 8) {
+                        HStack {
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 8, height: 8)
+                            Text("Connected to Local Backend")
+                                .font(DesignTokens.Typography.caption)
+                                .foregroundColor(DesignTokens.Colors.textSecondary)
+                        }
+                        
+                        Text("http://localhost:8000")
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
+                    }
+                    .padding(.top, 20)
+                    
+                    Spacer()
+                }
+            }
+            .navigationTitle("Login")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Skip") {
+                        dismiss()
+                    }
+                    .foregroundColor(DesignTokens.Colors.textSecondary)
+                }
+            }
+            .alert("Error", isPresented: $showError) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(errorMessage)
+            }
+        }
+    }
+    
+    private func handleAuth() async {
+        let success: Bool
+        
+        if isSignUp {
+            success = await authService.signUp(email: email, password: password, fullName: name)
+        } else {
+            success = await authService.signIn(email: email, password: password)
+        }
+        
+        if success {
+            print("✅ \(isSignUp ? "Sign up" : "Login") successful!")
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            dismiss()
+        } else {
+            errorMessage = authService.errorMessage ?? "\(isSignUp ? "Sign up" : "Login") failed. Please check your credentials."
+            showError = true
+        }
+    }
+}
+
+// MARK: - Custom TextField Style
+struct CustomTextFieldStyle: TextFieldStyle {
+    func _body(configuration: TextField<Self._Label>) -> some View {
+        configuration
+            .padding()
+            .background(DesignTokens.Colors.glassBg)
+            .cornerRadius(10)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(DesignTokens.Colors.glassBorder, lineWidth: 1)
+            )
     }
 }

@@ -31,12 +31,11 @@ class RealAPIService: ObservableObject {
     private let networkMonitor = NWPathMonitor()
     
     init() {
-        // Production configuration
-        #if DEBUG
-        self.baseURL = "http://localhost:8000/api/v1"
-        #else
-        self.baseURL = "https://api.lyoapp.com/api/v1"
-        #endif
+        // Use APIConfig to determine environment (localhost in DEBUG, production in RELEASE)
+        self.baseURL = APIConfig.baseURL
+        
+        // Debug: Print the actual URL being used
+        print("🌐 RealAPIService initialized with baseURL: \(self.baseURL)")
         
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 30
@@ -86,12 +85,11 @@ class RealAPIService: ObservableObject {
         let request = [
             "email": email,
             "password": password,
-            "username": username,
-            "fullName": fullName ?? ""
+            "name": fullName ?? username  // Backend expects 'name' field
         ]
         
         return try await performRequest(
-            endpoint: "/auth/register",
+            endpoint: "/auth/signup",  // Changed from /auth/register to /auth/signup
             method: "POST",
             body: request,
             responseType: AuthResponse.self
@@ -245,7 +243,7 @@ class RealAPIService: ObservableObject {
     }
     
     // MARK: - Generic Request Handler
-    private func performRequest<T: Codable, R: Codable>(
+    internal func performRequest<T: Codable, R: Codable>(
         endpoint: String,
         method: String,
         body: T? = nil,
@@ -262,6 +260,9 @@ class RealAPIService: ObservableObject {
         } else {
             url = URL(string: baseURL + endpoint)!
         }
+        
+        // Debug: Print request details
+        print("🔵 API Request: \(method) \(url.absoluteString)")
         
         // Create request
         var request = URLRequest(url: url)
@@ -282,13 +283,17 @@ class RealAPIService: ObservableObject {
         do {
             (data, response) = try await session.data(for: request)
         } catch {
+            print("❌ Network Error: \(error.localizedDescription)")
             throw APIError.networkError(error)
         }
         
         // Handle response
         guard let httpResponse = response as? HTTPURLResponse else {
+            print("❌ Invalid response received")
             throw APIError.invalidResponse
         }
+        
+        print("✅ Response Status: \(httpResponse.statusCode)")
         
         switch httpResponse.statusCode {
         case 200...299:

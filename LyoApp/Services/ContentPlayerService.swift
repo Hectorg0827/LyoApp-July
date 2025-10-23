@@ -222,7 +222,7 @@ class ContentPlayerService: NSObject, ObservableObject {
     private func setupAudioSession() {
         do {
             let audioSession = AVAudioSession.sharedInstance()
-            try audioSession.setCategory(.playback, mode: .default, options: [.allowAirPlay, .allowBluetooth])
+            try audioSession.setCategory(.playback, mode: .default, options: [.allowAirPlay, .allowBluetoothA2DP])
             try audioSession.setActive(true)
         } catch {
             print("⚠️ Failed to setup audio session: \(error)")

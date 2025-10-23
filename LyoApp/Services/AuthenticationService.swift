@@ -122,73 +122,63 @@ class AuthenticationService: ObservableObject {
     
     func signOut() async {
         // Clear server session
-        // Commented out for now - would make API call in production
-        // do {
-        //     let _: EmptyResponse = try await apiService.performRequest(
-        //         endpoint: "/auth/signout",
-        //         method: "POST",
-        //         body: Optional<String>.none,
-        //         responseType: EmptyResponse.self
-        //     )
-        // } catch {
-        //     print("Error signing out: \(error)")
-        // }
-        
-        print("🚪 Would sign out from server")
+        do {
+            let _: EmptyResponse = try await apiService.performRequest(
+                endpoint: "/auth/signout",
+                method: "POST",
+                body: Optional<String>.none,
+                responseType: EmptyResponse.self
+            )
+        } catch {
+            print("Error signing out: \(error)")
+        }
         
         // Clear local data
         await clearAuthData()
     }
     
     func refreshToken() async -> Bool {
-        guard keychain.retrieve(.refreshToken) != nil else {
+        guard let refreshToken = keychain.retrieve(.refreshToken) else {
             await signOut()
             return false
         }
         
-        // Commented out for now - would make API call in production
-        // do {
-        //     let request = RefreshTokenRequest(refreshToken: refreshToken)
-        //     let response: AuthResponse = try await apiService.performRequest(
-        //         endpoint: "/auth/refresh",
-        //         method: "POST",
-        //         body: request,
-        //         responseType: AuthResponse.self
-        //     )
-        //     await handleAuthSuccess(response)
-        //     return true
-        // } catch {
-        //     print("Error refreshing token: \(error)")
-        //     return false
-        // }
-        
-        print("🔄 Would refresh token")
-        return false // Temporarily return false
+        do {
+            let request = RefreshTokenRequest(refreshToken: refreshToken)
+            let response: AuthResponse = try await apiService.performRequest(
+                endpoint: "/auth/refresh",
+                method: "POST",
+                body: request,
+                responseType: AuthResponse.self
+            )
+            await handleAuthSuccess(response)
+            return true
+        } catch {
+            print("Error refreshing token: \(error)")
+            // If refresh fails, sign out the user
+            await signOut()
+            return false
+        }
     }
     
     func resetPassword(email: String) async -> Bool {
         isLoading = true
         errorMessage = nil
         
-        // Commented out for now - would make API call in production
-        // do {
-        //     let request = ResetPasswordRequest(email: email)
-        //     let _: EmptyResponse = try await apiService.performRequest(
-        //         endpoint: "/auth/reset-password",
-        //         method: "POST",
-        //         body: request,
-        //         responseType: EmptyResponse.self
-        //     )
-        //     isLoading = false
-        //     return true
-        // } catch {
-        //     await handleAuthError(error)
-        //     return false
-        // }
-        
-        print("📧 Would send reset password email to \(email)")
-        isLoading = false
-        return true
+        do {
+            let request = ResetPasswordRequest(email: email)
+            let _: EmptyResponse = try await apiService.performRequest(
+                endpoint: "/auth/reset-password",
+                method: "POST",
+                body: request,
+                responseType: EmptyResponse.self
+            )
+            isLoading = false
+            return true
+        } catch {
+            await handleAuthError(error)
+            return false
+        }
     }
 }
 

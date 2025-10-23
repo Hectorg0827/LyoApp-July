@@ -5,7 +5,7 @@ struct APIConfig {
     // Backend URLs for different environments
     static let developmentURL = "http://localhost:8000/api/v1"
     static let stagingURL = "https://staging-api.lyoapp.com/api/v1"
-    static let productionURL = "https://api.lyoapp.com/api/v1"
+    static let productionURL = "https://lyo-backend-830162750094.us-central1.run.app/api/v1"
     
     // Current environment
     #if DEBUG

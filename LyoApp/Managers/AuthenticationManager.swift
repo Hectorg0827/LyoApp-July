@@ -20,37 +20,25 @@ class AuthenticationManager: ObservableObject {
     
     // MARK: - Authentication State
     private func loadAuthStateSafely() {
-        do {
-            // Check if we have a stored auth token
-            if let _ = keychain.read(service: "LyoApp", account: "authToken") {
-                // Load user repository in the background to avoid blocking
-                Task { @MainActor in
-                    await loadUserRepositoryAsync()
-                }
+        // Check if we have a stored auth token
+        if keychain.read(service: "LyoApp", account: "authToken") != nil {
+            // Load user repository in the background to avoid blocking
+            Task { @MainActor in
+                await loadUserRepositoryAsync()
             }
-            #if DEBUG
-            print("🔐 AuthenticationManager initialized safely")
-            #endif
-        } catch {
-            #if DEBUG
-            print("❌ AuthenticationManager initialization error: \(error)")
-            #endif
         }
+        #if DEBUG
+        print("🔐 AuthenticationManager initialized safely")
+        #endif
     }
     
     private func loadUserRepositoryAsync() async {
-        do {
-            userRepository.loadCurrentUser()
-            currentUser = userRepository.currentUser
-            isAuthenticated = currentUser != nil
-            #if DEBUG
-            print("✅ User repository loaded")
-            #endif
-        } catch {
-            #if DEBUG
-            print("❌ Failed to load user repository: \(error)")
-            #endif
-        }
+        userRepository.loadCurrentUser()
+        currentUser = userRepository.currentUser
+        isAuthenticated = currentUser != nil
+        #if DEBUG
+        print("✅ User repository loaded")
+        #endif
     }
     
     // MARK: - Registration

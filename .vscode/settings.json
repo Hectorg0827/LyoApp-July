@@ -1,3 +1,8 @@
 {
-    "chat.agent.maxRequests": 1000
+    "chat.agent.maxRequests": 1000,
+    "files.associations": {
+        "*.dbclient-js": "javascript",
+        ".fantomasignore": "ignore",
+        "typeinfo": "cpp"
+    }
 }

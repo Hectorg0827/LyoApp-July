@@ -6,7 +6,11 @@ import Combine
 class SimpleNetworkManager: ObservableObject {
     static let shared = SimpleNetworkManager()
     
+    #if DEBUG
     private let baseURL = "http://localhost:8000"
+    #else
+    private let baseURL = "https://lyo-backend-830162750094.us-central1.run.app"
+    #endif
     private let session = URLSession.shared
     
     @Published var isAuthenticated = false

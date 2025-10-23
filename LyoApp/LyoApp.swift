@@ -1,3 +1,10 @@
+//
+//  LyoApp.swift
+//  LyoApp
+//
+//  Created by Hector Garcia on 7/22/24.
+//
+
 import SwiftUI
 
 @main
@@ -53,75 +60,48 @@ class SafeAppManager: ObservableObject {
     
     func initializeServices() {
         Task { @MainActor in
-            do {
-                print("📱 Starting safe service initialization...")
-                
-                // Initialize services one by one with error handling
-                await initializeAppState()
-                await initializeNetworkManager()
-                await initializeAuthManager()
-                await initializeVoiceService()
-                await initializeUserDataManager()
-                
-                isLoading = false
-                print("✅ All services initialized successfully")
-                
-            } catch {
-                isLoading = false
-                initializationError = "Failed to initialize app: \(error.localizedDescription)"
-                print("❌ Service initialization failed: \(error)")
-            }
+            print("📱 Starting safe service initialization...")
+            
+            // Initialize services one by one
+            await initializeAppState()
+            await initializeNetworkManager()
+            await initializeAuthManager()
+            await initializeVoiceService()
+            await initializeUserDataManager()
+            
+            isLoading = false
+            print("✅ All services initialized successfully")
         }
     }
     
     private func initializeAppState() async {
-        do {
-            appState = AppState.shared
-            try await Task.sleep(nanoseconds: 10_000_000) // 10ms delay
-            print("✅ AppState initialized")
-        } catch {
-            print("❌ AppState failed: \(error)")
-        }
+        appState = AppState.shared
+        await Task.yield() // Yield to allow other tasks to run
+        print("✅ AppState initialized")
     }
     
     private func initializeNetworkManager() async {
-        do {
-            networkManager = SimpleNetworkManager.shared
-            try await Task.sleep(nanoseconds: 10_000_000)
-            print("✅ NetworkManager initialized")
-        } catch {
-            print("❌ NetworkManager failed: \(error)")
-        }
+        networkManager = SimpleNetworkManager.shared
+        await Task.yield()
+        print("✅ NetworkManager initialized")
     }
     
     private func initializeAuthManager() async {
-        do {
-            authManager = AuthenticationManager.shared
-            try await Task.sleep(nanoseconds: 10_000_000)
-            print("✅ AuthManager initialized")
-        } catch {
-            print("❌ AuthManager failed: \(error)")
-        }
+        authManager = AuthenticationManager.shared
+        await Task.yield()
+        print("✅ AuthManager initialized")
     }
     
     private func initializeVoiceService() async {
-        do {
-            voiceActivationService = VoiceActivationService.shared
-            try await Task.sleep(nanoseconds: 10_000_000)
-            print("✅ VoiceActivationService initialized")
-        } catch {
-            print("❌ VoiceActivationService failed: \(error)")
-        }
+        voiceActivationService = VoiceActivationService.shared
+        await Task.yield()
+        print("✅ VoiceService initialized")
     }
     
     private func initializeUserDataManager() async {
-        do {
-            userDataManager = UserDataManager.shared
-            try await Task.sleep(nanoseconds: 10_000_000)
-            print("✅ UserDataManager initialized")
-        } catch {
-            print("❌ UserDataManager failed: \(error)")
-        }
+        userDataManager = UserDataManager.shared
+        await Task.yield()
+        print("✅ UserDataManager initialized")
     }
 }
 
@@ -130,114 +110,32 @@ struct SafeAppView: View {
     @EnvironmentObject var safeAppManager: SafeAppManager
     
     var body: some View {
-        if safeAppManager.isLoading {
-            LoadingView()
-        } else if let error = safeAppManager.initializationError {
-            ErrorView(message: error)
-        } else if let appState = safeAppManager.appState,
-                  let authManager = safeAppManager.authManager,
-                  let networkManager = safeAppManager.networkManager,
-                  let voiceService = safeAppManager.voiceActivationService,
-                  let userManager = safeAppManager.userDataManager {
-            
-            ContentView()
-                .environmentObject(appState)
-                .environmentObject(authManager)
-                .environmentObject(networkManager)
-                .environmentObject(voiceService)
-                .environmentObject(userManager)
-        } else {
-            FallbackView()
-        }
-    }
-}
-
-// MARK: - Loading View
-struct LoadingView: View {
-    var body: some View {
-        VStack(spacing: 20) {
-            ProgressView()
-                .scaleEffect(1.5)
-            
-            Text("🚀 Starting LyoApp...")
-                .font(.title2)
-                .foregroundColor(.blue)
-            
-            Text("Please wait while we initialize services")
-                .font(.caption)
-                .foregroundColor(.gray)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemBackground))
-    }
-}
-
-// MARK: - Error View
-struct ErrorView: View {
-    let message: String
-    
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("⚠️")
-                .font(.system(size: 60))
-            
-            Text("Initialization Error")
-                .font(.title2)
-                .fontWeight(.bold)
-            
-            Text(message)
-                .font(.body)
-                .multilineTextAlignment(.center)
-                .foregroundColor(.red)
-                .padding()
-            
-            Button("Try Again") {
-                // This would restart the app or retry initialization
-                exit(0)
+        Group {
+            if safeAppManager.isLoading {
+                LaunchScreenView()
+            } else if let error = safeAppManager.initializationError {
+                VStack {
+                    Text("Error Initializing App")
+                        .font(.headline)
+                    Text(error)
+                        .font(.caption)
+                }
+            } else if let appState = safeAppManager.appState,
+                      let authManager = safeAppManager.authManager,
+                      let networkManager = safeAppManager.networkManager,
+                      let voiceActivationService = safeAppManager.voiceActivationService,
+                      let userDataManager = safeAppManager.userDataManager {
+                
+                ContentView()
+                    .environmentObject(appState)
+                    .environmentObject(authManager)
+                    .environmentObject(networkManager)
+                    .environmentObject(voiceActivationService)
+                    .environmentObject(userDataManager)
+                
+            } else {
+                Text("An unknown error occurred.")
             }
-            .padding()
-            .background(Color.blue)
-            .foregroundColor(.white)
-            .cornerRadius(10)
         }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemBackground))
-    }
-}
-
-// MARK: - Fallback View
-struct FallbackView: View {
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("🔧")
-                .font(.system(size: 60))
-            
-            Text("LyoApp")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .foregroundColor(.blue)
-            
-            Text("Running in safe mode")
-                .font(.headline)
-                .foregroundColor(.orange)
-            
-            Text("Some features may be limited")
-                .font(.body)
-                .foregroundColor(.gray)
-            
-            VStack(alignment: .leading, spacing: 10) {
-                Text("• Core functionality available")
-                Text("• Limited connectivity")
-                Text("• Basic user interface")
-            }
-            .font(.caption)
-            .foregroundColor(.gray)
-            
-            Spacer()
-        }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemBackground))
     }
 }

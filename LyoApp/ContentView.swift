@@ -30,12 +30,21 @@ struct ContentView: View {
                 }
                 .tag(MainTab.ai)
             
-            // Create Post Tab (placeholder)
-            Text("Create Post")
-                .tabItem {
-                    Label("Post", systemImage: "plus")
-                }
-                .tag(MainTab.post)
+            // Unity 3D Classroom Tab
+            if UnityBridge.shared.isAvailable() {
+                UnityContainerView()
+                    .tabItem {
+                        Label("3D Classroom", systemImage: "cube.fill")
+                    }
+                    .tag(MainTab.post)
+            } else {
+                // Create Post Tab (placeholder)
+                Text("Create Post")
+                    .tabItem {
+                        Label("Post", systemImage: "plus")
+                    }
+                    .tag(MainTab.post)
+            }
             
             // More Tab
             MoreTabView()
@@ -47,11 +56,11 @@ struct ContentView: View {
         .onAppear {
             print("🔍 ContentView with TabView appeared")
             print("📊 Services status:")
-            print("  - AuthManager: \(authManager != nil ? "✅" : "❌")")
-            print("  - NetworkManager: \(networkManager != nil ? "✅" : "❌")")
-            print("  - UserDataManager: \(userDataManager != nil ? "✅" : "❌")")
-            print("  - VoiceService: \(voiceActivationService != nil ? "✅" : "❌")")
-            print("  - AppState: \(appState != nil ? "✅" : "❌")")
+            print("  - AuthManager: \(authManager == nil ? "❌" : "✅")")
+            print("  - NetworkManager: \(networkManager == nil ? "❌" : "✅")")
+            print("  - UserDataManager: \(userDataManager == nil ? "❌" : "✅")")
+            print("  - VoiceService: \(voiceActivationService == nil ? "❌" : "✅")")
+            print("  - AppState: \(appState == nil ? "❌" : "✅")")
         }
     }
 }

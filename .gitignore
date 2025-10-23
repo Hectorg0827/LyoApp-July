@@ -21,3 +21,4 @@ build/
 
 # Package Manager
 Package.resolved
+.fake

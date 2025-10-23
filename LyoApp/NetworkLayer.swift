@@ -6,7 +6,11 @@ class NetworkManager: ObservableObject {
     static let shared = NetworkManager()
     
     private let session = URLSession.shared
-    private let baseURL = URL(string: "https://api.lyoapp.com/v1")!
+    #if DEBUG
+    private let baseURL = URL(string: "http://localhost:8000/v1")!
+    #else
+    private let baseURL = URL(string: "https://lyo-backend-830162750094.us-central1.run.app/v1")!
+    #endif
     
     private init() {}
     

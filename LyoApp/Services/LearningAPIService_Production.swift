@@ -17,14 +17,11 @@ class LearningAPIService: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     init() {
-        #if DEBUG
+        // Use environment-aware backend URL
         #if DEBUG
         self.baseURL = "http://localhost:8000/api/v1"
         #else
-        self.baseURL = "https://api.lyoapp.com/api/v1"
-        #endif
-        #else
-        self.baseURL = "https://api.lyo.app/api/v1"
+        self.baseURL = "https://lyo-backend-830162750094.us-central1.run.app/api/v1"
         #endif
         
         let config = URLSessionConfiguration.default

@@ -18,14 +18,11 @@ class LyoAPIService: ObservableObject {
     static let shared = LyoAPIService()
     
     // MARK: - Configuration
-    #if DEBUG
+    // Use APIConfig for environment-aware URL (localhost in DEBUG)
     #if DEBUG
     private let baseURL = "http://localhost:8000"
     #else
-    private let baseURL = "https://api.lyoapp.com"
-    #endif
-    #else
-    private let baseURL = "https://api.lyoapp.com"
+    private let baseURL = "https://lyo-backend-830162750094.us-central1.run.app"
     #endif
     private let session = URLSession.shared
     

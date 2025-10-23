@@ -37,7 +37,7 @@ class LearningAPIService: ObservableObject {
         #if DEBUG
         self.baseURL = "http://localhost:8000/api/v1/learning"
         #else
-        self.baseURL = "https://api.lyoapp.com/api/v1/learning"
+        self.baseURL = "https://lyo-backend-830162750094.us-central1.run.app/api/v1/learning"
         #endif
         
         // Configure URL session
