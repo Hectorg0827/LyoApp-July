@@ -15,7 +15,7 @@ class ConfigurationManager {
         var baseURL: String {
             switch self {
             case .development:
-                return "http://localhost:8000"
+                return "http://127.0.0.1:8000"
             case .staging:
                 return "https://staging-api.lyoapp.com"
             case .production:
@@ -26,7 +26,7 @@ class ConfigurationManager {
         var websocketURL: String {
             switch self {
             case .development:
-                return "ws://localhost:8000/ws"
+                return "ws://127.0.0.1:8000/ws"
             case .staging:
                 return "wss://staging-api.lyoapp.com/ws"
             case .production:

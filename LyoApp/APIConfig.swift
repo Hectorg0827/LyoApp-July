@@ -3,7 +3,8 @@ import Foundation
 // MARK: - API Configuration
 struct APIConfig {
     // Backend URLs for different environments
-    static let developmentURL = "http://localhost:8000/api/v1"
+    // Use 127.0.0.1 instead of localhost so iOS Simulator can reach the host machine
+    static let developmentURL = "http://127.0.0.1:8000/api/v1"
     static let stagingURL = "https://staging-api.lyoapp.com/api/v1"
     static let productionURL = "https://lyo-backend-830162750094.us-central1.run.app/api/v1"
     
@@ -22,7 +23,7 @@ struct APIConfig {
     
     // WebSocket configuration
     #if DEBUG
-    static let webSocketURL = "ws://localhost:8000/api/v1/ws"
+    static let webSocketURL = "ws://127.0.0.1:8000/api/v1/ws"
     #else
     static let webSocketURL = "wss://api.lyoapp.com/api/v1/ws"
     #endif
@@ -50,6 +51,9 @@ struct DevelopmentConfig {
     // Test credentials for minimal backend
     static let testEmail = "admin@lyoapp.com"
     static let testPassword = "admin123"
+    
+    // Backend connection timeout
+    static let connectionTimeout: TimeInterval = 5.0
 }
 
 // MARK: - API Error Types

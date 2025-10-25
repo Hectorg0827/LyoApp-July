@@ -136,13 +136,7 @@ struct Avatar: View {
     var body: some View {
         Group {
             if let url = url, let imageURL = URL(string: url) {
-                AsyncImage(url: imageURL) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    initialsView
-                }
+                OptimizedAsyncImage(url: imageURL)
             } else {
                 initialsView
             }

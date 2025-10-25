@@ -60,6 +60,7 @@ enum PostPrivacy: String, CaseIterable {
 // MARK: - Main PostView
 struct PostView: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var apiClient: APIClient
     @Environment(\.dismiss) var dismiss
     
     @State private var selectedPostType: PostType = .post
@@ -151,13 +152,13 @@ struct PostView: View {
             Button("Cancel") {
                 dismiss()
             }
-            .foregroundColor(.white)
+            .foregroundColor(DesignTokens.Colors.textPrimary)
             
             Spacer()
             
             Text("Create")
-                .font(.headline)
-                .foregroundColor(.white)
+                .font(DesignTokens.font.headline)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
             
             Spacer()
             
@@ -179,8 +180,8 @@ struct PostView: View {
     private var contentTypeSelector: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Choose content type")
-                .font(.subheadline)
-                .foregroundColor(.gray)
+                .font(DesignTokens.font.subheadline)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
                 .padding(.leading, 20)
             
             ScrollView(.horizontal, showsIndicators: false) {
@@ -222,13 +223,13 @@ struct PostView: View {
     private var reelContentView: some View {
         VStack(spacing: 16) {
             Text("Create a Reel")
-                .font(.title2)
+                .font(DesignTokens.font.title2)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
             
             Text("Share short, engaging videos with your community")
-                .font(.subheadline)
-                .foregroundColor(.gray)
+                .font(DesignTokens.font.subheadline)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
                 .multilineTextAlignment(.center)
             
             if let videoURL = selectedVideo {
@@ -277,13 +278,13 @@ struct PostView: View {
     private var storyContentView: some View {
         VStack(spacing: 16) {
             Text("Create a Story")
-                .font(.title2)
+                .font(DesignTokens.font.title2)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
             
             Text("Share moments that disappear after 24 hours")
-                .font(.subheadline)
-                .foregroundColor(.gray)
+                .font(DesignTokens.font.subheadline)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
                 .multilineTextAlignment(.center)
             
             if !selectedImages.isEmpty || selectedVideo != nil || !content.isEmpty {
@@ -338,13 +339,13 @@ struct PostView: View {
     private var courseContentView: some View {
         VStack(spacing: 16) {
             Text("Create a Course")
-                .font(.title2)
+                .font(DesignTokens.font.title2)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
             
             Text("Share educational content and teach your community")
-                .font(.subheadline)
-                .foregroundColor(.gray)
+                .font(DesignTokens.font.subheadline)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
                 .multilineTextAlignment(.center)
             
             VStack(spacing: 12) {
@@ -395,13 +396,13 @@ struct PostView: View {
     private var postContentView: some View {
         VStack(spacing: 16) {
             Text("Create a Post")
-                .font(.title2)
+                .font(DesignTokens.font.title2)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
             
             Text("Share photos, thoughts, and updates with your community")
-                .font(.subheadline)
-                .foregroundColor(.gray)
+                .font(DesignTokens.font.subheadline)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
                 .multilineTextAlignment(.center)
             
             if !selectedImages.isEmpty || !content.isEmpty {
@@ -460,8 +461,8 @@ struct PostView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("Media Preview")
-                    .font(.headline)
-                    .foregroundColor(.white)
+                    .font(DesignTokens.font.headline)
+                    .foregroundColor(DesignTokens.Colors.textPrimary)
                 
                 Spacer()
                 
@@ -498,19 +499,19 @@ struct PostView: View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Text("Caption")
-                        .font(.headline)
-                        .foregroundColor(.white)
+                        .font(DesignTokens.font.headline)
+                        .foregroundColor(DesignTokens.Colors.textPrimary)
                     
                     Spacer()
                     
                     Text("\(content.count)/2200")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                        .font(DesignTokens.font.caption)
+                        .foregroundColor(DesignTokens.Colors.textSecondary)
                 }
                 
                 TextField("Write a caption...", text: $content, axis: .vertical)
-                    .font(.body)
-                    .foregroundColor(.white)
+                    .font(DesignTokens.font.body)
+                    .foregroundColor(DesignTokens.Colors.textPrimary)
                     .lineLimit(3...8)
                     .padding(12)
                     .background(
@@ -526,19 +527,19 @@ struct PostView: View {
                         .foregroundColor(DesignTokens.Colors.neonBlue)
                     
                     Text("Tags")
-                        .font(.headline)
-                        .foregroundColor(.white)
+                        .font(DesignTokens.font.headline)
+                        .foregroundColor(DesignTokens.Colors.textPrimary)
                     
                     Spacer()
                     
                     Text("\(tags.count)/10")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                        .font(DesignTokens.font.caption)
+                        .foregroundColor(DesignTokens.Colors.textSecondary)
                 }
                 
                 HStack {
                     TextField("Add tags...", text: $currentTag)
-                        .foregroundColor(.white)
+                        .foregroundColor(DesignTokens.Colors.textPrimary)
                         .onSubmit {
                             addTag()
                         }
@@ -546,7 +547,7 @@ struct PostView: View {
                     Button("Add") {
                         addTag()
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(DesignTokens.Colors.textPrimary)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
                     .background(DesignTokens.Colors.neonBlue)
@@ -585,8 +586,8 @@ struct PostView: View {
                 // Privacy
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Privacy")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                        .font(DesignTokens.font.caption)
+                        .foregroundColor(DesignTokens.Colors.textSecondary)
                     
                     Menu {
                         ForEach(PostPrivacy.allCases, id: \.self) { privacy in
@@ -605,11 +606,11 @@ struct PostView: View {
                                 .foregroundColor(DesignTokens.Colors.neonBlue)
                             
                             Text(postPrivacy.rawValue)
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignTokens.Colors.textPrimary)
                             
                             Image(systemName: "chevron.down")
-                                .font(.caption)
-                                .foregroundColor(.gray)
+                                .font(DesignTokens.font.caption)
+                                .foregroundColor(DesignTokens.Colors.textSecondary)
                         }
                         .padding(12)
                         .background(
@@ -622,8 +623,8 @@ struct PostView: View {
                 // Location
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Location")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                        .font(DesignTokens.font.caption)
+                        .foregroundColor(DesignTokens.Colors.textSecondary)
                     
                     Button {
                         showLocationPicker = true
@@ -633,14 +634,14 @@ struct PostView: View {
                                 .foregroundColor(DesignTokens.Colors.neonOrange)
                             
                             Text(location.isEmpty ? "Add location" : location)
-                                .foregroundColor(location.isEmpty ? .gray : .white)
+                                .foregroundColor(location.isEmpty ? DesignTokens.Colors.textSecondary : DesignTokens.Colors.textPrimary)
                             
                             if !location.isEmpty {
                                 Button {
                                     location = ""
                                 } label: {
                                     Image(systemName: "xmark.circle.fill")
-                                        .foregroundColor(.gray)
+                                        .foregroundColor(DesignTokens.Colors.textSecondary)
                                 }
                             }
                         }
@@ -673,17 +674,17 @@ struct PostView: View {
                     if isPosting {
                         ProgressView()
                             .scaleEffect(0.8)
-                            .tint(.white)
+                            .tint(DesignTokens.Colors.textPrimary)
                     } else {
                         Image(systemName: selectedPostType.icon)
-                            .font(.title2)
+                            .font(DesignTokens.font.title2)
                     }
                     
                     Text(isPosting ? "Creating..." : "Share \(selectedPostType.rawValue)")
-                        .font(.headline)
+                        .font(DesignTokens.font.headline)
                         .fontWeight(.semibold)
                 }
-                .foregroundColor(.white)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 16)
                 .background(
@@ -694,7 +695,7 @@ struct PostView: View {
                         endPoint: .trailing
                     ) :
                     LinearGradient(
-                        colors: [Color.gray.opacity(0.3), Color.gray.opacity(0.3)],
+                        colors: [DesignTokens.Colors.backgroundSecondary, DesignTokens.Colors.backgroundSecondary],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
@@ -766,28 +767,42 @@ struct PostView: View {
         
         isPosting = true
         
-        // Simulate posting with different delays based on post type
-        let delay: Double = {
-            switch selectedPostType {
-            case .course: return 3.0
-            case .post: return 2.0
-            case .story: return 1.5
-            case .reel: return 2.5
+        Task {
+            do {
+                // For now, we are not handling media uploads.
+                // This would require a separate service to upload media to a cloud storage
+                // and get back the URLs. We will pass empty media URLs for now.
+                let mediaUrls: [String] = []
+                
+                _ = try await apiClient.createPost(content, mediaUrls: mediaUrls)
+                
+                // Show success notification on the main thread
+                await MainActor.run {
+                    isPosting = false
+                    dismiss()
+                    
+                    let notification = AppNotification(
+                        title: "\(selectedPostType.rawValue) Created!",
+                        message: "Your \(selectedPostType.rawValue.lowercased()) has been shared successfully!",
+                        type: .success,
+                        timestamp: Date()
+                    )
+                    appState.addNotification(notification)
+                }
+            } catch {
+                // Show error notification on the main thread
+                await MainActor.run {
+                    isPosting = false
+                    let errorMessage = (error as? APIClientError)?.errorDescription ?? "An unknown error occurred."
+                    let notification = AppNotification(
+                        title: "Error Creating Post",
+                        message: errorMessage,
+                        type: .error,
+                        timestamp: Date()
+                    )
+                    appState.addNotification(notification)
+                }
             }
-        }()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            isPosting = false
-            dismiss()
-            
-            // Show success notification
-            let notification = AppNotification(
-                title: "\(selectedPostType.rawValue) Created!",
-                message: "Your \(selectedPostType.rawValue.lowercased()) has been shared successfully!",
-                type: .success,
-                timestamp: Date()
-            )
-            appState.addNotification(notification)
         }
     }
     
@@ -827,7 +842,7 @@ struct ContentTypeButton: View {
                                 endPoint: .bottomTrailing
                             ) :
                             LinearGradient(
-                                colors: [Color.gray.opacity(0.3), Color.gray.opacity(0.3)],
+                                colors: [DesignTokens.Colors.backgroundSecondary, DesignTokens.Colors.backgroundSecondary],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -836,25 +851,25 @@ struct ContentTypeButton: View {
                         .overlay(
                             Circle()
                                 .strokeBorder(
-                                    isSelected ? type.color : Color.gray.opacity(0.5),
+                                    isSelected ? type.color : DesignTokens.Colors.backgroundSecondary,
                                     lineWidth: isSelected ? 2 : 1
                                 )
                         )
                     
                     Image(systemName: type.icon)
-                        .font(.title2)
-                        .foregroundColor(isSelected ? .white : .gray)
+                        .font(DesignTokens.font.title2)
+                        .foregroundColor(isSelected ? DesignTokens.Colors.textPrimary : DesignTokens.Colors.textSecondary)
                 }
                 
                 VStack(spacing: 2) {
                     Text(type.rawValue)
-                        .font(.subheadline)
-                        .foregroundColor(isSelected ? type.color : .white)
+                        .font(DesignTokens.font.subheadline)
+                        .foregroundColor(isSelected ? type.color : DesignTokens.Colors.textPrimary)
                         .fontWeight(isSelected ? .semibold : .medium)
                     
                     Text(type.description)
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                        .font(DesignTokens.font.caption)
+                        .foregroundColor(DesignTokens.Colors.textSecondary)
                 }
             }
             .frame(width: 80)
@@ -881,28 +896,28 @@ struct MediaSourceButton: View {
                         .frame(width: 32, height: 32)
                     
                     Image(systemName: icon)
-                        .font(.caption)
+                        .font(DesignTokens.font.caption)
                         .foregroundColor(color)
                 }
                 
                 VStack(alignment: .leading, spacing: 1) {
                     Text(title)
-                        .font(.caption)
+                        .font(DesignTokens.font.caption)
                         .fontWeight(.medium)
-                        .foregroundColor(.white)
+                        .foregroundColor(DesignTokens.Colors.textPrimary)
                         .lineLimit(1)
                     
                     Text(subtitle)
-                        .font(.caption2)
-                        .foregroundColor(.gray)
+                        .font(DesignTokens.font.caption2)
+                        .foregroundColor(DesignTokens.Colors.textSecondary)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 
                 Image(systemName: "chevron.right")
-                    .font(.caption2)
-                    .foregroundColor(.gray)
+                    .font(DesignTokens.font.caption2)
+                    .foregroundColor(DesignTokens.Colors.textSecondary)
             }
             .padding(12)
             .background(
@@ -925,13 +940,13 @@ struct TagChip: View {
     var body: some View {
         HStack(spacing: 4) {
             Text(tag)
-                .font(.caption)
-                .foregroundColor(.white)
+                .font(DesignTokens.font.caption)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
             
             Button(action: onRemove) {
                 Image(systemName: "xmark")
-                    .font(.caption2)
-                    .foregroundColor(.gray)
+                    .font(DesignTokens.font.caption2)
+                    .foregroundColor(DesignTokens.Colors.textSecondary)
             }
         }
         .padding(.horizontal, 8)
@@ -955,12 +970,12 @@ struct VideoPreviewCard: View {
             
             VStack {
                 Image(systemName: "play.circle.fill")
-                    .font(.system(size: 40))
-                    .foregroundColor(.white)
+                    .font(DesignTokens.font.largeTitle)
+                    .foregroundColor(DesignTokens.Colors.textPrimary)
                 
                 Text("Video Preview")
-                    .font(.caption)
-                    .foregroundColor(.white)
+                    .font(DesignTokens.font.caption)
+                    .foregroundColor(DesignTokens.Colors.textPrimary)
             }
             
             VStack {
@@ -968,8 +983,8 @@ struct VideoPreviewCard: View {
                     Spacer()
                     Button(action: onRemove) {
                         Image(systemName: "xmark.circle.fill")
-                            .font(.title2)
-                            .foregroundColor(.white)
+                            .font(DesignTokens.font.title2)
+                            .foregroundColor(DesignTokens.Colors.textPrimary)
                             .background(Color.black.opacity(0.6))
                             .clipShape(Circle())
                     }
@@ -1142,4 +1157,5 @@ struct ModernCameraPicker: UIViewControllerRepresentable {
 #Preview {
     PostView()
         .environmentObject(AppState())
+        .environmentObject(APIClient.shared)
 }

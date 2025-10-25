@@ -6,8 +6,8 @@ struct LyoConfiguration {
     // MARK: - Backend Configuration
     // Backend Configuration - Use production URLs for release builds
     #if DEBUG
-    static let backendURL = "http://localhost:8000"
-    static let webSocketURL = "ws://localhost:8000"
+    static let backendURL = "http://127.0.0.1:8000"
+    static let webSocketURL = "ws://127.0.0.1:8000"
     #else
     static let backendURL = "https://api.lyoapp.com"
     static let webSocketURL = "wss://api.lyoapp.com/ws"

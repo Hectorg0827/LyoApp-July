@@ -271,46 +271,6 @@ public enum BlueprintNodeType: String, Codable {
 }
 
 // MARK: - END CORE TYPES
-// Note: Avatar struct is defined in AvatarModels.swift with all its properties
-
-// MARK: - User
-
-public struct User: Identifiable, Codable, Hashable {
-    public let id: UUID
-    public var username: String
-    public var email: String
-    public var fullName: String
-    public var bio: String?
-    public var profileImageURL: URL?
-    public var followers: Int = 0
-    public var following: Int = 0
-    // Restored legacy property used by some older views (e.g. AuthenticationView)
-    var posts: Int = 0
-    var isVerified: Bool = false
-    var joinedAt: Date?
-    var lastActiveAt: Date?
-    var experience: Int = 0
-    var level: Int = 1
-    
-    init(id: UUID = UUID(), username: String, email: String, fullName: String, bio: String? = nil,
-         profileImageURL: URL? = nil, followers: Int = 0, following: Int = 0, posts: Int = 0,
-         isVerified: Bool = false, joinedAt: Date? = nil, lastActiveAt: Date? = nil, experience: Int = 0, level: Int = 1) {
-        self.id = id
-        self.username = username
-        self.email = email
-        self.fullName = fullName
-        self.bio = bio
-        self.profileImageURL = profileImageURL
-        self.followers = followers
-        self.following = following
-        self.posts = posts
-        self.isVerified = isVerified
-        self.joinedAt = joinedAt
-        self.lastActiveAt = lastActiveAt
-        self.experience = experience
-        self.level = level
-    }
-}
 
 // MARK: - Study Program
 
@@ -324,63 +284,6 @@ struct StudyProgram: Identifiable, Hashable {
     var thumbnailURL: URL?
     var progress: Double = 0.0
     var isEnrolled: Bool = false
-}
-
-// MARK: - Feed Course (simplified course for social feed)
-// Note: Full course model is in ClassroomModels.swift
-struct FeedCourse: Identifiable, Hashable, Codable {
-    public let id: UUID
-    var title: String
-    var description: String
-    var instructor: String
-    var duration: Int // In minutes
-    var createdAt: Date
-    var updatedAt: Date
-    
-    enum Difficulty: String, Codable {
-        case beginner
-        case intermediate
-        case advanced
-    }
-}
-
-// MARK: - API Course Model (for backend integration)
-struct APICourse: Codable, Identifiable {
-    public let id: String
-    public let title: String
-    public let description: String
-    let instructor: String
-    let duration: Int
-    let difficulty: String
-    let category: String?
-    let tags: [String]? // Added missing tags property
-    let thumbnailUrl: String?
-    let thumbnailURL: URL? // For compatibility
-    let isEnrolled: Bool
-    let progress: Double?
-    let createdAt: String
-    let updatedAt: String
-    
-    init(id: String = UUID().uuidString, title: String, description: String, instructor: String, 
-         duration: Int, difficulty: String, category: String? = nil, tags: [String]? = nil,
-         thumbnailUrl: String? = nil, isEnrolled: Bool = false, progress: Double? = nil, 
-         createdAt: String = ISO8601DateFormatter().string(from: Date()),
-         updatedAt: String = ISO8601DateFormatter().string(from: Date())) {
-        self.id = id
-        self.title = title
-        self.description = description
-        self.instructor = instructor
-        self.duration = duration
-        self.difficulty = difficulty
-        self.category = category
-        self.tags = tags
-        self.thumbnailUrl = thumbnailUrl
-        self.thumbnailURL = URL(string: thumbnailUrl ?? "")
-        self.isEnrolled = isEnrolled
-        self.progress = progress
-        self.createdAt = createdAt
-        self.updatedAt = updatedAt
-    }
 }
 
 // MARK: - API Study Program
@@ -423,24 +326,6 @@ public struct Post: Identifiable, Hashable, Codable {
         self.createdAt = createdAt
         self.tags = tags
     }
-}
-
-// MARK: - Feed Post Model
-struct FeedPost: Identifiable, Codable, Hashable {
-    public let id: String
-    let userId: String
-    let username: String
-    let userAvatar: URL?
-    let content: String
-    let imageURLs: [URL]?
-    let videoURL: URL?
-    let likesCount: Int
-    let commentsCount: Int
-    let sharesCount: Int
-    let isLiked: Bool
-    let isBookmarked: Bool
-    let createdAt: String
-    let tags: [String]?
 }
 
 // CreatePostRequest defined in APIResponseModels.swift (duplicate removed)
@@ -498,12 +383,6 @@ struct Story: Identifiable {
 }
 
 // MARK: - Stubs for APIResponseModels missing types (can be expanded later)
-public struct CourseOutline: Codable, Identifiable {
-    public let id: String
-    public let title: String
-    public let sections: [CourseOutlineSection]
-}
-public struct CourseOutlineSection: Codable, Identifiable { public let id: String; public let title: String; public let lessonIds: [String] }
 
 public struct ResponseChatMessage: Codable, Identifiable, Equatable {
     public let id: String
@@ -1184,52 +1063,4 @@ struct PodcastEpisode: Identifiable, Codable, Equatable {
     var transcript: String?
     var isBookmarked: Bool
     var playProgress: Double
-}
-
-public enum BadgeRarity: String, Codable, CaseIterable {
-    case common, rare, epic, legendary
-
-    public var color: Color {
-        switch self {
-        case .common:
-            return .gray
-        case .rare:
-            return .blue
-        case .epic:
-            return .purple
-        case .legendary:
-            return .orange
-        }
-    }
-}
-
-public struct UserBadge: Identifiable, Codable, Equatable {
-    public let id: UUID
-    public var name: String
-    public var description: String
-    public var iconName: String
-    public var color: String
-    public var rarity: BadgeRarity
-    public var earnedAt: Date
-
-    public init(id: UUID = UUID(), name: String, description: String, iconName: String, color: String, rarity: BadgeRarity, earnedAt: Date = Date()) {
-        self.id = id
-        self.name = name
-        self.description = description
-        self.iconName = iconName
-        self.color = color
-        self.rarity = rarity
-        self.earnedAt = earnedAt
-    }
-}
-
-// MARK: - Legacy Typealiases (transitional - to be removed after migration)
-// typealias LegacyLearningResource = LearningResource // Removed to fix ambiguous type lookup
-
-// MARK: - Convenience extensions
-
-extension LearningResource {
-    // Backwards compatibility shim (older code referenced isDownloaded / contentURLString etc.)
-    var isDownloaded: Bool { false }
-    var contentURLString: String? { contentURL?.absoluteString }
 }

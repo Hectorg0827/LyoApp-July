@@ -173,6 +173,33 @@ struct DesignTokens {
             startPoint: .top,
             endPoint: .bottom
         )
+        
+        // === FILL & STROKE COLORS ===
+        static let fillPrimary = backgroundPrimary
+        static let fillSecondary = backgroundSecondary
+        static let fillTertiary = backgroundTertiary
+        static let strokePrimary = neutral300
+        static let strokeSecondary = neutral500
+    }
+    
+    // MARK: - Gradients
+    struct Gradients {
+        static let primary = LinearGradient(
+            colors: [Colors.brand, Colors.secondary],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        
+        static let secondary = LinearGradient(
+            colors: [Colors.secondary, Colors.tertiary],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        
+        static let hero = Colors.heroGradient
+        static let cosmic = Colors.cosmicGradient
+        static let neon = Colors.neonGradient
+        static let brand = Colors.brandGradient
     }
     
     // MARK: - Professional Typography System
@@ -225,6 +252,12 @@ struct DesignTokens {
         static let cardTitle = titleMedium
     }
     
+    // Convenience alias for accessing Typography as 'font'
+    typealias font = Typography
+    
+    // Convenience alias for accessing Radius as 'cornerRadius'
+    typealias cornerRadius = Radius
+    
     // MARK: - Spacing
     struct Spacing {
         static let xs: CGFloat = 4
@@ -254,6 +287,11 @@ struct DesignTokens {
         static let button = md
         static let card = lg
         static let sheet = xl
+        
+        // Legacy aliases
+        static let small = sm
+        static let medium = md
+        static let large = lg
     }
     
     // MARK: - Enhanced Shadow System

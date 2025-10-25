@@ -1,5 +1,8 @@
 import SwiftUI
 import Combine
+#if canImport(NukeUI)
+import NukeUI
+#endif
 
 // MARK: - Learn View (Learning Interface)
 struct LearnView: View {
@@ -392,14 +395,30 @@ struct TrendingResourceCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-            AsyncImage(url: resource.thumbnailURL) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Rectangle()
-                    .fill(Color(.systemGray4))
+            #if canImport(NukeUI)
+            LazyImage(url: resource.thumbnailURL) { state in
+                if let image = state.image {
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    Rectangle()
+                        .fill(Color(.systemGray4))
+                }
             }
+            #else
+            AsyncImage(url: resource.thumbnailURL) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                default:
+                    Rectangle()
+                        .fill(Color(.systemGray4))
+                }
+            }
+            #endif
             .frame(width: 200, height: 120)
             .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.md))
             
@@ -432,14 +451,30 @@ struct ResourceCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-            AsyncImage(url: resource.thumbnailURL) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Rectangle()
-                    .fill(Color(.systemGray4))
+            #if canImport(NukeUI)
+            LazyImage(url: resource.thumbnailURL) { state in
+                if let image = state.image {
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    Rectangle()
+                        .fill(Color(.systemGray4))
+                }
             }
+            #else
+            AsyncImage(url: resource.thumbnailURL) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                default:
+                    Rectangle()
+                        .fill(Color(.systemGray4))
+                }
+            }
+            #endif
             .frame(height: 120)
             .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.md))
             
@@ -483,14 +518,30 @@ struct ResourceListItem: View {
     
     var body: some View {
         HStack(spacing: DesignTokens.Spacing.md) {
-            AsyncImage(url: resource.thumbnailURL) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Rectangle()
-                    .fill(Color(.systemGray4))
+            #if canImport(NukeUI)
+            LazyImage(url: resource.thumbnailURL) { state in
+                if let image = state.image {
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    Rectangle()
+                        .fill(Color(.systemGray4))
+                }
             }
+            #else
+            AsyncImage(url: resource.thumbnailURL) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                default:
+                    Rectangle()
+                        .fill(Color(.systemGray4))
+                }
+            }
+            #endif
             .frame(width: 80, height: 60)
             .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.sm))
             

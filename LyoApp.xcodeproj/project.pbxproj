@@ -6,7 +6,8 @@
 	objectVersion = 63;
 	objects = {
 
-/* Begin PBXBuildFile section */		0592652EEB17E93E6F54AC8C /* PostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B79DC809F7BC3657C6FB949 /* PostView.swift */; };
+/* Begin PBXBuildFile section */
+		0592652EEB17E93E6F54AC8C /* PostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B79DC809F7BC3657C6FB949 /* PostView.swift */; };
 		059DFA4253B5073396BCB5BF /* AIAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE0D74D109D5FCB0EEAEB8A1 /* AIAvatarView.swift */; };
 		08EE8DC187B96456F12489CF /* ContentSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB92F8D6DCDB39827550B64 /* ContentSection.swift */; };
 		092307F2D23C76F41E8C509E /* SafeJSONDecoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C2BD51BA2C11C9D2E2F9E4 /* SafeJSONDecoding.swift */; };
@@ -32,8 +33,6 @@
 		30786DB5E1B7249E951C7252 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD337AFED5436780B913F4B9 /* KeychainManager.swift */; };
 		330A34CC004130053120612C /* LessonModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE04CA56FAA9228F3A5F02 /* LessonModels.swift */; };
 		330ED1DD7740AE4E9BA87D40 /* VoiceRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 497A52CB663A204A6D353292 /* VoiceRecognizer.swift */; };
-		34731A442EA94F4E009A2AFA /* LyoApp/Unity/UnityBridge.swift in Resources */ = {isa = PBXBuildFile; fileRef = F5CA01703A6740DEAA7FD749 /* LyoApp/Unity/UnityBridge.swift */; };
-		34731A452EA94F4E009A2AFA /* LyoApp/Services/BackgroundScheduler.swift in Resources */ = {isa = PBXBuildFile; fileRef = 6815C36B9967456CAF5BADF0 /* LyoApp/Services/BackgroundScheduler.swift */; };
 		35A5A1A3973BED1B6140FAFE /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21DC08CD59DB175CDE4830B /* HeaderView.swift */; };
 		37AA9808A55819004EB45214 /* CourseRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C1E44B131AEE117D7A048 /* CourseRepository.swift */; };
 		3F5BADB0CCBD4378BB2D601C /* LessonBlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8E4A0FEB92FBCE60BE99B69 /* LessonBlockView.swift */; };
@@ -145,7 +144,8 @@
 		FF27B03C011A2898BC0A0EE2 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E744088E2146A51E7D5748BC /* DesignSystem.swift */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXFileReference section */		01D044AB5E448B4F717C1A0B /* SearchComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchComponents.swift; sourceTree = "<group>"; };
+/* Begin PBXFileReference section */
+		01D044AB5E448B4F717C1A0B /* SearchComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchComponents.swift; sourceTree = "<group>"; };
 		023E96DF02E1FCB120142337 /* AISearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AISearchView.swift; sourceTree = "<group>"; };
 		040697D43344FB53E77E31B8 /* EducationalContentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EducationalContentManager.swift; sourceTree = "<group>"; };
 		04E7F0C7A240EB573D73EAB4 /* LearningResource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningResource.swift; sourceTree = "<group>"; };
@@ -357,8 +357,7 @@
 				23D6B4754913D5AC7F3B4F27 /* SearchHeaderView.swift */,
 				92ACFCF6440A9D60D0125ED0 /* SearchResultsView.swift */,
 				8415ED887BC609E4B38D0C1F /* SearchSuggestionsView.swift */,
-			
-				913C5C966B9141BCA6B8BA59 /* QuickLoginView.swift */,);
+			);
 			path = Views;
 			sourceTree = "<group>";
 		};
@@ -637,6 +636,10 @@
 			);
 			name = LyoApp;
 			packageProductDependencies = (
+				34D26DA62EAC604A00A78962 /* Nuke */,
+				34D26DA72EAC604A00A78962 /* NukeExtensions */,
+				34D26DA82EAC604A00A78962 /* NukeUI */,
+				34D26DA92EAC604A00A78962 /* NukeVideo */,
 			);
 			productName = LyoApp;
 			productReference = 3E088D802BEFF04AA1872F21 /* LyoApp.app */;
@@ -667,6 +670,9 @@
 			);
 			mainGroup = 1AFDA1CEB14746F07366A79B;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				34D26DA52EAC604A00A78962 /* XCRemoteSwiftPackageReference "Nuke" */,
+			);
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -825,8 +831,7 @@
 				9C01BE2BAF0B29A287E7DA54 /* YouTubeEducationService.swift in Sources */,
 				CC68C88A70AADCBAB5DA3C86 /* iOSSubmissionDashboard.swift in Sources */,
 				E2648914F8EE207934809887 /* iOS_Submission_Preparation.swift in Sources */,
-			
-				5F07AB69BB194B86A2D679E2 /* QuickLoginView.swift in Sources */,);
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
@@ -1025,6 +1030,40 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		34D26DA52EAC604A00A78962 /* XCRemoteSwiftPackageReference "Nuke" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kean/Nuke.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.8.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		34D26DA62EAC604A00A78962 /* Nuke */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 34D26DA52EAC604A00A78962 /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = Nuke;
+		};
+		34D26DA72EAC604A00A78962 /* NukeExtensions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 34D26DA52EAC604A00A78962 /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = NukeExtensions;
+		};
+		34D26DA82EAC604A00A78962 /* NukeUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 34D26DA52EAC604A00A78962 /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = NukeUI;
+		};
+		34D26DA92EAC604A00A78962 /* NukeVideo */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 34D26DA52EAC604A00A78962 /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = NukeVideo;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2D2171893EB55A81FA2429BA /* Project object */;
 }

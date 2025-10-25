@@ -63,20 +63,11 @@ struct ProfileView: View {
                     .shadow(color: DesignTokens.Colors.primary.opacity(0.3), radius: 20, x: 0, y: 0)
                 
                 if let user = container.currentUser, let avatarUrl = user.avatarUrl {
-                    AsyncImage(url: URL(string: avatarUrl)) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } placeholder: {
-                        Circle()
-                            .fill(DesignTokens.Colors.glassBg)
-                            .overlay(
-                                ProgressView()
-                                    .tint(DesignTokens.Colors.primary)
-                            )
-                    }
-                    .frame(width: 110, height: 110)
-                    .clipShape(Circle())
+                    OptimizedAsyncImage(url: URL(string: avatarUrl))
+                        .frame(width: 120, height: 120)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(DesignTokens.Colors.primary, lineWidth: 3))
+                        .shadow(radius: DesignTokens.Radius.sm)
                 } else {
                     Text(container.currentUser?.displayName.prefix(1) ?? "U")
                         .font(.system(size: 40, weight: .bold))
@@ -431,23 +422,9 @@ struct CompletedCourseCard: View {
     
     var body: some View {
         HStack(spacing: DesignTokens.Spacing.md) {
-            AsyncImage(url: URL(string: course.thumbnailUrl)) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                RoundedRectangle(cornerRadius: DesignTokens.Radius.sm)
-                    .fill(DesignTokens.Colors.primaryGradient)
-                    .overlay(
-                        Image(systemName: "checkmark.circle")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                    )
-            }
+        OptimizedAsyncImage(url: URL(string: course.thumbnailUrl))
             .frame(width: 80, height: 60)
-            .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.sm))
-            
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
+            .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.sm))            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                 Text(course.title)
                     .font(DesignTokens.Typography.titleSmall)
                     .foregroundColor(DesignTokens.Colors.textPrimary)

@@ -503,20 +503,9 @@ struct ConversationRowView: View {
         Button(action: onTap) {
             HStack(spacing: DesignTokens.Spacing.md) {
                 // Avatar
-                AsyncImage(url: URL(string: "https://i.pravatar.cc/150?img=\(conversation.participants.first ?? "1")")) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    Circle()
-                        .fill(DesignTokens.Colors.primary.opacity(0.3))
-                        .overlay(
-                            Image(systemName: "person.fill")
-                                .foregroundColor(DesignTokens.Colors.primary)
-                        )
-                }
-                .frame(width: 50, height: 50)
-                .clipShape(Circle())
+                OptimizedAsyncImage(url: URL(string: "https://i.pravatar.cc/150?img=\(conversation.participants.first ?? "1")"))
+                    .frame(width: 50, height: 50)
+                    .clipShape(Circle())
                 
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
@@ -546,7 +535,7 @@ struct ConversationRowView: View {
                                 .overlay(
                                     Text("\(conversation.unreadCount)")
                                         .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(.white)
+                                        .foregroundColor(DesignTokens.Colors.textPrimary)
                                 )
                         }
                     }
@@ -555,7 +544,7 @@ struct ConversationRowView: View {
             .padding(DesignTokens.Spacing.md)
             .background(
                 RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
-                    .fill(DesignTokens.Colors.glassOverlay)
+                    .fill(DesignTokens.Colors.fillPrimary)
             )
         }
         .buttonStyle(PlainButtonStyle())
@@ -590,11 +579,11 @@ struct MessageBubbleView: View {
             VStack(alignment: isFromCurrentUser ? .trailing : .leading, spacing: 4) {
                 Text(message.content)
                     .font(DesignTokens.Typography.body)
-                    .foregroundColor(isFromCurrentUser ? .white : DesignTokens.Colors.textPrimary)
+                    .foregroundColor(isFromCurrentUser ? DesignTokens.Colors.textPrimary : DesignTokens.Colors.textPrimary)
                     .padding(DesignTokens.Spacing.md)
                     .background(
                         RoundedRectangle(cornerRadius: DesignTokens.Radius.lg)
-                            .fill(isFromCurrentUser ? DesignTokens.Colors.primary : DesignTokens.Colors.glassOverlay)
+                            .fill(isFromCurrentUser ? DesignTokens.Colors.primary : DesignTokens.Colors.fillPrimary)
                     )
                 
                 Text(timeString(from: message.timestamp))

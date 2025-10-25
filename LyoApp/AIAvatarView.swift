@@ -30,7 +30,7 @@ struct AIAvatarView: View {
                         appState.dismissAvatar()
                         dismiss()
                     }
-                    .foregroundColor(DesignTokens.Colors.primary)
+                    .foregroundColor(DesignTokens.Colors.textPrimary)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -38,7 +38,7 @@ struct AIAvatarView: View {
                         showingSettings = true
                     } label: {
                         Image(systemName: "gearshape")
-                            .foregroundColor(DesignTokens.Colors.primary)
+                            .foregroundColor(DesignTokens.Colors.textPrimary)
                     }
                 }
             }
@@ -70,7 +70,7 @@ struct AIAvatarView: View {
                 if avatarService.isLoading {
                     ProgressView()
                         .scaleEffect(0.8)
-                        .tint(DesignTokens.Colors.primary)
+                        .tint(DesignTokens.Colors.textPrimary)
                 }
             }
             .padding(.horizontal, DesignTokens.Spacing.lg)
@@ -94,7 +94,7 @@ struct AIAvatarView: View {
             // Avatar Circle
             ZStack {
                 Circle()
-                    .fill(DesignTokens.Colors.primaryGradient)
+                    .fill(DesignTokens.Gradients.primary)
                     .frame(width: 120, height: 120)
                     .shadow(color: DesignTokens.Colors.primary.opacity(0.3), radius: 20, x: 0, y: 0)
                 
@@ -121,19 +121,19 @@ struct AIAvatarView: View {
                 
                 // Avatar Icon
                 Image(systemName: "sparkles")
-                    .font(.system(size: 40, weight: .bold))
-                    .foregroundColor(.white)
+                    .font(DesignTokens.font.largeTitle)
+                    .foregroundColor(DesignTokens.Colors.textPrimary)
                     .shadow(color: DesignTokens.Colors.neonBlue.opacity(0.5), radius: 10)
             }
             
             // Avatar Name and Status
             VStack(spacing: 4) {
                 Text("Lyo")
-                    .font(DesignTokens.Typography.title2)
+                    .font(DesignTokens.font.title2)
                     .foregroundColor(DesignTokens.Colors.textPrimary)
                 
                 Text(avatarStateText)
-                    .font(DesignTokens.Typography.caption)
+                    .font(DesignTokens.font.caption)
                     .foregroundColor(DesignTokens.Colors.textSecondary)
             }
         }
@@ -182,15 +182,19 @@ struct AIAvatarView: View {
             // Message Input
             HStack(spacing: DesignTokens.Spacing.sm) {
                 TextField("Ask Lyo anything...", text: $messageText)
-                    .textFieldStyle(.roundedBorder)
+                    .font(DesignTokens.font.body)
+                    .padding()
+                    .background(DesignTokens.Colors.backgroundSecondary)
+                    .cornerRadius(DesignTokens.Radius.lg)
+                    .foregroundColor(DesignTokens.Colors.textPrimary)
                     .disabled(avatarService.isLoading || !avatarService.isConnected)
                 
                 Button {
                     sendMessage()
                 } label: {
                     Image(systemName: "paperplane.fill")
-                        .font(.title2)
-                        .foregroundColor(.white)
+                        .font(DesignTokens.font.title2)
+                        .foregroundColor(DesignTokens.Colors.textPrimary)
                         .frame(width: 44, height: 44)
                         .background(messageText.isEmpty ? DesignTokens.Colors.textSecondary : DesignTokens.Colors.primary)
                         .clipShape(Circle())
@@ -364,39 +368,39 @@ struct ChatBubbleView: View {
                 
                 VStack(alignment: .trailing, spacing: 4) {
                     Text(message.text)
-                        .font(DesignTokens.Typography.body)
-                        .foregroundColor(.white)
+                        .font(DesignTokens.font.body)
+                        .foregroundColor(DesignTokens.Colors.textPrimary)
                         .padding(DesignTokens.Spacing.md)
                         .background(DesignTokens.Colors.primary)
                         .cornerRadius(DesignTokens.Radius.lg)
                     
                     Text(message.timestamp, style: .time)
-                        .font(DesignTokens.Typography.caption2)
+                        .font(DesignTokens.font.caption2)
                         .foregroundColor(DesignTokens.Colors.textSecondary)
                 }
             } else {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(message.text)
-                        .font(DesignTokens.Typography.body)
+                        .font(DesignTokens.font.body)
                         .foregroundColor(DesignTokens.Colors.textPrimary)
                         .padding(DesignTokens.Spacing.md)
-                        .background(DesignTokens.Colors.glassBg)
+                        .background(DesignTokens.Colors.backgroundSecondary)
                         .cornerRadius(DesignTokens.Radius.lg)
                         .overlay(
                             RoundedRectangle(cornerRadius: DesignTokens.Radius.lg)
-                                .stroke(DesignTokens.Colors.glassBorder, lineWidth: 1)
+                                .stroke(DesignTokens.Colors.backgroundSecondary, lineWidth: 1)
                         )
                     
                     HStack {
                         Text(message.timestamp, style: .time)
-                            .font(DesignTokens.Typography.caption2)
+                            .font(DesignTokens.font.caption2)
                             .foregroundColor(DesignTokens.Colors.textSecondary)
                         
                         // Show detected topics if available
                         if let topics = message.detectedTopics, !topics.isEmpty {
                             ForEach(topics.prefix(2), id: \.self) { topic in
                                 Text(topic)
-                                    .font(DesignTokens.Typography.caption2)
+                                    .font(DesignTokens.font.caption2)
                                     .foregroundColor(DesignTokens.Colors.primary)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
@@ -423,12 +427,12 @@ struct AIQuickActionButton: View {
         Button(action: action) {
             HStack(spacing: DesignTokens.Spacing.xs) {
                 Image(systemName: icon)
-                    .font(.system(size: 16))
+                    .font(DesignTokens.font.body)
                 
                 Text(title)
-                    .font(DesignTokens.Typography.caption)
+                    .font(DesignTokens.font.caption)
             }
-            .foregroundColor(DesignTokens.Colors.primary)
+            .foregroundColor(DesignTokens.Colors.textPrimary)
             .padding(.horizontal, DesignTokens.Spacing.md)
             .padding(.vertical, DesignTokens.Spacing.sm)
             .background(DesignTokens.Colors.primary.opacity(0.1))
@@ -452,9 +456,9 @@ struct AvatarSettingsView: View {
                         ForEach(AvatarPersona.allCases, id: \.self) { persona in
                             VStack(alignment: .leading) {
                                 Text(persona.displayName)
-                                    .font(DesignTokens.Typography.bodyMedium)
+                                    .font(DesignTokens.font.body)
                                 Text(persona.description)
-                                    .font(DesignTokens.Typography.caption)
+                                    .font(DesignTokens.font.caption)
                                     .foregroundColor(DesignTokens.Colors.textSecondary)
                             }
                             .tag(persona)
@@ -468,9 +472,9 @@ struct AvatarSettingsView: View {
                         ForEach(LearningStyle.allCases, id: \.self) { style in
                             VStack(alignment: .leading) {
                                 Text(style.displayName)
-                                    .font(DesignTokens.Typography.bodyMedium)
+                                    .font(DesignTokens.font.body)
                                 Text(style.description)
-                                    .font(DesignTokens.Typography.caption)
+                                    .font(DesignTokens.font.caption)
                                     .foregroundColor(DesignTokens.Colors.textSecondary)
                             }
                             .tag(style)

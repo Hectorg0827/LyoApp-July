@@ -196,41 +196,157 @@ async def get_avatar_context():
 
 @app.post("/api/v1/ai/avatar/message")
 async def send_avatar_message(request: AvatarMessageRequest):
-    """Send message to AI avatar"""
+    """Send message to AI avatar - intelligently determines if user wants a course or explanation"""
     if not GEMINI_API_KEY or GEMINI_API_KEY == "your-gemini-api-key-here":
         # Fallback response
         import time
-        return AvatarMessageResponse(
-            text=f"I received your message: '{request.message}'. However, Gemini AI is not configured. Please add your API key to .env file.",
-            timestamp=time.time(),
-            detected_topics=["ai", "configuration"]
-        )
+        return {
+            "responseType": "explanation",
+            "content": f"I received your message: '{request.message}'. However, Gemini AI is not configured. Please add your API key to .env file."
+        }
     
     try:
         import time
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        import uuid
+        from datetime import datetime
         
-        prompt = f"""You are Lyo, a friendly AI learning assistant. Respond to this student message in a helpful, encouraging way (keep it under 100 words):
+        user_message = request.message.lower()
+        
+        # Intent Detection: Check if user wants a full course
+        course_intent_keywords = [
+            "course on", "teach me about", "create a course", "make a course",
+            "i want to learn", "full course", "complete course", "comprehensive course",
+            "build a course", "generate a course"
+        ]
+        
+        wants_course = any(keyword in user_message for keyword in course_intent_keywords)
+        
+        if wants_course:
+            # --- COURSE GENERATION INTENT ---
+            print(f"🎓 Course generation intent detected: {request.message}")
+            
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            
+            # Extract topic from message
+            topic_prompt = f"""Extract the main learning topic from this message. Return ONLY the topic name, nothing else:
+Message: {request.message}
+Topic:"""
+            
+            topic_response = model.generate_content(topic_prompt)
+            topic = topic_response.text.strip().strip('"').strip("'")
+            
+            # Generate course outline
+            course_prompt = f"""Generate a detailed course outline for: "{topic}"
+
+Please provide exactly 5 lessons. For each lesson provide:
+- Title
+- Description (2-3 sentences)
+- 3-5 key topics
+- 3-5 activities
+- 2-3 learning outcomes
+
+Format your response as:
+LESSON 1:
+Title: [lesson title]
+Description: [lesson description]
+Topics: [topic1], [topic2], [topic3]
+Activities: [activity1], [activity2], [activity3]
+Outcomes: [outcome1], [outcome2]
+
+LESSON 2:
+...
+"""
+            
+            course_response = model.generate_content(course_prompt)
+            text = course_response.text
+            
+            # Parse lessons
+            lessons = []
+            current_lesson = {}
+            
+            for line in text.strip().split('\n'):
+                line = line.strip()
+                if line.startswith("LESSON"):
+                    if current_lesson:
+                        lessons.append(current_lesson)
+                    current_lesson = {}
+                elif line.startswith("Title:"):
+                    current_lesson['title'] = line.replace("Title:", "").strip()
+                elif line.startswith("Description:"):
+                    current_lesson['description'] = line.replace("Description:", "").strip()
+                elif line.startswith("Topics:"):
+                    topics_str = line.replace("Topics:", "").strip()
+                    current_lesson['topics'] = [t.strip() for t in topics_str.split(',')]
+                elif line.startswith("Activities:"):
+                    activities_str = line.replace("Activities:", "").strip()
+                    current_lesson['activities'] = [a.strip() for a in activities_str.split(',')]
+                elif line.startswith("Outcomes:"):
+                    outcomes_str = line.replace("Outcomes:", "").strip()
+                    current_lesson['outcomes'] = [o.strip() for o in outcomes_str.split(',')]
+            
+            if current_lesson:
+                lessons.append(current_lesson)
+            
+            # Create course structure
+            course_id = str(uuid.uuid4())
+            course_lessons = []
+            
+            for i, lesson in enumerate(lessons[:5]):
+                course_lessons.append({
+                    "id": str(uuid.uuid4()),
+                    "title": lesson.get('title', f'{topic} - Lesson {i+1}'),
+                    "description": lesson.get('description', 'Learn key concepts'),
+                    "topics": lesson.get('topics', ['Topic 1', 'Topic 2']),
+                    "duration": 30,
+                    "order": i
+                })
+            
+            course_data = {
+                "id": course_id,
+                "title": f"Introduction to {topic.title()}",
+                "description": f"A comprehensive course on {topic}",
+                "lessons": course_lessons,
+                "difficulty": "intermediate",
+                "estimatedHours": 5,
+                "author": "Lyo AI",
+                "createdAt": datetime.utcnow().isoformat() + "Z"
+            }
+            
+            print(f"✅ Course generated: {course_data['title']}")
+            
+            return {
+                "responseType": "course_generated",
+                "course": course_data
+            }
+            
+        else:
+            # --- SIMPLE EXPLANATION INTENT ---
+            print(f"💬 Explanation intent detected: {request.message}")
+            
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            
+            prompt = f"""You are Lyo, a friendly AI learning assistant. Provide a clear, helpful explanation to this question (keep it under 150 words):
 
 Student: {request.message}
 
 Your response:"""
-        
-        response = model.generate_content(prompt)
-        
-        return AvatarMessageResponse(
-            text=response.text.strip(),
-            timestamp=time.time(),
-            detected_topics=None
-        )
+            
+            response = model.generate_content(prompt)
+            
+            return {
+                "responseType": "explanation",
+                "content": response.text.strip()
+            }
+            
     except Exception as e:
         import time
         print(f"❌ Error in avatar message: {e}")
-        return AvatarMessageResponse(
-            text=f"I'm here to help! I received: '{request.message}'",
-            timestamp=time.time(),
-            detected_topics=None
-        )
+        import traceback
+        traceback.print_exc()
+        return {
+            "responseType": "explanation",
+            "content": f"I'm here to help! I received: '{request.message}'"
+        }
 
 @app.post("/api/v1/ai/generate-course")
 @app.post("/api/v1/ai/curriculum/course-outline")

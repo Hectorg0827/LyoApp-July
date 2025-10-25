@@ -1,73 +1,7 @@
 import SwiftUI
-
-// MARK: - Core Data Models
-struct FeedItem: Identifiable {
-    let id: UUID
-    let creator: User  // Changed from Creator to canonical User model
-    let contentType: FeedContentType
-    let timestamp: Date
-    var engagement: EngagementMetrics
-    let duration: TimeInterval?
-}
-
-struct EngagementMetrics {
-    var likes: Int
-    var comments: Int
-    var shares: Int
-    var saves: Int
-    var isLiked: Bool
-    var isSaved: Bool
-}
-
-struct VideoContent {
-    let url: URL
-    let thumbnailURL: URL
-    let title: String
-    let description: String
-    let quality: VideoQuality
-    let duration: TimeInterval
-}
-
-enum FeedContentType {
-    case video(VideoContent)
-    case article(ArticleContent)
-    case product(ProductContent)
-    
-    // Access duration based on content type
-    var duration: TimeInterval? {
-        switch self {
-        case .video(_):
-            // Videos have fixed durations
-            return 120.0 // Default 2 minutes if not specified
-        case .article(let articleContent):
-            // Articles have read times
-            return articleContent.readTime
-        case .product:
-            // Products don't have durations
-            return nil
-        }
-    }
-}
-
-enum VideoQuality: CaseIterable {
-    case sd, hd, uhd
-}
-
-struct ArticleContent {
-    let title: String
-    let excerpt: String
-    let content: String
-    let heroImageURL: URL?
-    let readTime: TimeInterval
-}
-
-struct ProductContent {
-    let title: String
-    let price: String
-    let images: [URL]
-    let model3DURL: URL?
-    let description: String
-}
+#if canImport(NukeUI)
+import NukeUI
+#endif
 
 // MARK: - Safe Array Subscript Extension
 extension Array {
@@ -93,9 +27,13 @@ class FeedManager: ObservableObject, FeedDataProvider {
     @Published var errorMessage: String?
 
     init() {
-        // Initialize with immediate demo content to prevent blank screen
-        generateDemoContent()
-        print("📱 FeedManager initialized with \(feedItems.count) demo items")
+        // Initialize with immediate demo content to prevent blank screen if using mock data
+        if DevelopmentConfig.useMockData {
+            generateDemoContent()
+            print("📱 FeedManager initialized with \(feedItems.count) demo items")
+        } else {
+            print("📱 FeedManager initialized - will load from backend")
+        }
     }
     
     private func generateDemoContent() {
@@ -202,8 +140,73 @@ class FeedManager: ObservableObject, FeedDataProvider {
         
         print("📱 Feed: Starting to load feed from backend...")
         
-        // Keep existing demo content, just mark as loaded
-        print("📱 Feed: Load complete. Using demo content. Total items: \(feedItems.count)")
+        // Check if we should use mock data
+        if DevelopmentConfig.useMockData {
+            generateDemoContent()
+            print("📱 Feed: Using demo content. Total items: \(feedItems.count)")
+            return
+        }
+        
+        do {
+            // First, check if backend is available
+            let apiClient = APIClient.shared
+            
+            // Try to load real feed data from your backend
+            let feedResponse: FeedResponse = try await apiClient.loadFeed()
+            
+            // The APIClient now returns canonical FeedItem models directly
+            feedItems = feedResponse.posts
+            
+            print("✅ Feed: Successfully loaded \(feedItems.count) items from backend")
+            
+        } catch {
+            print("❌ Feed: Failed to load from backend: \(error.localizedDescription)")
+            print("📱 Feed: Falling back to demo content")
+            
+            // Fallback to demo content if backend fails
+            generateDemoContent()
+            errorMessage = "Could not connect to server. Showing demo content."
+        }
+    }
+    
+    // Helper function to map backend content to app content
+    private func mapBackendContentType(_ backendItem: FeedItemResponse) -> FeedContentType {
+        switch backendItem.type.lowercased() {
+        case "video":
+            return .video(VideoContent(
+                url: URL(string: backendItem.mediaUrl ?? "") ?? URL(fileURLWithPath: ""),
+                thumbnailURL: URL(string: backendItem.thumbnailUrl ?? "") ?? URL(fileURLWithPath: ""),
+                title: backendItem.title,
+                description: backendItem.content ?? "",
+                quality: .hd,
+                duration: 120 // Placeholder, consider adding to backend model
+            ))
+        case "article":
+            return .article(ArticleContent(
+                title: backendItem.title,
+                excerpt: backendItem.content ?? "",
+                content: backendItem.content ?? "",
+                heroImageURL: URL(string: backendItem.thumbnailUrl ?? ""),
+                readTime: 300 // Placeholder
+            ))
+        case "product":
+            return .product(ProductContent(
+                title: backendItem.title,
+                price: "$0.00", // Placeholder
+                images: [URL(string: backendItem.thumbnailUrl ?? "")].compactMap { $0 },
+                model3DURL: nil,
+                description: backendItem.content ?? ""
+            ))
+        default:
+            // Fallback to article for any unknown type
+            return .article(ArticleContent(
+                title: backendItem.title,
+                excerpt: backendItem.content ?? "Unsupported content type",
+                content: backendItem.content ?? "",
+                heroImageURL: URL(string: backendItem.thumbnailUrl ?? ""),
+                readTime: 300 // Placeholder
+            ))
+        }
     }
     
     // MARK: - Feed Interactions (Simplified)
@@ -333,102 +336,182 @@ class FeedbackManager: ObservableObject {
 
 // MARK: - Content Views (Moved above immersiveContentView for SwiftUI scoping)
 private func tikTokStyleVideoView(videoContent: VideoContent, geometry: GeometryProxy) -> some View {
-    AsyncImage(url: videoContent.thumbnailURL) { image in
-        image
-            .resizable()
-            .aspectRatio(contentMode: .fill)
-            .frame(width: geometry.size.width, height: geometry.size.height)
-            .clipped()
-    } placeholder: {
-        Rectangle()
-            .fill(
-                LinearGradient(
-                    colors: [.gray.opacity(0.3), .black.opacity(0.6)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
-            .frame(width: geometry.size.width, height: geometry.size.height)
-            .overlay(
-                VStack(spacing: 8) {
-                    Image(systemName: "play.circle.fill")
-                        .font(.system(size: 64))
-                        .foregroundColor(.white.opacity(0.8))
+    #if canImport(NukeUI)
+    LazyImage(url: videoContent.thumbnailURL) { state in
+        if let image = state.image {
+            image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .clipped()
+        } else {
+            Rectangle()
+                .fill(DesignTokens.Colors.subtleGradient)
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .overlay(
+                    VStack(spacing: DesignTokens.Spacing.md) {
+                        Image(systemName: "play.circle.fill")
+                            .font(DesignTokens.font.largeTitle)
+                            .foregroundColor(DesignTokens.Colors.textPrimary.opacity(0.8))
+                            .shadow(radius: DesignTokens.Spacing.sm)
 
-                    Text("Video Content")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(.white)
-                }
-            )
+                        Text("Video Content")
+                            .font(DesignTokens.Typography.titleMedium)
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
+                    }
+                )
+        }
     }
+    #else
+    AsyncImage(url: videoContent.thumbnailURL) { phase in
+        switch phase {
+        case .success(let image):
+            image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .clipped()
+        default:
+            Rectangle()
+                .fill(DesignTokens.Colors.subtleGradient)
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .overlay(
+                    VStack(spacing: DesignTokens.Spacing.md) {
+                        Image(systemName: "play.circle.fill")
+                            .font(DesignTokens.font.largeTitle)
+                            .foregroundColor(DesignTokens.Colors.textPrimary.opacity(0.8))
+                            .shadow(radius: DesignTokens.Spacing.sm)
+
+                        Text("Video Content")
+                            .font(DesignTokens.Typography.titleMedium)
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
+                    }
+                )
+        }
+    }
+    #endif
+    .accessibilityLabel("Video content: \(videoContent.title)")
+    .accessibilityHint("Double tap to play the video.")
 }
 
 private func tikTokStyleArticleView(articleContent: ArticleContent, geometry: GeometryProxy) -> some View {
     VStack(spacing: 0) {
-        AsyncImage(url: articleContent.heroImageURL) { image in
-            image
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(height: geometry.size.height * 0.7)
-                .clipped()
-        } placeholder: {
-            Rectangle()
-                .fill(
-                    LinearGradient(
-                        colors: [.blue.opacity(0.3), .purple.opacity(0.5)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(height: geometry.size.height * 0.7)
-                .overlay(
-                    VStack(spacing: 8) {
-                        Image(systemName: "doc.text.fill")
-                            .font(.system(size: 48))
-                            .foregroundColor(.white.opacity(0.8))
+        #if canImport(NukeUI)
+        LazyImage(url: articleContent.heroImageURL) { state in
+            if let image = state.image {
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(height: geometry.size.height * 0.7)
+                    .clipped()
+            } else {
+                Rectangle()
+                    .fill(DesignTokens.Colors.cosmicGradient)
+                    .frame(height: geometry.size.height * 0.7)
+                    .overlay(
+                        VStack(spacing: DesignTokens.Spacing.md) {
+                            Image(systemName: "doc.text.fill")
+                                .font(DesignTokens.font.largeTitle)
+                                .foregroundColor(DesignTokens.Colors.textPrimary.opacity(0.8))
 
-                        Text("Article Content")
-                            .font(.system(size: 18, weight: .medium))
-                            .foregroundColor(.white)
-                    }
-                )
+                            Text("Article Content")
+                                .font(DesignTokens.Typography.titleMedium)
+                                .foregroundColor(DesignTokens.Colors.textSecondary)
+                        }
+                    )
+            }
         }
+        #else
+        AsyncImage(url: articleContent.heroImageURL) { phase in
+            switch phase {
+            case .success(let image):
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(height: geometry.size.height * 0.7)
+                    .clipped()
+            default:
+                Rectangle()
+                    .fill(DesignTokens.Colors.cosmicGradient)
+                    .frame(height: geometry.size.height * 0.7)
+                    .overlay(
+                        VStack(spacing: DesignTokens.Spacing.md) {
+                            Image(systemName: "doc.text.fill")
+                                .font(DesignTokens.font.largeTitle)
+                                .foregroundColor(DesignTokens.Colors.textPrimary.opacity(0.8))
+
+                            Text("Article Content")
+                                .font(DesignTokens.Typography.titleMedium)
+                                .foregroundColor(DesignTokens.Colors.textSecondary)
+                        }
+                    )
+            }
+        }
+        #endif
 
         Rectangle()
-            .fill(Color.black.opacity(0.8))
+            .fill(DesignTokens.Colors.backgroundPrimary.opacity(0.8))
             .frame(height: geometry.size.height * 0.3)
     }
+    .accessibilityLabel("Article: \(articleContent.title)")
+    .accessibilityHint("Swipe up to read the full article.")
 }
 
 private func tikTokStyleProductView(productContent: ProductContent, geometry: GeometryProxy) -> some View {
-    AsyncImage(url: productContent.images.first) { image in
-        image
-            .resizable()
-            .aspectRatio(contentMode: .fill)
-            .frame(width: geometry.size.width, height: geometry.size.height)
-            .clipped()
-    } placeholder: {
-        Rectangle()
-            .fill(
-                LinearGradient(
-                    colors: [.green.opacity(0.3), .teal.opacity(0.5)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
-            .frame(width: geometry.size.width, height: geometry.size.height)
-            .overlay(
-                VStack(spacing: 8) {
-                    Image(systemName: "bag.fill")
-                        .font(.system(size: 48))
-                        .foregroundColor(.white.opacity(0.8))
+    #if canImport(NukeUI)
+    LazyImage(url: productContent.images.first) { state in
+        if let image = state.image {
+            image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .clipped()
+        } else {
+            Rectangle()
+                .fill(DesignTokens.Colors.neonGradient)
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .overlay(
+                    VStack(spacing: DesignTokens.Spacing.md) {
+                        Image(systemName: "bag.fill")
+                            .font(DesignTokens.font.largeTitle)
+                            .foregroundColor(DesignTokens.Colors.textPrimary.opacity(0.8))
 
-                    Text("Product Content")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(.white)
-                }
-            )
+                        Text("Product For Sale")
+                            .font(DesignTokens.Typography.titleMedium)
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
+                    }
+                )
+        }
     }
+    #else
+    AsyncImage(url: productContent.images.first) { phase in
+        switch phase {
+        case .success(let image):
+            image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .clipped()
+        default:
+            Rectangle()
+                .fill(DesignTokens.Colors.neonGradient)
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .overlay(
+                    VStack(spacing: DesignTokens.Spacing.md) {
+                        Image(systemName: "bag.fill")
+                            .font(DesignTokens.font.largeTitle)
+                            .foregroundColor(DesignTokens.Colors.textPrimary.opacity(0.8))
+
+                        Text("Product For Sale")
+                            .font(DesignTokens.Typography.titleMedium)
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
+                    }
+                )
+        }
+    }
+    #endif
+    .accessibilityLabel("Product: \(productContent.title)")
+    .accessibilityHint("Double tap to view product details.")
 }
 struct HomeFeedView: View {
     @EnvironmentObject var appState: AppState
@@ -444,61 +527,34 @@ struct HomeFeedView: View {
 
     // MARK: - Immersive Content View (Main Feed)
     private var immersiveContentView: some View {
-        GeometryReader { geometry in
-            if feedManager.isLoading {
-                // Loading state
-                ZStack {
-                    Color.black
-                    VStack(spacing: 20) {
-                        ProgressView()
-                            .scaleEffect(1.5)
-                            .tint(.white)
-                        
-                        Text("Loading content...")
-                            .font(.system(size: 18, weight: .medium))
-                            .foregroundColor(.white)
+        TabView(selection: $selectedIndex) {
+            ForEach(Array(feedManager.feedItems.enumerated()), id: \.element.id) { index, item in
+                LazyRenderView {
+                    GeometryReader { geometry in
+                        feedContent(for: item, geometry: geometry)
                     }
                 }
-            } else if feedManager.feedItems.isEmpty {
-                // Empty state
-                ZStack {
-                    Color.black
-                    VStack(spacing: 20) {
-                        Image(systemName: "video.circle")
-                            .font(.system(size: 64))
-                            .foregroundColor(.white.opacity(0.6))
-                        
-                        Text("No content available")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundColor(.white)
-                        
-                        Text("Check back later for new content")
-                            .font(.system(size: 16))
-                            .foregroundColor(.white.opacity(0.7))
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding()
-                }
-            } else {
-                // Content state
-                let item = feedManager.feedItems[safe: selectedIndex]
-                switch item?.contentType {
-                case .video(let videoContent):
-                    tikTokStyleVideoView(videoContent: videoContent, geometry: geometry)
-                case .article(let articleContent):
-                    tikTokStyleArticleView(articleContent: articleContent, geometry: geometry)
-                case .product(let productContent):
-                    tikTokStyleProductView(productContent: productContent, geometry: geometry)
-                case .none:
-                    // Fallback for invalid index
-                    ZStack {
-                        Color.black
-                        Text("Loading next content...")
-                            .font(.system(size: 16))
-                            .foregroundColor(.white.opacity(0.7))
-                    }
-                }
+                .tag(index)
             }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .background(Color.black)
+        .ignoresSafeArea()
+        .onChange(of: selectedIndex) { _ in
+            feedbackManager.cardSwipe()
+            feedManager.preloadNextVideo(at: selectedIndex)
+        }
+    }
+
+    @ViewBuilder
+    private func feedContent(for item: FeedItem, geometry: GeometryProxy) -> some View {
+        switch item.contentType {
+        case .video(let videoContent):
+            tikTokStyleVideoView(videoContent: videoContent, geometry: geometry)
+        case .article(let articleContent):
+            tikTokStyleArticleView(articleContent: articleContent, geometry: geometry)
+        case .product(let productContent):
+            tikTokStyleProductView(productContent: productContent, geometry: geometry)
         }
     }
 
@@ -506,97 +562,105 @@ struct HomeFeedView: View {
     private var overlayUIElements: some View {
         ZStack {
             VStack(spacing: 0) {
-                // Use shared HeaderView for header (temporarily using original)
+                // Use shared HeaderView for header
                 HeaderView()
-                    .padding(.top, 44)
+                    .padding(.top, appState.isVisionPro ? 0 : 44)
 
                 Spacer()
 
                 // Social media overlay for reel
                 HStack(alignment: .bottom) {
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                         // Video title and username
                         if let item = feedManager.feedItems[safe: selectedIndex] {
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                                 Text("@\(item.creator.username)")
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(.white.opacity(0.9))
+                                    .font(DesignTokens.Typography.labelLarge)
+                                    .foregroundColor(DesignTokens.Colors.textPrimary.opacity(0.9))
+                                    .textReadability()
                                 
                                 Text(contentDescription(for: item))
-                                    .font(.system(size: 16, weight: .medium))
-                                    .foregroundColor(.white)
+                                    .font(DesignTokens.Typography.bodyLarge)
+                                    .foregroundColor(DesignTokens.Colors.textPrimary)
                                     .lineLimit(3)
                                     .multilineTextAlignment(.leading)
+                                    .textReadability()
                             }
-                            .padding(.bottom, 8)
+                            .padding(.bottom, DesignTokens.Spacing.sm)
                         }
                         
-                        // Social actions (made smaller)
-                        HStack(spacing: 20) {
+                        // Social actions
+                        HStack(spacing: DesignTokens.Spacing.lg) {
                             Button(action: { 
                                 if let item = feedManager.feedItems[safe: selectedIndex] {
                                     feedManager.toggleLike(for: item)
                                 }
                             }) {
                                 let item = feedManager.feedItems[safe: selectedIndex]
-                                VStack(spacing: 4) {
+                                VStack(spacing: DesignTokens.Spacing.xs) {
                                     Image(systemName: item?.engagement.isLiked == true ? "heart.fill" : "heart")
-                                        .font(.system(size: 24))
-                                        .foregroundColor(item?.engagement.isLiked == true ? .red : .white)
+                                        .font(DesignTokens.font.title2)
+                                        .foregroundColor(item?.engagement.isLiked == true ? DesignTokens.Colors.error : DesignTokens.Colors.textPrimary)
+                                        .symbolEffect(.bounce, value: item?.engagement.isLiked)
                                     Text("\(item?.engagement.likes ?? 0)")
-                                        .font(.caption)
-                                        .foregroundColor(.white)
+                                        .font(DesignTokens.Typography.caption)
+                                        .foregroundColor(DesignTokens.Colors.textSecondary)
                                 }
                             }
+                            .accessibilityLabel(Text("Like button, \(feedManager.feedItems[safe: selectedIndex]?.engagement.likes ?? 0) likes"))
                             
                             Button(action: { 
                                 feedbackManager.cardSwipe()
                                 showChatOverlay.toggle()
                             }) {
-                                VStack(spacing: 4) {
+                                VStack(spacing: DesignTokens.Spacing.xs) {
                                     Image(systemName: "bubble.right")
-                                        .font(.system(size: 24))
-                                        .foregroundColor(.white)
+                                        .font(DesignTokens.font.title2)
+                                        .foregroundColor(DesignTokens.Colors.textPrimary)
                                     Text("\(feedManager.feedItems[safe: selectedIndex]?.engagement.comments ?? 0)")
-                                        .font(.caption)
-                                        .foregroundColor(.white)
+                                        .font(DesignTokens.Typography.caption)
+                                        .foregroundColor(DesignTokens.Colors.textSecondary)
                                 }
                             }
-                            
+                            .accessibilityLabel(Text("Comments button, \(feedManager.feedItems[safe: selectedIndex]?.engagement.comments ?? 0) comments"))
+
                             Button(action: { 
                                 if let item = feedManager.feedItems[safe: selectedIndex] {
                                     feedManager.toggleSave(for: item)
                                 }
                             }) {
                                 let item = feedManager.feedItems[safe: selectedIndex]
-                                VStack(spacing: 4) {
+                                VStack(spacing: DesignTokens.Spacing.xs) {
                                     Image(systemName: item?.engagement.isSaved == true ? "bookmark.fill" : "bookmark")
-                                        .font(.system(size: 24))
-                                        .foregroundColor(item?.engagement.isSaved == true ? .yellow : .white)
+                                        .font(DesignTokens.font.title2)
+                                        .foregroundColor(item?.engagement.isSaved == true ? DesignTokens.Colors.warning : DesignTokens.Colors.textPrimary)
+                                        .symbolEffect(.bounce, value: item?.engagement.isSaved)
                                     Text("\(item?.engagement.saves ?? 0)")
-                                        .font(.caption)
-                                        .foregroundColor(.white)
+                                        .font(DesignTokens.Typography.caption)
+                                        .foregroundColor(DesignTokens.Colors.textSecondary)
                                 }
                             }
+                            .accessibilityLabel(Text("Save button, \(feedManager.feedItems[safe: selectedIndex]?.engagement.saves ?? 0) saves"))
                             
                             Button(action: { 
                                 if let item = feedManager.feedItems[safe: selectedIndex] {
                                     feedManager.shareItem(item)
                                 }
                             }) {
-                                VStack(spacing: 4) {
+                                VStack(spacing: DesignTokens.Spacing.xs) {
                                     Image(systemName: "square.and.arrow.up")
-                                        .font(.system(size: 24))
-                                        .foregroundColor(.white)
+                                        .font(DesignTokens.font.title2)
+                                        .foregroundColor(DesignTokens.Colors.textPrimary)
                                     Text("Share")
-                                        .font(.caption)
-                                        .foregroundColor(.white)
+                                        .font(DesignTokens.Typography.caption)
+                                        .foregroundColor(DesignTokens.Colors.textSecondary)
                                 }
                             }
+                            .accessibilityLabel(Text("Share button"))
                         }
                     }
-                    .padding(.leading, 16)
-                    .padding(.bottom, 80)
+                    .padding(.leading, DesignTokens.Spacing.md)
+                    .padding(.bottom, appState.isVisionPro ? DesignTokens.Spacing.lg : 80)
                     Spacer()
                 }
             }
@@ -606,31 +670,37 @@ struct HomeFeedView: View {
             if showChatOverlay {
                 VStack {
                     Spacer()
-                    VStack(spacing: 12) {
-                        HStack(spacing: 8) {
+                    VStack(spacing: DesignTokens.Spacing.md) {
+                        HStack(spacing: DesignTokens.Spacing.sm) {
                             TextField("Type your message...", text: $chatText)
-                                .padding(12)
-                                .background(Color(.systemGray6))
-                                .cornerRadius(16)
-                                .font(.system(size: 16))
+                                .padding(DesignTokens.Spacing.md)
+                                .background(DesignTokens.Colors.neutral800)
+                                .cornerRadius(DesignTokens.Radius.lg)
+                                .font(DesignTokens.Typography.bodyMedium)
+                                .foregroundColor(DesignTokens.Colors.textPrimary)
+                            
                             Button(action: { 
                                 feedbackManager.buttonTap()
                                 print("🎤 Voice input action triggered")
                                 // TODO: Integrate with VoiceRecognizer
                             }) {
                                 Image(systemName: "mic.fill")
-                                    .font(.system(size: 22))
-                                    .foregroundColor(.blue)
+                                    .font(DesignTokens.font.title2)
+                                    .foregroundColor(DesignTokens.Colors.brand)
                             }
+                            .accessibilityLabel(Text("Voice input"))
+
                             Button(action: { 
                                 feedbackManager.buttonTap()
                                 print("📷 Camera/upload action triggered")
                                 // TODO: Present camera/photo picker
                             }) {
                                 Image(systemName: "camera.fill")
-                                    .font(.system(size: 22))
-                                    .foregroundColor(.blue)
+                                    .font(DesignTokens.font.title2)
+                                    .foregroundColor(DesignTokens.Colors.brand)
                             }
+                            .accessibilityLabel(Text("Upload image or video"))
+
                             Button(action: {
                                 feedbackManager.buttonTap()
                                 if !chatText.isEmpty {
@@ -639,17 +709,18 @@ struct HomeFeedView: View {
                                 }
                             }) {
                                 Image(systemName: "paperplane.fill")
-                                    .font(.system(size: 22))
-                                    .foregroundColor(.blue)
+                                    .font(DesignTokens.font.title2)
+                                    .foregroundColor(DesignTokens.Colors.brand)
                             }
+                            .accessibilityLabel(Text("Send message"))
                         }
                         .padding(.horizontal)
-                        .padding(.vertical, 8)
+                        .padding(.vertical, DesignTokens.Spacing.sm)
                         .background(BlurView(style: .systemMaterialDark))
-                        .cornerRadius(20)
-                        .shadow(radius: 8)
+                        .cornerRadius(DesignTokens.Radius.xl)
+                        .shadow(radius: DesignTokens.Spacing.sm)
                     }
-                    .padding(.bottom, 120) // Raised above nav bar
+                    .padding(.bottom, appState.isVisionPro ? DesignTokens.Spacing.xl : 120) // Raised above nav bar
                 }
                 .transition(.move(edge: .bottom))
                 .animation(.spring(), value: showChatOverlay)
@@ -671,29 +742,6 @@ struct HomeFeedView: View {
                 await feedManager.preload()
             }
         }
-        .gesture(
-            DragGesture()
-                .onEnded { value in
-                    let swipeThreshold: CGFloat = 100
-                    if value.translation.height > swipeThreshold {
-                        // Swipe down - previous item
-                        if selectedIndex > 0 {
-                            withAnimation(.spring()) {
-                                selectedIndex -= 1
-                            }
-                            feedbackManager.cardSwipe()
-                        }
-                    } else if value.translation.height < -swipeThreshold {
-                        // Swipe up - next item
-                        if selectedIndex < feedManager.feedItems.count - 1 {
-                            withAnimation(.spring()) {
-                                selectedIndex += 1
-                            }
-                            feedbackManager.cardSwipe()
-                        }
-                    }
-                }
-        )
         .onDisappear {
             feedManager.cleanup()
             uiDelayTimer?.invalidate()
@@ -702,42 +750,43 @@ struct HomeFeedView: View {
         .preferredColorScheme(.dark)
     }
 
-    // MARK: - Bottom Content Info (TikTok Style)
+    // MARK: - Bottom Content Info (TikTok Style) - DEPRECATED
+    // This view is no longer used in the main layout but kept for reference.
     private func bottomContentInfo(for item: FeedItem?) -> some View {
-        return VStack(alignment: .leading, spacing: 12) {
+        return VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
             // Creator info
-            HStack(spacing: 8) {
+            HStack(spacing: DesignTokens.Spacing.sm) {
                 Text(item?.creator.fullName ?? "Creator")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.white)
+                    .font(DesignTokens.Typography.titleMedium)
+                    .foregroundColor(DesignTokens.Colors.textPrimary)
 
                 if (item?.creator.level ?? 0) >= 3 { // Using level as a proxy for verification
                     Image(systemName: "checkmark.seal.fill")
-                        .font(.system(size: 14))
-                        .foregroundColor(.blue)
+                        .font(DesignTokens.Typography.body)
+                        .foregroundColor(DesignTokens.Colors.brand)
                 }
 
                 Button("Follow") {
                     feedbackManager.buttonTap()
                 }
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.white)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 6)
+                .font(DesignTokens.Typography.labelMedium)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
+                .padding(.horizontal, DesignTokens.Spacing.md)
+                .padding(.vertical, DesignTokens.Spacing.xs)
                 .background(
-                    RoundedRectangle(cornerRadius: 4)
-                        .stroke(Color.white, lineWidth: 1)
+                    RoundedRectangle(cornerRadius: DesignTokens.Radius.sm)
+                        .stroke(DesignTokens.Colors.textPrimary, lineWidth: 1)
                 )
             }
 
             // Content description
             Text(contentDescription(for: item))
-                .font(.system(size: 14))
-                .foregroundColor(.white)
+                .font(DesignTokens.Typography.body)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
         }
-        .padding(.horizontal, 4)
+        .padding(.horizontal, DesignTokens.Spacing.xs)
     }
     
     // MARK: - Helper Functions
@@ -750,7 +799,7 @@ struct HomeFeedView: View {
         case .article(let content):
             return content.excerpt
         case .product(let content):
-            return content.description
+                return content.description
         }
     }
 }

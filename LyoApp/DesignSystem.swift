@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(NukeUI)
+import NukeUI
+#endif
 
 // MARK: - Design System
 struct DesignSystem {
@@ -191,13 +194,28 @@ struct DesignSystem {
         var body: some View {
             Group {
                 if let imageURL = imageURL, !imageURL.isEmpty {
-                    AsyncImage(url: URL(string: imageURL)) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } placeholder: {
-                        avatarPlaceholder
+                    #if canImport(NukeUI)
+                    LazyImage(url: URL(string: imageURL)) { state in
+                        if let image = state.image {
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } else {
+                            avatarPlaceholder
+                        }
                     }
+                    #else
+                    AsyncImage(url: URL(string: imageURL)) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        default:
+                            avatarPlaceholder
+                        }
+                    }
+                    #endif
                 } else {
                     avatarPlaceholder
                 }

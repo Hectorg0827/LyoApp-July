@@ -221,6 +221,61 @@ class RealAPIService: ObservableObject {
         }
     }
     
+    // MARK: - Intelligent AI Chat
+    
+    /// Sends a message to the intelligent AI that can determine user intent
+    /// and return either an explanation or a generated course
+    func sendIntelligentAIMessage(message: String) async throws -> IntelligentAIResponse {
+        let request = ["message": message]
+        let response: IntelligentAIResponseDTO = try await performRequest(
+            endpoint: "/ai/avatar/message",
+            method: "POST",
+            body: request,
+            responseType: IntelligentAIResponseDTO.self
+        )
+        
+        // Convert DTO to domain model
+        switch response.responseType {
+        case "explanation":
+            return .explanation(response.content ?? "No response received")
+        case "course_generated":
+            if let courseDTO = response.course {
+                // Convert backend Course to app's Course model
+                let course = Course(
+                    id: UUID(uuidString: courseDTO.id) ?? UUID(),
+                    title: courseDTO.title,
+                    description: courseDTO.description,
+                    instructor: courseDTO.author,
+                    thumbnailURL: "", // Backend doesn't provide thumbnail yet
+                    duration: 28800, // 8 hours in seconds
+                    difficulty: .intermediate,
+                    category: "AI Generated",
+                    lessons: courseDTO.lessons.enumerated().map { (index, lessonDTO) in
+                        Lesson(
+                            id: UUID(uuidString: lessonDTO.id) ?? UUID(),
+                            title: lessonDTO.title,
+                            description: lessonDTO.content,
+                            videoURL: nil,
+                            duration: 1800, // 30 minutes in seconds
+                            isCompleted: false,
+                            order: index,
+                            resources: []
+                        )
+                    },
+                    progress: 0.0,
+                    isEnrolled: false,
+                    rating: 0.0,
+                    studentsCount: 0
+                )
+                return .courseGenerated(course)
+            } else {
+                return .explanation("Course was generated but details were not provided.")
+            }
+        default:
+            return .explanation("Unknown response type received.")
+        }
+    }
+    
     // MARK: - Token Management
     private func refreshToken() async throws {
         guard let refreshToken = KeychainManager.shared.retrieve(.refreshToken) else {
@@ -345,4 +400,34 @@ struct APIUserProfile: Codable {
     let profileImageURL: String?
 }
 
+// MARK: - Intelligent AI Response Models
+
+/// Response from the intelligent AI endpoint
+struct IntelligentAIResponseDTO: Codable {
+    let responseType: String
+    let content: String?
+    let course: CourseDTO?
+}
+
+/// Backend course structure
+struct CourseDTO: Codable {
+    let id: String
+    let title: String
+    let description: String
+    let lessons: [LessonDTO]
+    let author: String
+}
+
+/// Backend lesson structure
+struct LessonDTO: Codable {
+    let id: String
+    let title: String
+    let content: String
+}
+
+/// Domain model for intelligent AI responses
+enum IntelligentAIResponse {
+    case explanation(String)
+    case courseGenerated(Course)
+}
 

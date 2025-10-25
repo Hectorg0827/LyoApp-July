@@ -70,22 +70,11 @@ struct FeedItemCard: View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
             // Header with user info
             HStack(spacing: DesignTokens.Spacing.sm) {
-                AsyncImage(url: URL(string: item.author?.avatarUrl ?? "")) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    Circle()
-                        .fill(DesignTokens.Colors.primaryGradient)
-                        .overlay(
-                            Image(systemName: "person.fill")
-                                .foregroundColor(.white)
-                        )
-                }
-                .frame(width: 40, height: 40)
-                .clipShape(Circle())
+                OptimizedAsyncImage(url: URL(string: item.author?.avatarUrl ?? ""))
+                    .frame(width: 50, height: 50)
+                    .clipShape(Circle())
                 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading) {
                     Text(item.author?.displayName ?? "Anonymous")
                         .font(DesignTokens.Typography.titleSmall)
                         .foregroundColor(DesignTokens.Colors.textPrimary)
@@ -115,19 +104,10 @@ struct FeedItemCard: View {
             
             // Media (if any)
             if let mediaUrl = item.mediaUrl {
-                AsyncImage(url: URL(string: mediaUrl)) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .cornerRadius(DesignTokens.Radius.md)
-                } placeholder: {
-                    RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
-                        .fill(DesignTokens.Colors.glassBg)
-                        .frame(height: 200)
-                        .overlay(
-                            ProgressView()
-                        )
-                }
+                OptimizedAsyncImage(url: URL(string: mediaUrl))
+                    .aspectRatio(contentMode: .fit)
+                    .cornerRadius(DesignTokens.Radius.md)
+                    .frame(height: 200)
             }
             
             // Engagement buttons

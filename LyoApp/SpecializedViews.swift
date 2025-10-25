@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(NukeUI)
+import NukeUI
+#endif
 
 // MARK: - StoryCircle Component
 struct StoryCircle: View {
@@ -19,14 +22,30 @@ struct StoryCircle: View {
                             lineWidth: 3
                         )
                         .frame(width: 70, height: 70)
-                    AsyncImage(url: URL(string: story.author.profileImageURL ?? "https://picsum.photos/60/60")) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } placeholder: {
-                        Circle()
-                            .fill(DesignTokens.Colors.glassBg)
+                    #if canImport(NukeUI)
+                    LazyImage(url: URL(string: story.author.profileImageURL ?? "https://picsum.photos/60/60")) { state in
+                        if let image = state.image {
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } else {
+                            Circle()
+                                .fill(DesignTokens.Colors.glassBg)
+                        }
                     }
+                    #else
+                    AsyncImage(url: URL(string: story.author.profileImageURL ?? "https://picsum.photos/60/60")) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        default:
+                            Circle()
+                                .fill(DesignTokens.Colors.glassBg)
+                        }
+                    }
+                    #endif
                     .frame(width: 60, height: 60)
                     .clipShape(Circle())
                 }
@@ -291,15 +310,32 @@ struct StoryViewerView: View {
                     .frame(height: 400)
 
                 if story.mediaType == .image {
-                    AsyncImage(url: URL(string: story.mediaURL)) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(maxHeight: 380)
-                            .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.lg))
-                    } placeholder: {
-                        ProgressView()
+                    #if canImport(NukeUI)
+                    LazyImage(url: URL(string: story.mediaURL)) { state in
+                        if let image = state.image {
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(maxHeight: 380)
+                                .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.lg))
+                        } else {
+                            ProgressView()
+                        }
                     }
+                    #else
+                    AsyncImage(url: URL(string: story.mediaURL)) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(maxHeight: 380)
+                                .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.lg))
+                        default:
+                            ProgressView()
+                        }
+                    }
+                    #endif
                 } else if story.mediaType == .video {
                     // Placeholder for video (implement AVKit if needed)
                     VStack {
@@ -316,13 +352,28 @@ struct StoryViewerView: View {
             }
 
             HStack(spacing: DesignTokens.Spacing.sm) {
-                AsyncImage(url: URL(string: story.author.profileImageURL ?? "https://picsum.photos/40/40")) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    Circle().fill(DesignTokens.Colors.glassBg)
+                #if canImport(NukeUI)
+                LazyImage(url: URL(string: story.author.profileImageURL ?? "https://picsum.photos/40/40")) { state in
+                    if let image = state.image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } else {
+                        Circle().fill(DesignTokens.Colors.glassBg)
+                    }
                 }
+                #else
+                AsyncImage(url: URL(string: story.author.profileImageURL ?? "https://picsum.photos/40/40")) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    default:
+                        Circle().fill(DesignTokens.Colors.glassBg)
+                    }
+                }
+                #endif
                 .frame(width: 36, height: 36)
                 .clipShape(Circle())
 
@@ -368,30 +419,62 @@ struct EnhancedStoryViewer: View {
                 ZStack {
                     // Story Content
                     if let currentStory = stories[safe: currentIndex] {
-                        AsyncImage(url: URL(string: currentStory.mediaURL)) { image in
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: geometry.size.width, height: geometry.size.height)
-                                .clipped()
-                        } placeholder: {
-                            Rectangle()
-                                .fill(
-                                    LinearGradient(
-                                        colors: [
-                                            DesignTokens.Colors.primaryBg,
-                                            DesignTokens.Colors.secondaryBg
-                                        ],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
+                        #if canImport(NukeUI)
+                        LazyImage(url: URL(string: currentStory.mediaURL)) { state in
+                            if let image = state.image {
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: geometry.size.width, height: geometry.size.height)
+                                    .clipped()
+                            } else {
+                                Rectangle()
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [
+                                                DesignTokens.Colors.primaryBg,
+                                                DesignTokens.Colors.secondaryBg
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
                                     )
-                                )
-                                .overlay(
-                                    ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                        .scaleEffect(1.5)
-                                )
+                                    .overlay(
+                                        ProgressView()
+                                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                            .scaleEffect(1.5)
+                                    )
+                            }
                         }
+                        #else
+                        AsyncImage(url: URL(string: currentStory.mediaURL)) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: geometry.size.width, height: geometry.size.height)
+                                    .clipped()
+                            default:
+                                Rectangle()
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [
+                                                DesignTokens.Colors.primaryBg,
+                                                DesignTokens.Colors.secondaryBg
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .overlay(
+                                        ProgressView()
+                                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                            .scaleEffect(1.5)
+                                    )
+                            }
+                        }
+                        #endif
                         .onTapGesture { location in
                             let tapLocation = location.x
                             let screenWidth = geometry.size.width
@@ -502,14 +585,30 @@ struct EnhancedStoryViewer: View {
             
             // User info and controls
             HStack {
-                AsyncImage(url: URL(string: currentStory.author.profileImageURL ?? "")) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    Circle()
-                        .fill(Color.gray.opacity(0.3))
+                #if canImport(NukeUI)
+                LazyImage(url: URL(string: currentStory.author.profileImageURL ?? "")) { state in
+                    if let image = state.image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } else {
+                        Circle()
+                            .fill(Color.gray.opacity(0.3))
+                    }
                 }
+                #else
+                AsyncImage(url: URL(string: currentStory.author.profileImageURL ?? "")) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    default:
+                        Circle()
+                            .fill(Color.gray.opacity(0.3))
+                    }
+                }
+                #endif
                 .frame(width: 32, height: 32)
                 .clipShape(Circle())
                 .overlay(

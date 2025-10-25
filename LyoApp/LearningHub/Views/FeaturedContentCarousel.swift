@@ -10,7 +10,7 @@ struct FeaturedContentCarousel: View {
     // MARK: - Body
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 20) {
+            LazyHStack(spacing: 20) {
                 ForEach(content) { resource in
                     LearningResourceFeaturedCard(resource: resource)
                         .frame(width: 320)

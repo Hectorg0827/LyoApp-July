@@ -55,16 +55,7 @@ struct EnhancedStoryCreationView: View {
     var body: some View {
         ZStack {
             // Background gradient
-            LinearGradient(
-                colors: [
-                    Color.black,
-                    Color.purple.opacity(0.3),
-                    Color.blue.opacity(0.2)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            DesignTokens.Gradients.primary.ignoresSafeArea()
             
             VStack(spacing: 0) {
                 headerView
@@ -105,14 +96,14 @@ struct EnhancedStoryCreationView: View {
                 HapticManager.shared.light()
                 dismiss()
             }
-            .font(.system(size: 16, weight: .medium))
-            .foregroundColor(.white)
+            .font(DesignTokens.font.body)
+            .foregroundColor(DesignTokens.Colors.textPrimary)
             
             Spacer()
             
             Text("Create Story")
-                .font(.system(size: 18, weight: .bold))
-                .foregroundColor(.white)
+                .font(DesignTokens.font.headline)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
             
             Spacer()
             
@@ -120,7 +111,7 @@ struct EnhancedStoryCreationView: View {
                 HapticManager.shared.medium()
                 shareStory()
             }
-            .font(.system(size: 16, weight: .semibold))
+            .font(DesignTokens.font.body)
             .foregroundColor(DesignTokens.Colors.brand)
             .disabled(!storyCreator.canShare)
         }
@@ -150,8 +141,8 @@ struct EnhancedStoryCreationView: View {
     private var storyTypeSelector: some View {
         VStack(spacing: 15) {
             Text("Choose Story Type")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(.white.opacity(0.8))
+                .font(DesignTokens.font.headline)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 15) {
@@ -176,32 +167,32 @@ struct EnhancedStoryCreationView: View {
                 ZStack {
                     Circle()
                         .fill(
-                            selectedStoryType == type 
+                            selectedStoryType == type
                             ? type.color
-                            : Color.white.opacity(0.1)
+                            : DesignTokens.Colors.fillTertiary
                         )
                         .frame(width: 60, height: 60)
                         .overlay(
                             Circle()
                                 .strokeBorder(
-                                    selectedStoryType == type 
-                                    ? Color.white.opacity(0.3)
+                                    selectedStoryType == type
+                                    ? DesignTokens.Colors.strokePrimary.opacity(0.3)
                                     : Color.clear,
                                     lineWidth: 2
                                 )
                         )
                     
                     Image(systemName: type.icon)
-                        .font(.system(size: 24, weight: .semibold))
+                        .font(DesignTokens.font.title2)
                         .foregroundColor(
-                            selectedStoryType == type ? .white : .white.opacity(0.7)
+                            selectedStoryType == type ? DesignTokens.Colors.textPrimary : DesignTokens.Colors.textSecondary
                         )
                 }
                 
                 Text(type.title)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(DesignTokens.font.caption)
                     .foregroundColor(
-                        selectedStoryType == type ? .white : .white.opacity(0.6)
+                        selectedStoryType == type ? DesignTokens.Colors.textPrimary : DesignTokens.Colors.textSecondary
                     )
             }
         }
@@ -212,16 +203,16 @@ struct EnhancedStoryCreationView: View {
     // MARK: - Story Preview Area
     private var storyPreviewArea: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: DesignTokens.cornerRadius.large)
                 .fill(.ultraThinMaterial)
                 .frame(width: 200, height: 350)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 20)
+                    RoundedRectangle(cornerRadius: DesignTokens.cornerRadius.large)
                         .strokeBorder(
                             LinearGradient(
                                 colors: [
                                     DesignTokens.Colors.brand.opacity(0.5),
-                                    Color.cyan.opacity(0.3)
+                                    DesignTokens.Colors.accent.opacity(0.3)
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -235,20 +226,20 @@ struct EnhancedStoryCreationView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 190, height: 340)
-                    .clipShape(RoundedRectangle(cornerRadius: 15))
+                    .clipShape(RoundedRectangle(cornerRadius: DesignTokens.cornerRadius.medium))
             } else {
                 VStack(spacing: 15) {
                     Image(systemName: selectedStoryType.icon)
-                        .font(.system(size: 40))
+                        .font(DesignTokens.font.largeTitle)
                         .foregroundColor(selectedStoryType.color)
                     
                     Text("Story Preview")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white.opacity(0.8))
+                        .font(DesignTokens.font.headline)
+                        .foregroundColor(DesignTokens.Colors.textSecondary)
                     
                     Text("Tap actions below to create")
-                        .font(.system(size: 12))
-                        .foregroundColor(.white.opacity(0.6))
+                        .font(DesignTokens.font.caption)
+                        .foregroundColor(DesignTokens.Colors.textSecondary)
                         .multilineTextAlignment(.center)
                 }
             }
@@ -257,12 +248,12 @@ struct EnhancedStoryCreationView: View {
                 VStack {
                     Spacer()
                     Text(storyText)
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.white)
+                        .font(DesignTokens.font.title2)
+                        .foregroundColor(DesignTokens.Colors.textPrimary)
                         .multilineTextAlignment(.center)
                         .padding()
                         .background(selectedBackgroundColor.opacity(0.7))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.cornerRadius.small))
                     Spacer()
                 }
                 .padding()
@@ -274,8 +265,8 @@ struct EnhancedStoryCreationView: View {
     private var quickActionsView: some View {
         VStack(spacing: 20) {
             Text("Quick Actions")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(.white.opacity(0.8))
+                .font(DesignTokens.font.subheadline)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
             
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 15) {
                 quickActionButton("Camera", "camera.fill", .blue) {
@@ -318,13 +309,13 @@ struct EnhancedStoryCreationView: View {
                         .background(.ultraThinMaterial, in: Circle())
                     
                     Image(systemName: icon)
-                        .font(.system(size: 20, weight: .semibold))
+                        .font(DesignTokens.font.body)
                         .foregroundColor(color)
                 }
                 
                 Text(title)
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(.white.opacity(0.8))
+                    .font(DesignTokens.font.caption)
+                    .foregroundColor(DesignTokens.Colors.textSecondary)
             }
         }
         .buttonStyle(PlainButtonStyle())
@@ -524,13 +515,13 @@ struct TextStoryEditor: View {
             VStack(spacing: 20) {
                 // Preview
                 ZStack {
-                    RoundedRectangle(cornerRadius: 15)
+                    RoundedRectangle(cornerRadius: DesignTokens.cornerRadius.large)
                         .fill(backgroundColor.gradient)
                         .frame(height: 200)
                     
                     Text(text.isEmpty ? "Type your story..." : text)
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(.white)
+                        .font(DesignTokens.font.title1)
+                        .foregroundColor(DesignTokens.Colors.textPrimary)
                         .multilineTextAlignment(.center)
                         .padding()
                 }
@@ -538,9 +529,9 @@ struct TextStoryEditor: View {
                 
                 // Text input
                 TextField("What's on your mind?", text: $text, axis: .vertical)
-                    .font(.system(size: 18))
+                    .font(DesignTokens.font.body)
                     .padding()
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignTokens.cornerRadius.small))
                     .lineLimit(3...6)
                 
                 // Color selector
@@ -553,7 +544,7 @@ struct TextStoryEditor: View {
                                 .overlay(
                                     Circle()
                                         .strokeBorder(
-                                            backgroundColor == color ? .white : .clear,
+                                            backgroundColor == color ? DesignTokens.Colors.strokePrimary : .clear,
                                             lineWidth: 3
                                         )
                                 )

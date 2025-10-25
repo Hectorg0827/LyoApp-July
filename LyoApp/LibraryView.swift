@@ -1,5 +1,7 @@
-
 import SwiftUI
+#if canImport(NukeUI)
+import NukeUI
+#endif
 
 extension DateFormatter {
     static let shortDate: DateFormatter = {
@@ -165,19 +167,41 @@ struct RecommendedCourseCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-            AsyncImage(url: URL(string: course.thumbnailURL)) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Rectangle()
-                    .fill(DesignTokens.Colors.primaryGradient)
-                    .overlay(
-                        Image(systemName: "play.circle")
-                            .font(.title)
-                            .foregroundColor(.white)
-                    )
+            // Image (NukeUI if available, else AsyncImage)
+            #if canImport(NukeUI)
+            LazyImage(url: URL(string: course.thumbnailURL)) { state in
+                if let image = state.image {
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    Rectangle()
+                        .fill(DesignTokens.Colors.primaryGradient)
+                        .overlay(
+                            Image(systemName: "play.circle")
+                                .font(.title)
+                                .foregroundColor(.white)
+                        )
+                }
             }
+            #else
+            AsyncImage(url: URL(string: course.thumbnailURL)) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                default:
+                    Rectangle()
+                        .fill(DesignTokens.Colors.primaryGradient)
+                        .overlay(
+                            Image(systemName: "play.circle")
+                                .font(.title)
+                                .foregroundColor(.white)
+                        )
+                }
+            }
+            #endif
             .frame(width: 160, height: 90)
             .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.sm))
             
@@ -212,19 +236,40 @@ struct InProgressCourseCard: View {
     
     var body: some View {
         HStack(spacing: DesignTokens.Spacing.md) {
-            AsyncImage(url: URL(string: course.thumbnailURL)) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Rectangle()
-                    .fill(DesignTokens.Colors.primaryGradient)
-                    .overlay(
-                        Image(systemName: "play.circle")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                    )
+            #if canImport(NukeUI)
+            LazyImage(url: URL(string: course.thumbnailURL)) { state in
+                if let image = state.image {
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    Rectangle()
+                        .fill(DesignTokens.Colors.primaryGradient)
+                        .overlay(
+                            Image(systemName: "play.circle")
+                                .font(.title2)
+                                .foregroundColor(.white)
+                        )
+                }
             }
+            #else
+            AsyncImage(url: URL(string: course.thumbnailURL)) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                default:
+                    Rectangle()
+                        .fill(DesignTokens.Colors.primaryGradient)
+                        .overlay(
+                            Image(systemName: "play.circle")
+                                .font(.title2)
+                                .foregroundColor(.white)
+                        )
+                }
+            }
+            #endif
             .frame(width: 80, height: 60)
             .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.sm))
             
@@ -278,19 +323,40 @@ struct CompletedCourseCard: View {
     
     var body: some View {
         HStack(spacing: DesignTokens.Spacing.md) {
-            AsyncImage(url: URL(string: course.thumbnailURL)) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Rectangle()
-                    .fill(DesignTokens.Colors.primaryGradient)
-                    .overlay(
-                        Image(systemName: "checkmark.circle")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                    )
+            #if canImport(NukeUI)
+            LazyImage(url: URL(string: course.thumbnailURL)) { state in
+                if let image = state.image {
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    Rectangle()
+                        .fill(DesignTokens.Colors.primaryGradient)
+                        .overlay(
+                            Image(systemName: "checkmark.circle")
+                                .font(.title2)
+                                .foregroundColor(.white)
+                        )
+                }
             }
+            #else
+            AsyncImage(url: URL(string: course.thumbnailURL)) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                default:
+                    Rectangle()
+                        .fill(DesignTokens.Colors.primaryGradient)
+                        .overlay(
+                            Image(systemName: "checkmark.circle")
+                                .font(.title2)
+                                .foregroundColor(.white)
+                        )
+                }
+            }
+            #endif
             .frame(width: 80, height: 60)
             .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.sm))
             .overlay(
@@ -345,19 +411,40 @@ struct SavedItemCard: View {
     
     var body: some View {
         HStack(spacing: DesignTokens.Spacing.md) {
-            AsyncImage(url: URL(string: item.thumbnailURL)) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Rectangle()
-                    .fill(DesignTokens.Colors.primaryGradient)
-                    .overlay(
-                        Image(systemName: item.type == "video" ? "play.circle" : "doc.text")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                    )
+            #if canImport(NukeUI)
+            LazyImage(url: URL(string: item.thumbnailURL)) { state in
+                if let image = state.image {
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    Rectangle()
+                        .fill(DesignTokens.Colors.primaryGradient)
+                        .overlay(
+                            Image(systemName: item.type == "video" ? "play.circle" : "doc.text")
+                                .font(.title2)
+                                .foregroundColor(.white)
+                        )
+                }
             }
+            #else
+            AsyncImage(url: URL(string: item.thumbnailURL)) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                default:
+                    Rectangle()
+                        .fill(DesignTokens.Colors.primaryGradient)
+                        .overlay(
+                            Image(systemName: item.type == "video" ? "play.circle" : "doc.text")
+                                .font(.title2)
+                                .foregroundColor(.white)
+                        )
+                }
+            }
+            #endif
             .frame(width: 80, height: 60)
             .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.sm))
             
@@ -511,5 +598,3 @@ struct SavedItem: Identifiable {
     LibraryView()
         .environmentObject(AppState())
 }
-
-

@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(NukeUI)
+import NukeUI
+#endif
 
 // MARK: - Learning Resource Cards
 /// Different visual representations for a learning resource.
@@ -11,19 +14,40 @@ struct LearningResourceFeaturedCard: View {
         VStack(alignment: .leading) {
             // Image with overlay
             ZStack(alignment: .bottomLeading) {
-                AsyncImage(url: resource.thumbnailURL) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.3))
-                        .overlay(
-                            Image(systemName: resource.contentType.icon)
-                                .font(.system(size: 40))
-                                .foregroundColor(.gray)
-                        )
+                #if canImport(NukeUI)
+                LazyImage(url: resource.thumbnailURL) { state in
+                    if let image = state.image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } else {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .overlay(
+                                Image(systemName: resource.contentType.icon)
+                                    .font(.system(size: 40))
+                                    .foregroundColor(.gray)
+                            )
+                    }
                 }
+                #else
+                AsyncImage(url: resource.thumbnailURL) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    default:
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .overlay(
+                                Image(systemName: resource.contentType.icon)
+                                    .font(.system(size: 40))
+                                    .foregroundColor(.gray)
+                            )
+                    }
+                }
+                #endif
                 .frame(height: 180)
                 .clipped()
                 
@@ -91,19 +115,40 @@ struct LearningResourceCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            AsyncImage(url: resource.thumbnailURL) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.3))
-                    .overlay(
-                        Image(systemName: resource.contentType.icon)
-                            .font(.system(size: 20))
-                            .foregroundColor(.gray)
-                    )
+            #if canImport(NukeUI)
+            LazyImage(url: resource.thumbnailURL) { state in
+                if let image = state.image {
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .overlay(
+                            Image(systemName: resource.contentType.icon)
+                                .font(.system(size: 20))
+                                .foregroundColor(.gray)
+                        )
+                }
             }
+            #else
+            AsyncImage(url: resource.thumbnailURL) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                default:
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .overlay(
+                            Image(systemName: resource.contentType.icon)
+                                .font(.system(size: 20))
+                                .foregroundColor(.gray)
+                        )
+                }
+            }
+            #endif
             .frame(height: 100)
             .clipped()
             .cornerRadius(15)
@@ -146,19 +191,40 @@ struct LearningResourceRow: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            AsyncImage(url: resource.thumbnailURL) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.3))
-                    .overlay(
-                        Image(systemName: resource.contentType.icon)
-                            .font(.system(size: 24))
-                            .foregroundColor(.gray)
-                    )
+            #if canImport(NukeUI)
+            LazyImage(url: resource.thumbnailURL) { state in
+                if let image = state.image {
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .overlay(
+                            Image(systemName: resource.contentType.icon)
+                                .font(.system(size: 24))
+                                .foregroundColor(.gray)
+                        )
+                }
             }
+            #else
+            AsyncImage(url: resource.thumbnailURL) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                default:
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .overlay(
+                            Image(systemName: resource.contentType.icon)
+                                .font(.system(size: 24))
+                                .foregroundColor(.gray)
+                        )
+                }
+            }
+            #endif
             .frame(width: 100, height: 80)
             .cornerRadius(10)
             

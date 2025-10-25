@@ -11,6 +11,8 @@ targets:
     type: application
     platform: iOS
     deploymentTarget: "17.0"
+    dependencies:
+      - package: Nuke
     sources:
       - path: LyoApp
         excludes:

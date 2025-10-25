@@ -1,6 +1,8 @@
-
 import SwiftUI
 import Foundation
+#if canImport(NukeUI)
+import NukeUI
+#endif
 
 /// Main dispatcher view that renders the appropriate component based on block type
 struct LessonBlockView: View {
@@ -273,20 +275,22 @@ struct ImageView: View {
     
     var body: some View {
         VStack(alignment: alignmentForImage(data.alignment), spacing: DesignTokens.Spacing.sm) {
-            AsyncImage(url: URL(string: data.url)) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: data.width, maxHeight: data.height)
-                    .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.md))
-            } placeholder: {
-                RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
-                    .fill(DesignTokens.Colors.glassBg)
-                    .frame(maxWidth: data.width ?? 300, maxHeight: data.height ?? 200)
-                    .overlay(
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: DesignTokens.Colors.primary))
-                    )
+            LazyImage(url: URL(string: data.url)) { state in
+                if let image = state.image {
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: data.width, maxHeight: data.height)
+                        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.md))
+                } else {
+                    RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                        .fill(DesignTokens.Colors.glassBg)
+                        .frame(maxWidth: data.width ?? 300, maxHeight: data.height ?? 200)
+                        .overlay(
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: DesignTokens.Colors.primary))
+                        )
+                }
             }
             .accessibilityLabel(data.altText)
             

@@ -19,6 +19,11 @@ struct LearningHubView: View {
     @State private var showingFilters = false
     @State private var showingProfile = false
     
+    // AI Conversation State
+    @State private var showAIConversation = false
+    @State private var courseToNavigate: Course? = nil
+    @State private var navigateToCourseDetail = false
+    
     // MARK: - Content State
     @State private var featuredContent: [LearningResource] = []
     @State private var trendingContent: [LearningResource] = []
@@ -118,6 +123,22 @@ struct LearningHubView: View {
         } message: {
             Text(errorMessage)
         }
+        .sheet(isPresented: $showAIConversation) {
+            NavigationView {
+                AIConversationView(navigateToCourse: $courseToNavigate)
+            }
+        }
+        .onChange(of: courseToNavigate) { newCourse in
+            if newCourse != nil {
+                showAIConversation = false
+                navigateToCourseDetail = true
+            }
+        }
+        .navigationDestination(isPresented: $navigateToCourseDetail) {
+            if let course = courseToNavigate {
+                CourseDetailView(course: course)
+            }
+        }
     }
     
     // MARK: - Main Content View
@@ -176,6 +197,18 @@ struct LearningHubView: View {
             
             // Search and Profile Buttons
             HStack(spacing: 16) {
+                // AI Chat Button
+                Button(action: { 
+                    showAIConversation = true
+                }) {
+                    Image(systemName: "sparkles.rectangle.stack.fill")
+                        .font(.title3)
+                        .foregroundColor(.cyan)
+                        .frame(width: 44, height: 44)
+                        .background(Color.cyan.opacity(0.2))
+                        .clipShape(Circle())
+                }
+                
                 // Search Button
                 Button(action: { 
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {

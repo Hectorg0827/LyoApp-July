@@ -225,7 +225,7 @@ class APIClient: APIClientProtocol, ObservableObject {
     // MARK: - Health Check
     func healthCheck() async throws -> HealthResponse {
         // Use direct HTTP request for health check to avoid token requirements
-        guard let url = URL(string: "http://localhost:8000/health") else {
+        guard let url = URL(string: APIConfig.baseURL.replacingOccurrences(of: "/api/v1", with: "/health")) else {
             throw APIError.invalidURL
         }
         

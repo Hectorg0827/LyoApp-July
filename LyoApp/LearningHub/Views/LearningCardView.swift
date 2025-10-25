@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(NukeUI)
+import NukeUI
+#endif
 
 // MARK: - Learning Card View
 /// Reusable SwiftUI view for displaying learning resources in grids and lists
@@ -280,15 +283,17 @@ private extension LearningCardView {
     @ViewBuilder
     func thumbnailImage(height: CGFloat) -> some View {
         if let thumbnailURL = resource.thumbnailURL {
-            AsyncImage(url: thumbnailURL) { image in
-                image
-                    .resizable()
-                    .aspectRatio(16/9, contentMode: .fill)
-                    .onAppear {
-                        imageLoaded = true
-                    }
-            } placeholder: {
-                placeholderImage(height: height)
+            LazyImage(url: thumbnailURL) { state in
+                if let image = state.image {
+                    image
+                        .resizable()
+                        .aspectRatio(16/9, contentMode: .fill)
+                        .onAppear {
+                            imageLoaded = true
+                        }
+                } else {
+                    placeholderImage(height: height)
+                }
             }
             .frame(height: height)
             .clipped()

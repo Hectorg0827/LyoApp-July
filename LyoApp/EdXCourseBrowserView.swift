@@ -331,13 +331,19 @@ struct UniversityFilterChip: View {
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: DesignTokens.Spacing.sm) {
-                AsyncImage(url: URL(string: university.logoURL)) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                } placeholder: {
-                    Circle()
-                        .fill(Color.gray.opacity(0.3))
+                AsyncImage(url: URL(string: university.logoURL)) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                    case .empty, .failure:
+                        Circle()
+                            .fill(Color.gray.opacity(0.3))
+                    @unknown default:
+                        Circle()
+                            .fill(Color.gray.opacity(0.3))
+                    }
                 }
                 .frame(width: 20, height: 20)
                 
@@ -414,18 +420,29 @@ struct EdXCourseCard: View {
         Button(action: onTap) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                 // Course thumbnail
-                AsyncImage(url: URL(string: course.thumbnailURL)) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(16/9, contentMode: .fill)
-                } placeholder: {
-                    Rectangle()
-                        .fill(DesignTokens.Colors.primaryGradient)
-                        .overlay(
-                            Image(systemName: "graduationcap")
-                                .font(.system(size: 24))
-                                .foregroundColor(.white)
-                        )
+                AsyncImage(url: URL(string: course.thumbnailURL)) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(16/9, contentMode: .fill)
+                    case .empty, .failure:
+                        Rectangle()
+                            .fill(DesignTokens.Colors.primaryGradient)
+                            .overlay(
+                                Image(systemName: "graduationcap")
+                                    .font(.system(size: 24))
+                                    .foregroundColor(.white)
+                            )
+                    @unknown default:
+                        Rectangle()
+                            .fill(DesignTokens.Colors.primaryGradient)
+                            .overlay(
+                                Image(systemName: "graduationcap")
+                                    .font(.system(size: 24))
+                                    .foregroundColor(.white)
+                            )
+                    }
                 }
                 .frame(height: 100)
                 .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.md))

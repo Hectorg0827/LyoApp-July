@@ -126,7 +126,7 @@ struct ErrorAlert: View {
                 Button("Dismiss") {
                     onDismiss()
                 }
-                .buttonStyle(SecondaryButtonStyle())
+                .buttonStyle(DesignSystem.ButtonStyles.SecondaryButtonStyle())
                 
                 if let onRetry = onRetry {
                     Button("Retry") {
@@ -147,35 +147,7 @@ struct ErrorAlert: View {
 }
 
 // MARK: - Button Styles
-struct PrimaryButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .foregroundColor(.white)
-            .padding(.horizontal, 24)
-            .padding(.vertical, 12)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.blue)
-            )
-            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
-            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
-    }
-}
-
-struct SecondaryButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .foregroundColor(.primary)
-            .padding(.horizontal, 24)
-            .padding(.vertical, 12)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.primary.opacity(0.3), lineWidth: 1)
-            )
-            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
-            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
-    }
-}
+// Note: Using PrimaryButtonStyle and SecondaryButtonStyle from DesignSystem.swift
 
 // MARK: - View Extension for Error Handling
 extension View {

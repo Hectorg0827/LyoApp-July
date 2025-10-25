@@ -35,7 +35,7 @@ class LearningAPIService: ObservableObject {
     // MARK: - Initialization
     public init() {
         #if DEBUG
-        self.baseURL = "http://localhost:8000/api/v1/learning"
+        self.baseURL = "http://127.0.0.1:8000/api/v1/learning"
         #else
         self.baseURL = "https://lyo-backend-830162750094.us-central1.run.app/api/v1/learning"
         #endif

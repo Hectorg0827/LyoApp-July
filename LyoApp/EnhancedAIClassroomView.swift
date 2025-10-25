@@ -1,669 +1,542 @@
 import SwiftUI
+import Combine
 
-// MARK: - Enhanced AI Classroom with 75/25 Split Layout
-
-/// Main enhanced classroom view with 75% teaching area and 25% resource bar
 struct EnhancedAIClassroomView: View {
-    let topic: String
-    let course: CourseOutlineLocal?
-    let onExit: () -> Void
-
-    // MARK: - Interactive Conversation State
+    @StateObject private var viewModel: EnhancedAIClassroomViewModel
+    @State private var showComprehensionCheck = false
+    @State private var showSummary = false
+    @State private var showSkillsGraph = false
+    @State private var showSideDrawer = false
     @State private var userInput: String = ""
-    @State private var conversation: [ConversationEntry] = []
-    @State private var isAwaitingAIResponse: Bool = false
-    @State private var isRecording: Bool = false
-    @State private var isDrawerOpen: Bool = false
-    @FocusState private var isInputFocused: Bool
-
-    // MARK: - Existing State
-    @State private var currentLessonIndex = 0
-    @State private var lessonContent: String = ""
-    @State private var showingQuiz = false
-    @State private var currentQuizQuestion: QuizQuestion?
-    @State private var resources: [CuratedResource] = []
-    @State private var avatarState: ClassroomAvatarState = .explaining
-    @State private var progressPercentage: Double = 0.0
-    @State private var codeInput: String = "# Write your code here\nprint(\"Hello, World!\")"
-    @State private var codeOutput: String = ""
-    @State private var isExecutingCode: Bool = false
-    @State private var voiceEnabled: Bool = false
-
-    // MARK: - Progressive Content Display
-    @State private var contentChunks: [ContentChunk] = []
-    @State private var currentChunkIndex: Int = 0
-    @State private var showingMiniQuiz = false
-    @State private var miniQuizQuestion: QuizQuestion?
-    @State private var showingTutorQuestion = false
-    @State private var tutorQuestion: String = ""
-    @State private var tutorResponse: String = ""
-    @State private var isWaitingForTutorResponse = false
-    @State private var showingResources = false
-
-    // MARK: - Adaptive Learning State
-    @State private var showSkillsGraph: Bool = false
-    @State private var currentMasteryLevel: Double = 0.0 // 0.0 to 1.0 (theta)
-    @State private var knowledgeComponents: [KnowledgeComponent] = []
-    @State private var adaptivePhase: AdaptivePhase = .assess
-    @State private var aloCards: [ALOCard] = []
+    @FocusState private var isTextFieldFocused: Bool
+    
+    init(courseOutline: CourseOutlineLocal) {
+        _viewModel = StateObject(wrappedValue: EnhancedAIClassroomViewModel(courseOutline: courseOutline))
+    }
 
     var body: some View {
         ZStack {
-            // Main Content Area
+            DesignTokens.colors.backgroundColor.ignoresSafeArea()
+
             VStack(spacing: 0) {
-                // MARK: - Minimalist Header
                 minimalistHeader
                 
-                // MARK: - Unified Conversation + Content Area
                 ScrollViewReader { proxy in
                     ScrollView {
-                        LazyVStack(spacing: 24) {
-                            ForEach(conversation) { entry in
+                        VStack(alignment: .leading, spacing: DesignTokens.spacing.medium) {
+                            ForEach(viewModel.conversationHistory) { entry in
                                 conversationEntryView(entry)
                                     .id(entry.id)
-                                    .transition(.asymmetric(
-                                        insertion: .move(edge: .bottom).combined(with: .opacity),
-                                        removal: .opacity
-                                    ))
                             }
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.top, 20)
-                        .padding(.bottom, 100)
+                        .padding(.horizontal, DesignTokens.spacing.medium)
+                        .padding(.top, DesignTokens.spacing.small)
                     }
-                    .onChange(of: conversation.count) { _ in
-                        if let lastEntry = conversation.last {
-                            withAnimation(.easeOut(duration: 0.3)) {
-                                proxy.scrollTo(lastEntry.id, anchor: .bottom)
-                            }
-                        }
+                    .onChange(of: viewModel.conversationHistory.count) { _ in
+                        scrollToBottom(proxy: proxy)
                     }
                 }
                 
-                // MARK: - Persistent Bottom Interaction Bar
                 bottomInteractionBar
             }
-            .background(
-                LinearGradient(
-                    colors: [
-                        Color(red: 0.02, green: 0.05, blue: 0.13),
-                        Color(red: 0.05, green: 0.08, blue: 0.18)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
-            )
-            
-            // MARK: - Side Drawer for Settings/Resources
-            if isDrawerOpen {
-                Color.black.opacity(0.5)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation(.spring(response: 0.3)) {
-                            isDrawerOpen = false
-                        }
-                    }
-                    .transition(.opacity)
+            .navigationBarHidden(true)
+            .blur(radius: showComprehensionCheck || showSummary || showSkillsGraph ? 20 : 0)
+            .disabled(showComprehensionCheck || showSummary || showSkillsGraph)
+
+            if showComprehensionCheck {
+                comprehensionCheckOverlay
             }
             
-            sideDrawer
-                .offset(x: isDrawerOpen ? 0 : UIScreen.main.bounds.width)
-                .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isDrawerOpen)
+            if showSummary {
+                summaryOverlay
+            }
+
+            if showSkillsGraph {
+                skillsGraphOverlay
+            }
+            
+            if showSideDrawer {
+                sideDrawer
+            }
         }
         .onAppear {
-            loadSavedProgress()
-            loadLessonContent()
-            fetchCuratedResources()
+            viewModel.startLesson()
         }
-        .overlay(
-            Group {
-                if showingQuiz, let quiz = currentQuizQuestion {
-                    comprehensionCheckOverlay(quiz: quiz)
-                }
-            }
-        )
-    }
-    
-    // MARK: - Computed Properties
-    private var canGoToNextLesson: Bool {
-        guard let course = course else { return false }
-        return currentLessonIndex < course.lessons.count - 1
     }
 
-    // MARK: - Minimalist Header
     private var minimalistHeader: some View {
-        HStack(spacing: 12) {
-            // Exit button
-            Button(action: onExit) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.8))
-                    .frame(width: 36, height: 36)
-                    .background(
-                        Circle()
-                            .fill(Color.white.opacity(0.1))
-                            .overlay(
-                                Circle()
-                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                            )
-                    )
+        HStack {
+            Button(action: {
+                // Action for back button
+            }) {
+                Image(systemName: "arrow.left")
+                    .font(DesignTokens.font.body)
+                    .foregroundColor(DesignTokens.colors.textColor)
             }
-            
-            // Lesson navigation
-            HStack(spacing: 8) {
-                // Previous lesson button
-                Button(action: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                        previousLesson()
-                    }
-                }) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(currentLessonIndex > 0 ? .white.opacity(0.8) : .white.opacity(0.3))
-                        .frame(width: 32, height: 32)
-                        .background(
-                            Circle()
-                                .fill(Color.white.opacity(currentLessonIndex > 0 ? 0.15 : 0.05))
-                        )
-                }
-                .disabled(currentLessonIndex == 0)
-                
-                // Lesson counter
-                if let course = course {
-                    Text("Lesson \(currentLessonIndex + 1)/\(course.lessons.count)")
-                        .font(.system(size: 11, weight: .semibold, design: .rounded))
-                        .foregroundColor(.white.opacity(0.7))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(
-                            Capsule()
-                                .fill(Color.white.opacity(0.1))
-                        )
-                }
-                
-                // Next lesson button
-                Button(action: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                        nextLesson()
-                    }
-                }) {
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(canGoToNextLesson ? .white.opacity(0.8) : .white.opacity(0.3))
-                        .frame(width: 32, height: 32)
-                        .background(
-                            Circle()
-                                .fill(Color.white.opacity(canGoToNextLesson ? 0.15 : 0.05))
-                        )
-                }
-                .disabled(!canGoToNextLesson)
-            }
-            
+            .accessibilityLabel("Back")
+            .accessibilityHint("Returns to the previous screen")
+
             Spacer()
             
-            // Right-side controls
-            HStack(spacing: 16) {
-                // Mastery "Brain" Icon
-                Button(action: { withAnimation(.spring()) { showSkillsGraph.toggle() } }) {
-                    Image(systemName: "brain.head.profile.fill")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(showSkillsGraph ? .purple : .white.opacity(0.6))
-                }
-                
-                // Progress Bar
-                HStack(spacing: 8) {
-                    ProgressView(value: progressPercentage)
-                        .progressViewStyle(LinearProgressViewStyle(tint: Color.purple))
-                        .frame(width: 80)
-                    
-                    Text("\(Int(progressPercentage * 100))%")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(.white.opacity(0.8))
-                        .frame(width: 35)
-                }
-                
-                // Settings/Drawer toggle
-                Button(action: { withAnimation(.spring()) { isDrawerOpen.toggle() } }) {
-                    Image(systemName: "line.3.horizontal")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.6))
-                }
+            Text(viewModel.courseOutline.title)
+                .font(DesignTokens.font.headline)
+                .foregroundColor(DesignTokens.colors.textColor)
+                .accessibilityAddTraits(.isHeader)
+
+            Spacer()
+
+            Button(action: { withAnimation { showSideDrawer.toggle() } }) {
+                Image(systemName: "ellipsis")
+                    .font(DesignTokens.font.body)
+                    .foregroundColor(DesignTokens.colors.textColor)
             }
+            .accessibilityLabel("Options")
+            .accessibilityHint("Opens the lesson options menu")
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 12)
-        .background(
-            Color(red: 0.02, green: 0.05, blue: 0.13)
-                .overlay(
-                    Rectangle()
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.purple.opacity(0.3), Color.clear],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .frame(height: 2)
-                        .frame(maxWidth: UIScreen.main.bounds.width * progressPercentage)
-                    , alignment: .bottomLeading
-                )
-        )
+        .padding(DesignTokens.spacing.medium)
+        .background(DesignTokens.colors.backgroundColor.opacity(0.8))
     }
-    
-    // MARK: - Conversation Entry View
-    @ViewBuilder
+
     private func conversationEntryView(_ entry: ConversationEntry) -> some View {
-        switch entry.type {
-        case .userMessage:
-            HStack(alignment: .top, spacing: 12) {
-                Spacer(minLength: 40)
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text(entry.content)
-                        .font(.system(size: 16))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                        .background(
-                            LinearGradient(
-                                colors: [Color.blue.opacity(0.8), Color.purple.opacity(0.6)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .cornerRadius(18, corners: [.topLeft, .topRight, .bottomLeft])
-                        .shadow(color: Color.blue.opacity(0.3), radius: 8, y: 4)
-                    
-                    Text("You")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(.white.opacity(0.5))
-                        .padding(.trailing, 4)
-                }
+        HStack(alignment: .top, spacing: DesignTokens.spacing.small) {
+            if entry.role == .assistant {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 24))
+                    .foregroundColor(DesignTokens.colors.accentColor)
+                    .frame(width: 30, height: 30)
+                    .accessibilityLabel("AI Assistant")
             }
             
-        case .aiResponse:
-            HStack(alignment: .top, spacing: 12) {
-                // AI Avatar
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.cyan, Color.purple],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 32, height: 32)
-                    .overlay(
-                        Image(systemName: "sparkles")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.white)
-                    )
-                    .shadow(color: Color.cyan.opacity(0.5), radius: 8)
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Lyo")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(.cyan)
-                    
-                    Text(entry.content)
-                        .font(.system(size: 16))
-                        .foregroundColor(.white.opacity(0.95))
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                .fill(Color.white.opacity(0.08))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                        .stroke(Color.cyan.opacity(0.2), lineWidth: 1)
-                                )
-                        )
-                        .cornerRadius(18, corners: [.topRight, .bottomLeft, .bottomRight])
-                }
-                
-                Spacer(minLength: 40)
-            }
-            
-        case .lessonChunk:
-            if let chunk = contentChunks.first(where: { $0.id.uuidString == entry.content }) {
-                VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: DesignTokens.spacing.small) {
+                ForEach(entry.content) { chunk in
                     switch chunk.type {
                     case .explanation:
-                        explanationChunkView(chunk: chunk)
+                        explanationChunkView(chunk.text)
                     case .example:
-                        exampleChunkView(chunk: chunk)
+                        exampleChunkView(chunk.text)
                     case .exercise:
-                        exerciseChunkView(chunk: chunk)
+                        exerciseChunkView(chunk.text)
                     case .summary:
-                        summaryChunkView(chunk: chunk)
-                    }
-                    
-                    // Mini quiz if required
-                    if chunk.requiresQuiz && !chunkQuizCompleted(chunk) {
-                        miniQuizInlineView
+                        summaryChunkView(chunk.text)
                     }
                 }
             }
+            .padding(DesignTokens.spacing.medium)
+            .background(entry.role == .assistant ? DesignTokens.colors.secondaryBackgroundColor : Color.clear)
+            .cornerRadius(DesignTokens.cornerRadius.large)
+            
+            if entry.role == .user {
+                Spacer()
+                Image(systemName: "person.fill")
+                    .font(.system(size: 24))
+                    .foregroundColor(DesignTokens.colors.textColor)
+                    .frame(width: 30, height: 30)
+                    .accessibilityLabel("User")
+            }
         }
     }
-    
-    // MARK: - Enhanced Content Chunk Views
-    
-    private func explanationChunkView(chunk: ContentChunk) -> some View {
-        VStack(alignment: .leading, spacing: 18) {
-            HStack(spacing: 12) {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.cyan.opacity(0.6), Color.blue.opacity(0.4)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 48, height: 48)
-                    .overlay(
-                        Image(systemName: "lightbulb.fill")
-                            .font(.system(size: 22, weight: .semibold))
-                            .foregroundColor(.white)
-                    )
-                    .shadow(color: Color.cyan.opacity(0.4), radius: 8, y: 4)
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Concept Explained")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.white)
-                    Text("Let's break this down together")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.cyan.opacity(0.8))
-                }
-                
-                Spacer()
-            }
-            
-            Text(chunk.content)
-                .font(.system(size: 17, design: .rounded))
-                .lineSpacing(8)
-                .foregroundColor(.white.opacity(0.95))
+
+    private func explanationChunkView(_ text: String) -> some View {
+        Text(text)
+            .font(DesignTokens.font.body)
+            .foregroundColor(DesignTokens.colors.textColor)
+            .lineSpacing(DesignTokens.spacing.xsmall)
+            .accessibilityLabel("Explanation")
+            .accessibilityValue(text)
+    }
+
+    private func exampleChunkView(_ text: String) -> some View {
+        VStack(alignment: .leading) {
+            Text("Example")
+                .font(DesignTokens.font.caption)
+                .foregroundColor(DesignTokens.colors.accentColor)
+                .padding(.bottom, DesignTokens.spacing.xxsmall)
+            Text(text)
+                .font(DesignTokens.font.code)
+                .foregroundColor(DesignTokens.colors.textColor)
+                .padding(DesignTokens.spacing.small)
+                .background(DesignTokens.colors.backgroundColor)
+                .cornerRadius(DesignTokens.cornerRadius.medium)
         }
-        .padding(24)
-        .background(
-            ZStack {
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.cyan.opacity(0.08),
-                                Color.blue.opacity(0.05)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(
-                        LinearGradient(
-                            colors: [Color.cyan.opacity(0.3), Color.blue.opacity(0.2)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1.5
-                    )
-            }
-        )
-        .shadow(color: Color.cyan.opacity(0.15), radius: 20, y: 8)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Code Example")
+        .accessibilityValue(text)
+    }
+
+    private func exerciseChunkView(_ text: String) -> some View {
+        VStack(alignment: .leading) {
+            Text("Exercise")
+                .font(DesignTokens.font.caption)
+                .foregroundColor(DesignTokens.colors.accentColor)
+                .padding(.bottom, DesignTokens.spacing.xxsmall)
+            Text(text)
+                .font(DesignTokens.font.body)
+                .foregroundColor(DesignTokens.colors.textColor)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Exercise")
+        .accessibilityValue(text)
     }
     
-    private func exampleChunkView(chunk: ContentChunk) -> some View {
-        VStack(alignment: .leading, spacing: 18) {
-            HStack(spacing: 12) {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.yellow.opacity(0.6), Color.orange.opacity(0.4)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 48, height: 48)
-                    .overlay(
-                        Image(systemName: "star.fill")
-                            .font(.system(size: 22, weight: .semibold))
-                            .foregroundColor(.white)
-                    )
-                    .shadow(color: Color.yellow.opacity(0.4), radius: 8, y: 4)
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Real-World Example")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.white)
-                    Text("See it in action")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.yellow.opacity(0.8))
+    private func summaryChunkView(_ text: String) -> some View {
+        VStack(alignment: .leading) {
+            Text("Summary")
+                .font(DesignTokens.font.caption)
+                .foregroundColor(DesignTokens.colors.accentColor)
+                .padding(.bottom, DesignTokens.spacing.xxsmall)
+            Text(text)
+                .font(DesignTokens.font.body)
+                .foregroundColor(DesignTokens.colors.textColor)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Summary")
+        .accessibilityValue(text)
+    }
+
+    private var bottomInteractionBar: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: DesignTokens.spacing.medium) {
+                Button(action: { withAnimation { showComprehensionCheck.toggle() } }) {
+                    Label("Check", systemImage: "questionmark.circle")
                 }
+                .buttonStyle(CapsuleButtonStyle(backgroundColor: DesignTokens.colors.accentColor, foregroundColor: Color.white))
+                .accessibilityHint("Check your understanding of the lesson")
+
+                Button(action: { withAnimation { showSummary.toggle() } }) {
+                    Label("Summary", systemImage: "doc.text")
+                }
+                .buttonStyle(CapsuleButtonStyle(backgroundColor: DesignTokens.colors.accentColor, foregroundColor: Color.white))
+                .accessibilityHint("View a summary of the lesson")
+
+                Button(action: { withAnimation { showSkillsGraph.toggle() } }) {
+                    Label("Skills", systemImage: "chart.bar")
+                }
+                .buttonStyle(CapsuleButtonStyle(backgroundColor: DesignTokens.colors.accentColor, foregroundColor: Color.white))
+                .accessibilityHint("View your skills graph")
+            }
+            .padding(.vertical, DesignTokens.spacing.small)
+
+            HStack(spacing: DesignTokens.spacing.small) {
+                TextField("Ask a question...", text: $userInput)
+                    .textFieldStyle(PlainTextFieldStyle())
+                    .padding(DesignTokens.spacing.small)
+                    .background(DesignTokens.colors.secondaryBackgroundColor)
+                    .cornerRadius(DesignTokens.cornerRadius.large)
+                    .focused($isTextFieldFocused)
+                    .accessibilityLabel("Question input")
+                    .accessibilityHint("Type your question about the lesson here")
+
+                Button(action: {
+                    viewModel.send(message: userInput)
+                    userInput = ""
+                    isTextFieldFocused = false
+                }) {
+                    Image(systemName: "arrow.up.circle.fill")
+                        .font(.system(size: 32))
+                        .foregroundColor(DesignTokens.colors.accentColor)
+                }
+                .disabled(userInput.isEmpty)
+                .accessibilityLabel("Send")
+                .accessibilityHint("Sends your question to the AI assistant")
+            }
+            .padding(DesignTokens.spacing.medium)
+        }
+        .background(DesignTokens.colors.backgroundColor.opacity(0.9))
+    }
+
+    private var sideDrawer: some View {
+        HStack {
+            Spacer()
+            VStack(alignment: .leading, spacing: DesignTokens.spacing.large) {
+                Text("Lesson Options")
+                    .font(DesignTokens.font.title)
+                    .foregroundColor(DesignTokens.colors.textColor)
                 
+                Button("Restart Lesson") {
+                    viewModel.restartLesson()
+                    withAnimation { showSideDrawer = false }
+                }
+                .buttonStyle(SideDrawerButtonStyle())
+                .accessibilityHint("Restarts the current lesson from the beginning")
+
+                Button("View Course Outline") {
+                    // Action to view course outline
+                    withAnimation { showSideDrawer = false }
+                }
+                .buttonStyle(SideDrawerButtonStyle())
+                .accessibilityHint("Shows the full outline for this course")
+
                 Spacer()
             }
-            
-            Text(chunk.content)
-                .font(.system(size: 16, design: .monospaced))
+            .padding(DesignTokens.spacing.large)
+            .frame(width: 300)
+            .background(DesignTokens.colors.secondaryBackgroundColor)
+            .transition(.move(edge: .trailing))
+            .onTapGesture {
+                // To prevent taps from passing through
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.black.opacity(0.5))
+        .onTapGesture {
+            withAnimation { showSideDrawer = false }
+        }
+    }
+
+    private var comprehensionCheckOverlay: some View {
+        VStack {
+            Text("Comprehension Check")
+                .font(DesignTokens.font.title)
+                .foregroundColor(DesignTokens.colors.textColor)
+                .padding()
+
+            Text(viewModel.comprehensionQuestion)
+                .font(DesignTokens.font.body)
+                .foregroundColor(DesignTokens.colors.textColor)
+                .multilineTextAlignment(.center)
+                .padding()
+
+            Button("Got it!") {
+                withAnimation { showComprehensionCheck = false }
+            }
+            .buttonStyle(CapsuleButtonStyle(backgroundColor: DesignTokens.colors.accentColor, foregroundColor: Color.white))
+            .padding()
+        }
+        .frame(maxWidth: .infinity)
+        .padding(DesignTokens.spacing.large)
+        .background(DesignTokens.colors.secondaryBackgroundColor)
+        .cornerRadius(DesignTokens.cornerRadius.large)
+        .shadow(radius: 10)
+        .padding(.horizontal, DesignTokens.spacing.large)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Comprehension Check")
+        .accessibilityAddTraits(.isModal)
+    }
+    
+    private var summaryOverlay: some View {
+        VStack {
+            Text("Lesson Summary")
+                .font(DesignTokens.font.title)
+                .foregroundColor(DesignTokens.colors.textColor)
+                .padding()
+
+            ScrollView {
+                Text(viewModel.lessonSummary)
+                    .font(DesignTokens.font.body)
+                    .foregroundColor(DesignTokens.colors.textColor)
+                    .padding()
+            }
+
+            Button("Close") {
+                withAnimation { showSummary = false }
+            }
+            .buttonStyle(CapsuleButtonStyle(backgroundColor: DesignTokens.colors.accentColor, foregroundColor: Color.white))
+            .padding()
+        }
+        .frame(maxWidth: .infinity, maxHeight: 500)
+        .padding(DesignTokens.spacing.large)
+        .background(DesignTokens.colors.secondaryBackgroundColor)
+        .cornerRadius(DesignTokens.cornerRadius.large)
+        .shadow(radius: 10)
+        .padding(.horizontal, DesignTokens.spacing.large)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Lesson Summary")
+        .accessibilityAddTraits(.isModal)
+    }
+    
+    private var skillsGraphOverlay: some View {
+        VStack {
+            Text("Skills Graph")
+                .font(DesignTokens.font.title)
+                .foregroundColor(DesignTokens.colors.textColor)
+                .padding()
+
+            // Placeholder for skills graph view
+            Text("Skills graph will be displayed here.")
+                .font(DesignTokens.font.body)
+                .foregroundColor(DesignTokens.colors.textColor)
+                .padding()
+
+            Button("Close") {
+                withAnimation { showSkillsGraph = false }
+            }
+            .buttonStyle(CapsuleButtonStyle(backgroundColor: DesignTokens.colors.accentColor, foregroundColor: Color.white))
+            .padding()
+        }
+        .frame(maxWidth: .infinity, maxHeight: 500)
+        .padding(DesignTokens.spacing.large)
+        .background(DesignTokens.colors.secondaryBackgroundColor)
+        .cornerRadius(DesignTokens.cornerRadius.large)
+        .shadow(radius: 10)
+        .padding(.horizontal, DesignTokens.spacing.large)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Skills Graph")
+        .accessibilityAddTraits(.isModal)
+    }
+
+    private func scrollToBottom(proxy: ScrollViewProxy) {
+        if let lastEntry = viewModel.conversationHistory.last {
+            withAnimation {
+                proxy.scrollTo(lastEntry.id, anchor: .bottom)
+            }
+        }
+    }
+}
+
+// MARK: - View Models and Data Structures
+
+class EnhancedAIClassroomViewModel: ObservableObject {
+    @Published var conversationHistory: [ConversationEntry] = []
+    @Published var comprehensionQuestion: String = "This is a sample comprehension question to check your understanding."
+    @Published var lessonSummary: String = "This is a summary of the lesson content covered so far."
+    
+    let courseOutline: CourseOutlineLocal
+    private var cancellables = Set<AnyCancellable>()
+    private var currentChunkIndex = 0
+
+    init(courseOutline: CourseOutlineLocal) {
+        self.courseOutline = courseOutline
+    }
+
+    func startLesson() {
+        let initialMessage = "Welcome to your lesson on \(courseOutline.title). Let's begin!"
+        let initialEntry = ConversationEntry(role: .assistant, content: [ContentChunk(type: .explanation, text: initialMessage)])
+        conversationHistory.append(initialEntry)
+        
+        // Simulate receiving lesson content
+        DispatchQueue
                 .lineSpacing(6)
-                .foregroundColor(.white.opacity(0.95))
-                .padding(16)
+                .foregroundColor(DesignTokens.Colors.textPrimary.opacity(0.95))
+                .padding(DesignTokens.Spacing.md)
                 .background(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(Color.black.opacity(0.3))
+                    RoundedRectangle(cornerRadius: DesignTokens.Radius.md, style: .continuous)
+                        .fill(DesignTokens.Colors.neutral900.opacity(0.3))
                 )
         }
-        .padding(24)
+        .padding(DesignTokens.Spacing.lg)
         .background(
-            ZStack {
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.yellow.opacity(0.08),
-                                Color.orange.opacity(0.05)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(
-                        LinearGradient(
-                            colors: [Color.yellow.opacity(0.3), Color.orange.opacity(0.2)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1.5
-                    )
-            }
+            RoundedRectangle(cornerRadius: DesignTokens.Radius.xl, style: .continuous)
+                .glassEffect(DesignTokens.Glass.frostedLayer)
         )
-        .shadow(color: Color.yellow.opacity(0.15), radius: 20, y: 8)
+        .shadow(color: DesignTokens.Colors.warning.opacity(0.15), radius: 20, y: 8)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Example: \(chunk.content)")
     }
     
     private func exerciseChunkView(chunk: ContentChunk) -> some View {
-        VStack(alignment: .leading, spacing: 18) {
-            HStack(spacing: 12) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
+            HStack(spacing: DesignTokens.Spacing.md) {
                 Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.purple.opacity(0.6), Color.pink.opacity(0.4)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .fill(LinearGradient(colors: [DesignTokens.Colors.neonPurple.opacity(0.6), DesignTokens.Colors.neonPink.opacity(0.4)], startPoint: .topLeading, endPoint: .bottomTrailing))
                     .frame(width: 48, height: 48)
                     .overlay(
                         Image(systemName: "pencil.and.outline")
                             .font(.system(size: 22, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(DesignTokens.Colors.textPrimary)
                     )
-                    .shadow(color: Color.purple.opacity(0.4), radius: 8, y: 4)
+                    .shadow(color: DesignTokens.Colors.neonPurple.opacity(0.4), radius: 8, y: 4)
                 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                     Text("Practice Exercise")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.white)
+                        .font(DesignTokens.Typography.titleLarge)
+                        .foregroundColor(DesignTokens.Colors.textPrimary)
                     Text("Test your understanding")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.purple.opacity(0.8))
+                        .font(DesignTokens.Typography.body)
+                        .foregroundColor(DesignTokens.Colors.neonPurple.opacity(0.8))
                 }
                 
                 Spacer()
             }
             
             Text(chunk.content)
-                .font(.system(size: 17, design: .rounded))
+                .font(DesignTokens.Typography.bodyLarge)
                 .lineSpacing(8)
-                .foregroundColor(.white.opacity(0.95))
+                .foregroundColor(DesignTokens.Colors.textPrimary.opacity(0.95))
             
-            // Interactive coding area placeholder
             interactiveContentView
         }
-        .padding(24)
+        .padding(DesignTokens.Spacing.lg)
         .background(
-            ZStack {
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.purple.opacity(0.08),
-                                Color.pink.opacity(0.05)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(
-                        LinearGradient(
-                            colors: [Color.purple.opacity(0.3), Color.pink.opacity(0.2)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1.5
-                    )
-            }
+            RoundedRectangle(cornerRadius: DesignTokens.Radius.xl, style: .continuous)
+                .glassEffect(DesignTokens.Glass.frostedLayer)
         )
-        .shadow(color: Color.purple.opacity(0.15), radius: 20, y: 8)
+        .shadow(color: DesignTokens.Colors.neonPurple.opacity(0.15), radius: 20, y: 8)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Exercise: \(chunk.content)")
     }
     
     private func summaryChunkView(chunk: ContentChunk) -> some View {
-        VStack(alignment: .leading, spacing: 18) {
-            HStack(spacing: 12) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
+            HStack(spacing: DesignTokens.Spacing.md) {
                 Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.green.opacity(0.6), Color.teal.opacity(0.4)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .fill(LinearGradient(colors: [DesignTokens.Colors.success.opacity(0.6), DesignTokens.Colors.neonGreen.opacity(0.4)], startPoint: .topLeading, endPoint: .bottomTrailing))
                     .frame(width: 48, height: 48)
                     .overlay(
                         Image(systemName: "checkmark.seal.fill")
                             .font(.system(size: 22, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(DesignTokens.Colors.textPrimary)
                     )
-                    .shadow(color: Color.green.opacity(0.4), radius: 8, y: 4)
+                    .shadow(color: DesignTokens.Colors.success.opacity(0.4), radius: 8, y: 4)
                 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                     Text("Key Takeaways")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.white)
+                        .font(DesignTokens.Typography.titleLarge)
+                        .foregroundColor(DesignTokens.Colors.textPrimary)
                     Text("What you've learned")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.green.opacity(0.8))
+                        .font(DesignTokens.Typography.body)
+                        .foregroundColor(DesignTokens.Colors.success.opacity(0.8))
                 }
                 
                 Spacer()
             }
             
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                 ForEach(chunk.content.components(separatedBy: "•").filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }, id: \.self) { point in
-                    HStack(alignment: .top, spacing: 12) {
+                    HStack(alignment: .top, spacing: DesignTokens.Spacing.md) {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 20))
-                            .foregroundColor(.green)
+                            .foregroundColor(DesignTokens.Colors.success)
                         Text(point.trimmingCharacters(in: .whitespacesAndNewlines))
-                            .font(.system(size: 16, design: .rounded))
-                            .foregroundColor(.white.opacity(0.95))
+                            .font(DesignTokens.Typography.bodyMedium)
+                            .foregroundColor(DesignTokens.Colors.textPrimary.opacity(0.95))
                         Spacer()
                     }
                 }
             }
         }
-        .padding(24)
+        .padding(DesignTokens.Spacing.lg)
         .background(
-            ZStack {
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.green.opacity(0.08),
-                                Color.teal.opacity(0.05)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(
-                        LinearGradient(
-                            colors: [Color.green.opacity(0.3), Color.teal.opacity(0.2)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1.5
-                    )
-            }
+            RoundedRectangle(cornerRadius: DesignTokens.Radius.xl, style: .continuous)
+                .glassEffect(DesignTokens.Glass.frostedLayer)
         )
-        .shadow(color: Color.green.opacity(0.15), radius: 20, y: 8)
+        .shadow(color: DesignTokens.Colors.success.opacity(0.15), radius: 20, y: 8)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Summary: \(chunk.content)")
     }
     
     // MARK: - Bottom Interaction Bar
     private var bottomInteractionBar: some View {
         VStack(spacing: 0) {
-            // Glassmorphic divider
             Rectangle()
-                .fill(
-                    LinearGradient(
-                        colors: [Color.white.opacity(0.1), Color.clear],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
+                .fill(LinearGradient(colors: [DesignTokens.Colors.neutral700.opacity(0.3), .clear], startPoint: .top, endPoint: .bottom))
                 .frame(height: 1)
             
-            HStack(spacing: 14) {
-                // Microphone button for speech input
+            HStack(spacing: DesignTokens.Spacing.md) {
                 Button(action: {
-                    withAnimation(.spring(response: 0.3)) {
-                        isRecording.toggle()
-                    }
-                    // TODO: Implement speech recognition
+                    withAnimation(DesignTokens.Animations.snappy) { isRecording.toggle() }
                 }) {
                     ZStack {
                         Circle()
                             .fill(
                                 isRecording
-                                ? LinearGradient(
-                                    colors: [Color.red.opacity(0.8), Color.orange.opacity(0.6)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                                : LinearGradient(
-                                    colors: [Color.white.opacity(0.1), Color.white.opacity(0.05)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
+                                ? LinearGradient(colors: [DesignTokens.Colors.error, DesignTokens.Colors.neonOrange], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                : LinearGradient(colors: [DesignTokens.Colors.neutral700, DesignTokens.Colors.neutral800], startPoint: .topLeading, endPoint: .bottomTrailing)
                             )
                             .frame(width: 44, height: 44)
                         
                         if isRecording {
                             Circle()
-                                .stroke(Color.red.opacity(0.5), lineWidth: 2)
+                                .stroke(DesignTokens.Colors.error.opacity(0.5), lineWidth: 2)
                                 .frame(width: 50, height: 50)
                                 .scaleEffect(1.2)
                                 .opacity(0)
@@ -672,61 +545,51 @@ struct EnhancedAIClassroomView: View {
                         
                         Image(systemName: isRecording ? "waveform" : "mic.fill")
                             .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(isRecording ? .white : .white.opacity(0.7))
+                            .foregroundColor(isRecording ? .white : DesignTokens.Colors.textSecondary)
                     }
                 }
+                .accessibilityLabel(isRecording ? "Stop recording" : "Start voice input")
                 
-                // Text input field
-                HStack(spacing: 8) {
+                HStack(spacing: DesignTokens.Spacing.sm) {
                     TextField("Ask anything or say 'continue'...", text: $userInput)
-                        .font(.system(size: 16))
-                        .foregroundColor(.white)
+                        .font(DesignTokens.Typography.bodyMedium)
+                        .foregroundColor(DesignTokens.Colors.textPrimary)
                         .focused($isInputFocused)
                         .submitLabel(.send)
-                        .onSubmit {
-                            handleUserInput()
-                        }
+                        .onSubmit(handleUserInput)
                     
                     if !userInput.isEmpty {
                         Button(action: { userInput = "" }) {
                             Image(systemName: "xmark.circle.fill")
                                 .font(.system(size: 16))
-                                .foregroundColor(.white.opacity(0.4))
+                                .foregroundColor(DesignTokens.Colors.textTertiary)
                         }
                         .transition(.scale.combined(with: .opacity))
+                        .accessibilityLabel("Clear text input")
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.horizontal, DesignTokens.Spacing.md)
+                .padding(.vertical, DesignTokens.Spacing.md)
                 .background(
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .fill(Color.white.opacity(0.1))
+                    RoundedRectangle(cornerRadius: DesignTokens.Radius.round, style: .continuous)
+                        .fill(DesignTokens.Colors.neutral800)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: DesignTokens.Radius.round, style: .continuous)
+                                .stroke(DesignTokens.Colors.neutral600, lineWidth: 1)
                         )
                 )
                 
-                // Send button
                 Button(action: handleUserInput) {
                     ZStack {
                         Circle()
                             .fill(
                                 (userInput.isEmpty && !isAwaitingAIResponse)
-                                ? LinearGradient(
-                                    colors: [Color.white.opacity(0.1), Color.white.opacity(0.05)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                                : LinearGradient(
-                                    colors: [Color.purple.opacity(0.8), Color.blue.opacity(0.6)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
+                                ? LinearGradient(colors: [DesignTokens.Colors.neutral700, DesignTokens.Colors.neutral800], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                : DesignTokens.Colors.brandGradient
                             )
                             .frame(width: 44, height: 44)
                             .shadow(
-                                color: userInput.isEmpty ? Color.clear : Color.purple.opacity(0.4),
+                                color: userInput.isEmpty ? .clear : DesignTokens.Colors.brand.opacity(0.4),
                                 radius: 8,
                                 y: 4
                             )
@@ -743,123 +606,105 @@ struct EnhancedAIClassroomView: View {
                     }
                 }
                 .disabled(userInput.isEmpty && !isAwaitingAIResponse)
+                .accessibilityLabel("Send message")
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.horizontal, DesignTokens.Spacing.md)
+            .padding(.vertical, DesignTokens.Spacing.md)
         }
         .background(
-            ZStack {
-                // Glassmorphic background
-                Color(red: 0.05, green: 0.08, blue: 0.18)
-                    .opacity(0.95)
-                
-                // Blur effect simulation
-                Rectangle()
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.white.opacity(0.05),
-                                Color.clear
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-            }
-            .ignoresSafeArea()
+            DesignTokens.Colors.backgroundSecondary.opacity(0.95)
+                .background(.ultraThinMaterial)
+                .ignoresSafeArea()
         )
     }
     
     // MARK: - Side Drawer
     private var sideDrawer: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 28) {
-                // Header
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xl) {
                 HStack {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                         Text("Course Settings")
-                            .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(.white)
+                            .font(DesignTokens.Typography.headlineSmall)
+                            .foregroundColor(DesignTokens.Colors.textPrimary)
                         Text(topic)
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.white.opacity(0.6))
+                            .font(DesignTokens.Typography.body)
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
                     }
                     
                     Spacer()
                     
-                    Button(action: { withAnimation(.spring()) { isDrawerOpen = false } }) {
+                    Button(action: { withAnimation(DesignTokens.Animations.snappy) { isDrawerOpen = false } }) {
                         Image(systemName: "xmark")
                             .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.6))
+                            .foregroundColor(DesignTokens.Colors.textTertiary)
                             .frame(width: 32, height: 32)
-                            .background(Circle().fill(Color.white.opacity(0.1)))
+                            .background(Circle().fill(DesignTokens.Colors.neutral800))
                     }
+                    .accessibilityLabel("Close settings")
                 }
-                .padding(.top, 20)
+                .padding(.top, DesignTokens.Spacing.lg)
                 
-                Divider()
-                    .background(Color.white.opacity(0.2))
+                Divider().background(DesignTokens.Colors.neutral700)
                 
-                // Lesson Progress
                 if let course = course {
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                         Text("Lesson Progress")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.8))
+                            .font(DesignTokens.Typography.titleMedium)
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
                         
                         Text("Lesson \(currentLessonIndex + 1) of \(course.lessons.count)")
-                            .font(.system(size: 14))
-                            .foregroundColor(.white.opacity(0.6))
+                            .font(DesignTokens.Typography.body)
+                            .foregroundColor(DesignTokens.Colors.textTertiary)
                     }
-                    .padding(16)
+                    .padding(DesignTokens.Spacing.md)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .background(
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .fill(Color.white.opacity(0.08))
+                        RoundedRectangle(cornerRadius: DesignTokens.Radius.md, style: .continuous)
+                            .fill(DesignTokens.Colors.neutral800)
                     )
                 }
                 
-                // Settings Toggles
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
                     Text("Preferences")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.8))
+                        .font(DesignTokens.Typography.titleMedium)
+                        .foregroundColor(DesignTokens.Colors.textSecondary)
                     
                     Toggle(isOn: $voiceEnabled) {
                         HStack {
                             Image(systemName: "speaker.wave.2.fill")
-                                .foregroundColor(.cyan)
+                                .foregroundColor(DesignTokens.Colors.neonBlue)
                             Text("Voice Narration")
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignTokens.Colors.textPrimary)
                         }
                     }
-                    .tint(.cyan)
+                    .tint(DesignTokens.Colors.neonBlue)
                     
                     Toggle(isOn: $showSkillsGraph) {
                         HStack {
                             Image(systemName: "brain.head.profile")
-                                .foregroundColor(.purple)
+                                .foregroundColor(DesignTokens.Colors.neonPurple)
                             Text("Skills Graph")
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignTokens.Colors.textPrimary)
                         }
                     }
-                    .tint(.purple)
+                    .tint(DesignTokens.Colors.neonPurple)
                 }
-                .padding(16)
+                .padding(DesignTokens.Spacing.md)
                 .background(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(Color.white.opacity(0.08))
+                    RoundedRectangle(cornerRadius: DesignTokens.Radius.md, style: .continuous)
+                        .fill(DesignTokens.Colors.neutral800)
                 )
                 
-                // Curated Resources
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
                     Text("Additional Resources")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.8))
+                        .font(DesignTokens.Typography.titleMedium)
+                        .foregroundColor(DesignTokens.Colors.textSecondary)
                     
                     if resources.isEmpty {
                         Text("No resources available yet")
-                            .font(.system(size: 14))
-                            .foregroundColor(.white.opacity(0.5))
+                            .font(DesignTokens.Typography.body)
+                            .foregroundColor(DesignTokens.Colors.textTertiary)
                             .padding()
                     } else {
                         ForEach(resources.prefix(3)) { resource in
@@ -868,134 +713,103 @@ struct EnhancedAIClassroomView: View {
                     }
                 }
             }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 40)
+            .padding(.horizontal, DesignTokens.Spacing.lg)
+            .padding(.bottom, DesignTokens.Spacing.xxl)
         }
         .frame(width: 320)
         .background(
-            ZStack {
-                Color(red: 0.03, green: 0.06, blue: 0.15)
-                
-                // Gradient overlay
-                LinearGradient(
-                    colors: [
-                        Color.purple.opacity(0.1),
-                        Color.clear,
-                        Color.blue.opacity(0.1)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            }
-            .ignoresSafeArea()
+            DesignTokens.Colors.backgroundElevated
+                .background(.ultraThinMaterial)
+                .ignoresSafeArea()
         )
     }
     
     private func compactResourceCard(_ resource: CuratedResource) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: DesignTokens.Spacing.md) {
             Image(systemName: resource.type.iconName)
                 .font(.system(size: 20))
                 .foregroundColor(resource.type.color)
                 .frame(width: 40, height: 40)
                 .background(
-                    RoundedRectangle(cornerRadius: 10)
+                    RoundedRectangle(cornerRadius: DesignTokens.Radius.sm)
                         .fill(resource.type.color.opacity(0.15))
                 )
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                 Text(resource.title)
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.white)
+                    .font(DesignTokens.Typography.labelLarge)
+                    .foregroundColor(DesignTokens.Colors.textPrimary)
                     .lineLimit(2)
                 
                 Text(resource.source)
-                    .font(.system(size: 12))
-                    .foregroundColor(.white.opacity(0.5))
+                    .font(DesignTokens.Typography.labelSmall)
+                    .foregroundColor(DesignTokens.Colors.textTertiary)
             }
             
             Spacer()
         }
-        .padding(12)
+        .padding(DesignTokens.Spacing.md)
         .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color.white.opacity(0.05))
+            RoundedRectangle(cornerRadius: DesignTokens.Radius.md, style: .continuous)
+                .fill(DesignTokens.Colors.neutral800.opacity(0.5))
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(resource.type.rawValue) resource: \(resource.title) from \(resource.source)")
     }
     
-    // MARK: - Mini Quiz Inline View
-    private var miniQuizInlineView: some View {
-        VStack(spacing: 16) {
-            HStack {
-                Image(systemName: "questionmark.circle.fill")
-                    .font(.system(size: 24))
-                    .foregroundColor(.orange)
-                
-                Text("Quick Check")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(.white)
-                
-                Spacer()
-            }
-            
-            if let quiz = miniQuizQuestion {
-                VStack(spacing: 12) {
-                    Text(quiz.question)
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    
+    // MARK: - Comprehension Check Overlay
+    private func comprehensionCheckOverlay(quiz: QuizQuestion) -> some View {
+        ZStack {
+            DesignTokens.Colors.backgroundPrimary.opacity(0.8)
+                .background(.ultraThinMaterial)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    // Don't dismiss on tap
+                }
+
+            VStack(spacing: DesignTokens.Spacing.lg) {
+                Text("Comprehension Check")
+                    .font(DesignTokens.Typography.titleLarge)
+                    .foregroundColor(DesignTokens.Colors.textPrimary)
+
+                Text(quiz.question)
+                    .font(DesignTokens.Typography.bodyLarge)
+                    .foregroundColor(DesignTokens.Colors.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+
+                VStack(spacing: DesignTokens.Spacing.md) {
                     ForEach(quiz.answers.indices, id: \.self) { index in
-                        Button(action: { checkMiniQuizAnswer(index) }) {
+                        Button(action: { checkAnswer(index) }) {
                             Text(quiz.answers[index])
-                                .font(.system(size: 15))
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(14)
+                                .font(DesignTokens.Typography.buttonLabel)
+                                .foregroundColor(DesignTokens.Colors.textPrimary)
+                                .frame(maxWidth: .infinity)
+                                .padding()
                                 .background(
-                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                        .fill(Color.white.opacity(0.1))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                                .stroke(Color.orange.opacity(0.3), lineWidth: 1)
-                                        )
+                                    RoundedRectangle(cornerRadius: DesignTokens.Radius.lg, style: .continuous)
+                                        .glassEffect(DesignTokens.Glass.interactiveLayer)
                                 )
                         }
+                        .accessibilityLabel("Answer: \(quiz.answers[index])")
                     }
                 }
-            } else {
-                Button(action: generateMiniQuiz) {
-                    HStack {
-                        Image(systemName: "play.fill")
-                        Text("Start Quiz")
-                    }
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(
-                        LinearGradient(
-                            colors: [Color.orange.opacity(0.8), Color.red.opacity(0.6)],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .cornerRadius(14)
-                }
+                .padding(.horizontal)
             }
+            .padding(DesignTokens.Spacing.xxl)
+            .background(
+                RoundedRectangle(cornerRadius: DesignTokens.Radius.xl, style: .continuous)
+                    .glassEffect(DesignTokens.Glass.frostedLayer)
+            )
+            .shadow(color: .black.opacity(0.3), radius: 20, y: 10)
+            .transition(.scale.combined(with: .opacity))
         }
-        .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(Color.orange.opacity(0.08))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .stroke(Color.orange.opacity(0.3), lineWidth: 1.5)
-                )
-        )
-        .padding(.top, 12)
+        .accessibilityAddTraits(.isModal)
+        .accessibilityLabel("Comprehension Check. Question: \(quiz.question)")
     }
 
-    // MARK: - Teaching Area (75%)
+    // MARK: - Teaching Area (DEPRECATED - Replaced by Conversation Flow)
+    /*
     private var teachingArea: some View {
         VStack(spacing: 20) {
             // Achievement tracker and progress
@@ -1036,6 +850,7 @@ struct EnhancedAIClassroomView: View {
         .padding(.vertical, 20)
         .padding(.horizontal, 20)
     }
+    */
 
     // MARK: - Achievement and Progress Section
     private var achievementAndProgressSection: some View {
@@ -1493,814 +1308,509 @@ struct EnhancedAIClassroomView: View {
     }
 
     private var interactiveContentView: some View {
-        VStack(spacing: 16) {
-            // Interactive code editor
-            VStack(alignment: .leading, spacing: 12) {
+        VStack(spacing: DesignTokens.Spacing.lg) {
+            // Placeholder for different interactive types
+            switch currentInteractiveType {
+            case .codeEditor:
+                codeEditorView
+            case .multipleChoice:
+                multipleChoiceView
+            case .fillInTheBlank:
+                fillInTheBlankView
+            }
+            
+            // Submit / Check Answer Button
+            Button(action: checkInteractiveAnswer) {
                 HStack {
-                    Image(systemName: "chevron.left.forwardslash.chevron.right")
-                        .font(.system(size: 16))
-                    Text("Try It Yourself")
-                        .font(.system(size: 16, weight: .semibold))
-
-                    Spacer()
-
-                    Button(action: { executeCode() }) {
-                        HStack(spacing: 6) {
-                            if isExecutingCode {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                    .scaleEffect(0.7)
-                            } else {
-                                Image(systemName: "play.fill")
-                                    .font(.system(size: 12))
-                            }
-                            Text(isExecutingCode ? "Running..." : "Run")
-                        }
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(
-                            LinearGradient(
-                                colors: [.green, .green.opacity(0.8)],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .cornerRadius(8)
-                    }
-                    .disabled(isExecutingCode)
+                    Image(systemName: "checkmark.circle.fill")
+                    Text("Check Answer")
                 }
-                .foregroundColor(.white)
-
-                // Code editor (editable)
-                TextEditor(text: $codeInput)
-                    .font(.system(size: 14, design: .monospaced))
-                    .foregroundColor(.green.opacity(0.9))
-                    .padding(16)
-                    .frame(minHeight: 120)
-                    .background(Color.black.opacity(0.5))
-                    .cornerRadius(12)
-                    .scrollContentBackground(.hidden)
-
-                // Output
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Output:")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.6))
-
-                    ScrollView {
-                        Text(codeOutput.isEmpty ? "// Run your code to see output" : codeOutput)
-                            .font(.system(size: 14, design: .monospaced))
-                            .foregroundColor(codeOutput.isEmpty ? .white.opacity(0.4) : .white)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .frame(minHeight: 60)
-                }
-                .padding(12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.white.opacity(0.05))
-                .cornerRadius(8)
+                .font(DesignTokens.Typography.buttonLabel)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, DesignTokens.Spacing.md)
+                .background(DesignTokens.Colors.brandGradient)
+                .cornerRadius(DesignTokens.Radius.button)
+                .shadow(color: DesignTokens.Colors.brand.opacity(0.3), radius: 8, y: 4)
             }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color.white.opacity(0.08))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+            .disabled(isInteractiveAnswerCorrect)
+            .accessibilityLabel("Check your answer")
+            
+            // Feedback
+            if let feedback = interactiveFeedback {
+                Text(feedback)
+                    .font(DesignTokens.Typography.body)
+                    .foregroundColor(isInteractiveAnswerCorrect ? DesignTokens.Colors.success : DesignTokens.Colors.error)
+                    .padding(DesignTokens.Spacing.md)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                            .fill((isInteractiveAnswerCorrect ? DesignTokens.Colors.success : DesignTokens.Colors.error).opacity(0.1))
                     )
-            )
+                    .transition(.opacity.combined(with: .scale))
+            }
+        }
+        .padding(.top, DesignTokens.Spacing.md)
+    }
+    
+    private var codeEditorView: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+            Text("Your turn to code:")
+                .font(DesignTokens.Typography.labelLarge)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
+            
+            TextEditor(text: $interactiveCodeInput)
+                .font(DesignTokens.Typography.techLabel)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
+                .padding(DesignTokens.Spacing.md)
+                .frame(height: 150)
+                .background(
+                    RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                        .fill(DesignTokens.Colors.neutral900)
+                )
+                .cornerRadius(DesignTokens.Radius.md)
+                .autocapitalization(.none)
+                .disableAutocorrection(true)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Code editor. Type your code here.")
+    }
+    
+    private var multipleChoiceView: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+            Text("Choose the correct option:")
+                .font(DesignTokens.Typography.labelLarge)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
+            
+            ForEach(0..<4) { index in
+                Button(action: { interactiveSelectedOption = index }) {
+                    HStack {
+                        Text("Option \(index + 1)")
+                            .font(DesignTokens.Typography.bodyMedium)
+                            .foregroundColor(DesignTokens.Colors.textPrimary)
+                        Spacer()
+                        if interactiveSelectedOption == index {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(DesignTokens.Colors.success)
+                        }
+                    }
+                    .padding(DesignTokens.Spacing.md)
+                    .background(
+                        RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                            .fill(interactiveSelectedOption == index ? DesignTokens.Colors.success.opacity(0.1) : DesignTokens.Colors.neutral800)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                                    .stroke(interactiveSelectedOption == index ? DesignTokens.Colors.success : DesignTokens.Colors.neutral600, lineWidth: 1.5)
+                            )
+                    )
+                }
+                .accessibilityLabel("Option \(index + 1)")
+            }
         }
     }
+    
+    private var fillInTheBlankView: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+            Text("Fill in the missing word:")
+                .font(DesignTokens.Typography.labelLarge)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
+            
+            HStack {
+                Text("The quick brown fox jumps over the lazy")
+                    .font(DesignTokens.Typography.bodyLarge)
+                
+                TextField("word", text: $interactiveBlankInput)
+                    .font(DesignTokens.Typography.bodyLarge)
+                    .foregroundColor(DesignTokens.Colors.neonBlue)
+                    .padding(DesignTokens.Spacing.sm)
+                    .background(
+                        Rectangle()
+                            .fill(DesignTokens.Colors.neonBlue.opacity(0.1))
+                            .frame(height: 2)
+                        , alignment: .bottom
+                    )
+                    .frame(width: 80)
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Fill in the blank. The quick brown fox jumps over the lazy [input field].")
+    }
+    
+    // MARK: - Helper Functions
+    // MARK: - Skills Graph View
+    private var skillsGraphView: some View {
+        ZStack {
+            // Background and Grid
+            DesignTokens.Colors.backgroundPrimary.ignoresSafeArea()
+            
+            // Radial Gradient
+            Circle()
+                .fill(
+                    RadialGradient(
+                        gradient: Gradient(colors: [DesignTokens.Colors.neonPurple.opacity(0.2), .clear]),
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: 300
+                    )
+                )
+                .frame(width: 600, height: 600)
+            
+            // Grid Lines
+            ForEach(0..<5) { i in
+                Circle()
+                    .stroke(DesignTokens.Colors.neutral700.opacity(0.5), lineWidth: 1)
+                    .frame(width: CGFloat(i + 1) * 100, height: CGFloat(i + 1) * 100)
+            }
+            
+            // Skill Nodes
+            if let course = course {
+                ForEach(Array(course.lessons.enumerated()), id: \.element.id) { index, lesson in
+                    let angle = (2 * .pi / Double(course.lessons.count)) * Double(index)
+                    let radius = 200.0
+                    let x = cos(angle) * radius
+                    let y = sin(angle) * radius
+                    
+                    VStack(spacing: DesignTokens.Spacing.sm) {
+                        ZStack {
+                            Circle()
+                                .fill(DesignTokens.Colors.neutral800)
+                                .frame(width: 60, height: 60)
+                                .overlay(
+                                    Circle()
+                                        .stroke(
+                                            masteryLevels[lesson.id] ?? 0 > 0.7 ? DesignTokens.Colors.neonPurple : DesignTokens.Colors.neutral600,
+                                            lineWidth: 2
+                                        )
+                                )
+                            
+                            Image(systemName: lesson.iconName)
+                                .font(.system(size: 24))
+                                .foregroundColor(masteryLevels[lesson.id] ?? 0 > 0.7 ? DesignTokens.Colors.neonPurple : DesignTokens.Colors.textTertiary)
+                            
+                            Circle()
+                                .trim(from: 0, to: masteryLevels[lesson.id] ?? 0)
+                                .stroke(DesignTokens.Colors.neonPurple, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                                .frame(width: 58, height: 58)
+                                .rotationEffect(.degrees(-90))
+                                .animation(DesignTokens.Animations.smooth, value: masteryLevels[lesson.id])
+                        }
+                        
+                        Text(lesson.title)
+                            .font(DesignTokens.Typography.labelSmall)
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
+                            .frame(width: 80)
+                            .multilineTextAlignment(.center)
+                    }
+                    .offset(x: x, y: y)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Skill: \(lesson.title). Mastery: \(Int((masteryLevels[lesson.id] ?? 0) * 100)) percent.")
+                }
+            }
+            
+            // Central "Brain"
+            VStack(spacing: DesignTokens.Spacing.md) {
+                Image(systemName: "brain.head.profile.fill")
+                    .font(.system(size: 48, weight: .bold))
+                    .foregroundColor(DesignTokens.Colors.neonPurple)
+                    .shadow(color: DesignTokens.Colors.neonPurple.opacity(0.5), radius: 15)
+                
+                Text("Mastery Map")
+                    .font(DesignTokens.Typography.titleMedium)
+                    .foregroundColor(DesignTokens.Colors.textPrimary)
+                
+                Text(topic)
+                    .font(DesignTokens.Typography.body)
+                    .foregroundColor(DesignTokens.Colors.textSecondary)
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Mastery Map for \(topic)")
+        }
+        .transition(.scale.combined(with: .opacity))
+    }
+    
+    // MARK: - Helper Functions
+    private func chunkTypeIcon(_ type: ContentChunk.ChunkType) -> some View {
+        let (icon, color) = type.iconAndColor
+        return Circle()
+            .fill(color.opacity(0.2))
+            .frame(width: 24, height: 24)
+            .overlay(
+                Image(systemName: icon)
+                    .font(.system(size: 12))
+                    .foregroundColor(color)
+            )
+    }
 
-    private var quizContentView: some View {
+    // MARK: - Mini Quiz Section
+    private var miniQuizSection: some View {
         VStack(spacing: 16) {
-            Text("🎯 Knowledge Check")
-                .font(.system(size: 20, weight: .bold))
+            Text("Quick Check")
+                .font(.system(size: 18, weight: .semibold))
                 .foregroundColor(.white)
 
-            quickCheckButton
-        }
-    }
-
-    // MARK: - Key Concepts Section
-    private var keyConceptsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 8) {
-                Image(systemName: "lightbulb.fill")
-                    .font(.system(size: 16))
-                    .foregroundColor(.yellow)
-
-                Text("Key Concepts")
-                    .font(.system(size: 16, weight: .semibold))
+            if let quiz = miniQuizQuestion {
+                miniQuizCard(quiz: quiz)
+            } else {
+                Button(action: generateMiniQuiz) {
+                    HStack {
+                        Image(systemName: "questionmark.circle")
+                        Text("Take Mini Quiz")
+                    }
+                    .font(.system(size: 16, weight: .medium))
                     .foregroundColor(.white)
-            }
-
-            VStack(spacing: 8) {
-                keyConceptRow(icon: "checkmark.circle.fill", text: "Understanding the fundamentals")
-                keyConceptRow(icon: "checkmark.circle.fill", text: "Practical applications")
-                keyConceptRow(icon: "checkmark.circle.fill", text: "Common patterns")
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                    .background(Color.blue.opacity(0.2))
+                    .cornerRadius(12)
+                }
             }
         }
-        .padding(16)
+        .padding(20)
         .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color.yellow.opacity(0.1))
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color.orange.opacity(0.05))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .stroke(Color.yellow.opacity(0.3), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(Color.orange.opacity(0.2), lineWidth: 1)
                 )
         )
     }
 
-    private func keyConceptRow(icon: String, text: String) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: icon)
-                .font(.system(size: 14))
-                .foregroundColor(.green)
+    private func miniQuizCard(quiz: QuizQuestion) -> some View {
+        VStack(spacing: 16) {
+            Text(quiz.question)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
 
-            Text(text)
-                .font(.system(size: 14))
-                .foregroundColor(.white.opacity(0.9))
-
-            Spacer()
+            ForEach(quiz.answers.indices, id: \.self) { index in
+                Button(action: { checkMiniQuizAnswer(index) }) {
+                    Text(quiz.answers[index])
+                        .font(.system(size: 14))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(12)
+                        .background(Color.white.opacity(0.1))
+                        .cornerRadius(8)
+                }
+            }
         }
     }
 
-    // MARK: - Quick Check Button
-    private var quickCheckButton: some View {
-        Button(action: {
-            showingQuiz = true
-            currentQuizQuestion = generateQuizQuestion()
-        }) {
+    // MARK: - AI Tutor Question Button
+    private var aiTutorQuestionButton: some View {
+        Button(action: { showingTutorQuestion = true }) {
             HStack {
-                Image(systemName: "questionmark.circle.fill")
+                Image(systemName: "message.circle.fill")
                     .font(.system(size: 18))
-
-                Text("Quick Comprehension Check")
-                    .font(.system(size: 15, weight: .semibold))
-
-                Spacer()
-
-                Image(systemName: "arrow.right")
-                    .font(.system(size: 14, weight: .semibold))
+                Text("Ask AI Tutor")
+                    .font(.system(size: 16, weight: .medium))
             }
             .foregroundColor(.white)
             .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+            .background(Color.purple.opacity(0.2))
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.purple.opacity(0.3), lineWidth: 1)
+            )
+        }
+    }
+
+    // MARK: - Continue Button
+    private var continueButton: some View {
+        Button(action: continueToNextChunk) {
+            HStack {
+                Text(currentChunkIndex >= contentChunks.count - 1 ? "Complete Lesson" : "Continue")
+                    .font(.system(size: 18, weight: .semibold))
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 16))
+            }
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
             .background(
                 LinearGradient(
-                    colors: [.purple, .blue],
+                    colors: [.blue, .purple],
                     startPoint: .leading,
                     endPoint: .trailing
                 )
             )
-            .cornerRadius(12)
+            .cornerRadius(16)
+            .shadow(color: Color.blue.opacity(0.3), radius: 8, x: 0, y: 4)
         }
+        .padding(.horizontal, 20)
     }
 
-    // MARK: - Navigation Buttons
-    private var navigationButtons: some View {
-        HStack(spacing: 12) {
-            if currentLessonIndex > 0 {
-                Button(action: previousLesson) {
-                    HStack {
-                        Image(systemName: "arrow.left")
-                        Text("Previous")
-                    }
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.8))
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 14)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .stroke(Color.white.opacity(0.3), lineWidth: 1.5)
-                    )
-                }
-            }
+    // MARK: - Lesson Complete Card
+    private var lessonCompleteCard: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 48))
+                .foregroundColor(.green)
 
-            Spacer()
+            Text("Lesson Complete!")
+                .font(.system(size: 24, weight: .bold))
+                .foregroundColor(.white)
 
-            if let course = course, currentLessonIndex < course.lessons.count - 1 {
-                Button(action: nextLesson) {
-                    HStack {
-                        Text("Next Lesson")
-                        Image(systemName: "arrow.right")
-                    }
-                    .font(.system(size: 15, weight: .semibold))
+            Text("Great job! You've mastered this concept.")
+                .font(.system(size: 16))
+                .foregroundColor(.white.opacity(0.7))
+                .multilineTextAlignment(.center)
+
+            Button(action: handleLessonComplete) {
+                Text("Continue to Next Lesson")
+                    .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.white)
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 14)
-                    .background(
-                        LinearGradient(
-                            colors: [.blue, .purple],
-                            startPoint: .leading,
-                            endPoint: .trailing
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.green)
+                    .cornerRadius(16)
+            }
+        }
+        .padding(32)
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(Color.green.opacity(0.1))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(Color.green.opacity(0.3), lineWidth: 2)
+                )
+        )
+    }
+
+    // MARK: - Animated Lyo Avatar
+    private var animatedLyoAvatar: some View {
+        HStack(spacing: 16) {
+            // Avatar orb with animation
+            ZStack {
+                // Glow
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [
+                                Color.blue.opacity(0.3),
+                                Color.purple.opacity(0.2),
+                                Color.clear
+                            ],
+                            center: .center,
+                            startRadius: 0,
+                            endRadius: 40
                         )
                     )
-                    .cornerRadius(12)
-                }
-            }
-        }
-        .padding(.top, 12)
-    }
+                    .frame(width: 80, height: 80)
+                    .blur(radius: 10)
 
-    // MARK: - Resource Curation Bar (25%)
-    private var resourceCurationBar: some View {
-        VStack(spacing: 0) {
-            // Header
-            HStack {
-                Image(systemName: "books.vertical.fill")
-                    .font(.system(size: 16))
-                    .foregroundColor(.blue)
+                // Main orb
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.blue, Color.purple],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 60, height: 60)
 
-                Text("Curated Resources")
-                    .font(.system(size: 16, weight: .semibold))
+                // Icon based on state
+                Image(systemName: avatarState.iconName)
+                    .font(.system(size: 24, weight: .medium))
                     .foregroundColor(.white)
-
-                Spacer()
-
-                Text("Swipe →")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.white.opacity(0.5))
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 12)
-            .background(Color.white.opacity(0.05))
-
-            // Horizontal scroll of resources
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 16) {
-                    ForEach(resources) { resource in
-                        resourceCard(resource)
-                    }
-
-                    // Placeholder resources if empty
-                    if resources.isEmpty {
-                        placeholderResourceCards
-                    }
-                }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
-            }
-        }
-        .background(Color.white.opacity(0.03))
-    }
-
-    private func resourceCard(_ resource: CuratedResource) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            // Icon and type
-            HStack {
-                Image(systemName: resource.type.iconName)
-                    .font(.system(size: 24))
-                    .foregroundColor(resource.type.color)
-
-                Spacer()
-
-                Text(resource.type.displayName)
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.6))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Capsule().fill(resource.type.color.opacity(0.2)))
             }
 
-            // Title
-            Text(resource.title)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(.white)
-                .lineLimit(2)
-                .fixedSize(horizontal: false, vertical: true)
-
-            // Source
-            Text(resource.source)
-                .font(.system(size: 12))
-                .foregroundColor(.white.opacity(0.6))
-
-            Spacer()
-
-            // Action button
-            Button("View") {
-                // Open resource
-            }
-            .font(.system(size: 12, weight: .semibold))
-            .foregroundColor(.white)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
-            .background(resource.type.color.opacity(0.3))
-            .cornerRadius(8)
-        }
-        .padding(14)
-        .frame(width: 160, height: 180)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color.white.opacity(0.08))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                )
-        )
-    }
-
-    private var placeholderResourceCards: some View {
-        Group {
-            placeholderCard(icon: "book.fill", title: "Python Crash Course", type: "Book", color: .orange)
-            placeholderCard(icon: "play.rectangle.fill", title: "Python Tutorial", type: "Video", color: .red)
-            placeholderCard(icon: "doc.text.fill", title: "Official Docs", type: "Documentation", color: .blue)
-            placeholderCard(icon: "newspaper.fill", title: "Best Practices", type: "Article", color: .green)
-        }
-    }
-
-    private func placeholderCard(icon: String, title: String, type: String, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Image(systemName: icon)
-                    .font(.system(size: 24))
-                    .foregroundColor(color)
-                Spacer()
-                Text(type)
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.6))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Capsule().fill(color.opacity(0.2)))
-            }
-
-            Text(title)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(.white)
-                .lineLimit(2)
-
-            Text("Curated for you")
-                .font(.system(size: 12))
-                .foregroundColor(.white.opacity(0.6))
-
-            Spacer()
-
-            Button("View") {
-                // Action
-            }
-            .font(.system(size: 12, weight: .semibold))
-            .foregroundColor(.white)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
-            .background(color.opacity(0.3))
-            .cornerRadius(8)
-        }
-        .padding(14)
-        .frame(width: 160, height: 180)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color.white.opacity(0.08))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                )
-        )
-    }
-
-    // MARK: - Comprehension Check Overlay
-    private func comprehensionCheckOverlay(quiz: QuizQuestion) -> some View {
-        ZStack {
-            // Dimmed background
-            Color.black.opacity(0.7)
-                .ignoresSafeArea()
-                .onTapGesture {
-                    showingQuiz = false
-                }
-
-            // Quiz card
-            VStack(spacing: 24) {
-                // Header
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Comprehension Check")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundColor(.white)
-
-                        Text("Test your understanding")
-                            .font(.system(size: 14))
-                            .foregroundColor(.white.opacity(0.7))
-                    }
-
-                    Spacer()
-
-                    Button(action: { showingQuiz = false }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 28))
-                            .foregroundColor(.white.opacity(0.6))
-                    }
-                }
-
-                // Question
-                Text(quiz.question)
-                    .font(.system(size: 17, weight: .medium))
+            // Speech bubble
+            VStack(alignment: .leading, spacing: 4) {
+                Text(avatarState.message)
+                    .font(.system(size: 15, weight: .medium))
                     .foregroundColor(.white)
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(16)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .fill(Color.blue.opacity(0.15))
-                    )
-
-                // Options
-                VStack(spacing: 12) {
-                    ForEach(Array(quiz.answers.enumerated()), id: \.offset) { index, option in
-                        quizOptionButton(option: option, index: index)
-                    }
-                }
-
-                Spacer()
             }
-            .padding(24)
-            .frame(maxWidth: 400, maxHeight: 500)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
             .background(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(Color(red: 0.08, green: 0.1, blue: 0.2))
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color.white.opacity(0.1))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
                             .stroke(Color.white.opacity(0.2), lineWidth: 1)
                     )
             )
-            .shadow(color: .black.opacity(0.5), radius: 30)
-        }
-    }
-
-    private func quizOptionButton(option: String, index: Int) -> some View {
-        Button(action: {
-            // Check answer
-            checkAnswer(selectedIndex: index)
-        }) {
-            HStack {
-                Text(String(UnicodeScalar(65 + index)!))
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(width: 32, height: 32)
-                    .background(Circle().fill(Color.blue.opacity(0.3)))
-
-                Text(option)
-                    .font(.system(size: 15))
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.leading)
-
-                Spacer()
-            }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(Color.white.opacity(0.08))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                    )
-            )
-        }
-    }
-
-    // MARK: - Adaptive Learning UI Components
-
-    /// Mastery level (theta) indicator
-    private var masteryLevelIndicator: some View {
-        ZStack {
-            Circle()
-                .stroke(Color.white.opacity(0.2), lineWidth: 2)
-                .frame(width: 32, height: 32)
-
-            Circle()
-                .trim(from: 0, to: currentMasteryLevel)
-                .stroke(
-                    LinearGradient(
-                        colors: [.green, .yellow, .orange],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    ),
-                    lineWidth: 2
-                )
-                .frame(width: 32, height: 32)
-                .rotationEffect(.degrees(-90))
-
-            Image(systemName: "brain")
-                .font(.system(size: 12))
-                .foregroundColor(.white.opacity(0.9))
-        }
-    }
-
-    /// Adaptive Learning Phase Badge
-    private var adaptivePhaseBadge: some View {
-        HStack(spacing: 6) {
-            Image(systemName: adaptivePhase.iconName)
-                .font(.system(size: 12))
-
-            Text(adaptivePhase.displayName)
-                .font(.system(size: 11, weight: .semibold))
-                .tracking(0.5)
-        }
-        .foregroundColor(.white)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background(
-            Capsule()
-                .fill(adaptivePhase.color.opacity(0.3))
-                .overlay(
-                    Capsule()
-                        .stroke(adaptivePhase.color, lineWidth: 1)
-                )
-        )
-        .shadow(color: .black.opacity(0.3), radius: 10)
-    }
-
-    /// Adaptive Phase Indicator within content area
-    private var adaptivePhaseIndicator: some View {
-        HStack(spacing: 12) {
-            // Phase indicators
-            ForEach(AdaptivePhase.allCases, id: \.self) { phase in
-                HStack(spacing: 6) {
-                    Circle()
-                        .fill(phase == adaptivePhase ? phase.color : Color.white.opacity(0.2))
-                        .frame(width: 8, height: 8)
-
-                    if phase == adaptivePhase {
-                        Text(phase.displayName)
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.white)
-                    }
-                }
-            }
 
             Spacer()
-
-            // Mastery text
-            Text("Mastery: \(Int(currentMasteryLevel * 100))%")
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(masteryColor)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color.white.opacity(0.05))
-        )
+        .padding(.horizontal, 20)
     }
 
-    private var masteryColor: Color {
-        if currentMasteryLevel < 0.3 {
-            return .red
-        } else if currentMasteryLevel < 0.7 {
-            return .yellow
-        } else {
-            return .green
-        }
-    }
-
-    /// Skills Graph Overlay
-    private var skillsGraphOverlay: some View {
-        ZStack {
-            // Dimmed background
-            Color.black.opacity(0.85)
-                .ignoresSafeArea()
-                .onTapGesture {
-                    showSkillsGraph = false
-                }
-
-            // Graph container
-            VStack(spacing: 20) {
-                // Header
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Knowledge Graph")
-                            .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(.white)
-
-                        Text("Your learning pathway and mastery levels")
-                            .font(.system(size: 14))
-                            .foregroundColor(.white.opacity(0.7))
-                    }
-
-                    Spacer()
-
-                    Button(action: { showSkillsGraph = false }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 28))
-                            .foregroundColor(.white.opacity(0.6))
-                    }
-                }
-                .padding(.horizontal, 24)
-                .padding(.top, 24)
-
-                // Knowledge Components Graph
-                ScrollView {
-                    VStack(spacing: 16) {
-                        if knowledgeComponents.isEmpty {
-                            // Generate sample KCs for demo
-                            ForEach(sampleKnowledgeComponents) { kc in
-                                knowledgeComponentCard(kc)
-                            }
-                        } else {
-                            ForEach(knowledgeComponents) { kc in
-                                knowledgeComponentCard(kc)
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 24)
-                }
-
-                Spacer()
-            }
-            .frame(maxWidth: 600, maxHeight: 700)
-            .background(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(Color(red: 0.08, green: 0.1, blue: 0.2))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 24, style: .continuous)
-                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                    )
-            )
-            .shadow(color: .black.opacity(0.5), radius: 40)
-        }
-    }
-
-    private func knowledgeComponentCard(_ kc: KnowledgeComponent) -> some View {
+    // MARK: - Lesson Intro Card
+    private func lessonIntroCard(lesson: LessonOutline) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                // Icon
-                Image(systemName: kc.iconName)
-                    .font(.system(size: 20))
-                    .foregroundColor(kc.color)
-                    .frame(width: 40, height: 40)
-                    .background(
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .fill(kc.color.opacity(0.2))
-                    )
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(kc.name)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.white)
-
-                    Text("\(kc.alosCompleted)/\(kc.totalAlos) completed")
-                        .font(.system(size: 13))
-                        .foregroundColor(.white.opacity(0.6))
-                }
-
-                Spacer()
-
-                // Mastery level
-                VStack(spacing: 4) {
-                    Text("\(Int(kc.masteryLevel * 100))%")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(masteryColorForLevel(kc.masteryLevel))
-
-                    Text("θ = \(String(format: "%.2f", kc.masteryLevel))")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(.white.opacity(0.5))
-                }
-            }
-
-            // Progress bar
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    Rectangle()
-                        .fill(Color.white.opacity(0.1))
-
-                    Rectangle()
-                        .fill(
-                            LinearGradient(
-                                colors: [kc.color, kc.color.opacity(0.6)],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .frame(width: geo.size.width * kc.masteryLevel)
-                }
-            }
-            .frame(height: 4)
-            .cornerRadius(2)
-
-            // Prerequisites
-            if !kc.prerequisites.isEmpty {
-                HStack(spacing: 6) {
-                    Image(systemName: "arrow.down.left")
-                        .font(.system(size: 10))
-                        .foregroundColor(.white.opacity(0.5))
-
-                    Text("Requires: \(kc.prerequisites.joined(separator: ", "))")
-                        .font(.system(size: 11))
-                        .foregroundColor(.white.opacity(0.6))
-                }
-            }
+            lessonBadgeView(index: currentLessonIndex)
+            lessonTitleView(lesson: lesson)
+            lessonDescriptionView(lesson: lesson)
+            lessonMetaInfoView(lesson: lesson)
         }
-        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(20)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .fill(Color.white.opacity(0.08))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(kc.color.opacity(0.3), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
                 )
         )
     }
+    
+    private func lessonBadgeView(index: Int) -> some View {
+        HStack(spacing: 8) {
+            Circle()
+                .fill(Color.blue)
+                .frame(width: 8, height: 8)
 
-    private func masteryColorForLevel(_ level: Double) -> Color {
-        if level < 0.3 {
-            return .red
-        } else if level < 0.7 {
-            return .yellow
-        } else {
-            return .green
+            Text("MODULE \(index + 1)")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(.blue)
+                .tracking(1.2)
         }
     }
-
-    /// Knowledge Components Section (inline)
-    private var knowledgeComponentsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 8) {
-                Image(systemName: "brain.head.profile")
-                    .font(.system(size: 16))
-                    .foregroundColor(.purple)
-
-                Text("Knowledge Components")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.white)
-
-                Spacer()
-
-                Button("View Graph") {
-                    showSkillsGraph = true
-                }
-                .font(.system(size: 12, weight: .medium))
-                .foregroundColor(.purple)
+    
+    private func lessonTitleView(lesson: LessonOutline) -> some View {
+        Text(lesson.title)
+            .font(.system(size: 24, weight: .bold))
+            .foregroundColor(.white)
+    }
+    
+    private func lessonDescriptionView(lesson: LessonOutline) -> some View {
+        Text(lesson.description)
+            .font(.system(size: 15))
+            .foregroundColor(.white.opacity(0.7))
+            .fixedSize(horizontal: false, vertical: true)
+    }
+    
+    private func lessonMetaInfoView(lesson: LessonOutline) -> some View {
+        HStack(spacing: 16) {
+            HStack(spacing: 6) {
+                Image(systemName: "clock")
+                    .font(.system(size: 14))
+                Text("\(lesson.estimatedDuration) min")
+                    .font(.system(size: 13, weight: .medium))
             }
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(knowledgeComponents.prefix(3)) { kc in
-                        compactKCCard(kc)
-                    }
-                }
+            HStack(spacing: 6) {
+                Image(systemName: lesson.contentType.iconName)
+                    .font(.system(size: 14))
+                Text(lesson.contentType.displayName)
+                    .font(.system(size: 13, weight: .medium))
             }
         }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color.purple.opacity(0.1))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .stroke(Color.purple.opacity(0.3), lineWidth: 1)
-                )
-        )
+        .foregroundColor(.white.opacity(0.6))
     }
 
-    private func compactKCCard(_ kc: KnowledgeComponent) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Image(systemName: kc.iconName)
-                .font(.system(size: 18))
-                .foregroundColor(kc.color)
-
-            Text(kc.name)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(.white)
-                .lineLimit(2)
-
-            Text("\(Int(kc.masteryLevel * 100))% mastery")
-                .font(.system(size: 11))
-                .foregroundColor(masteryColorForLevel(kc.masteryLevel))
-        }
-        .padding(12)
-        .frame(width: 120, height: 100)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color.white.opacity(0.08))
-        )
-    }
-
-    // MARK: - ALO Card Renderers
-
-    /// ALO Explain Card (for text/explanation content)
-    private var aloExplainCard: some View {
+    // MARK: - Content Views
+    private var textContentView: some View {
         VStack(alignment: .leading, spacing: 16) {
-            // ALO Header
-            HStack {
-                Image(systemName: "doc.text.fill")
-                    .font(.system(size: 16))
-                    .foregroundColor(.blue)
-
-                Text("EXPLAIN")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.blue)
-                    .tracking(1.2)
-
-                Spacer()
-
-                Text("ALO")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.white.opacity(0.4))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Capsule().fill(Color.white.opacity(0.1)))
-            }
-
             // Key concepts
             keyConceptsSection
 
@@ -2319,951 +1829,1277 @@ struct EnhancedAIClassroomView: View {
             // Quick check button
             quickCheckButton
         }
-        .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(Color.blue.opacity(0.05))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .stroke(Color.blue.opacity(0.2), lineWidth: 1.5)
-                )
-        )
     }
 
-    /// ALO Video Card
-    private var aloVideoCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // ALO Header
-            HStack {
-                Image(systemName: "play.rectangle.fill")
-                    .font(.system(size: 16))
-                    .foregroundColor(.red)
+    private var videoContentView: some View {
+        VStack(spacing: 16) {
+            // Video placeholder
+            ZStack {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color.white.opacity(0.08))
+                    .frame(height: 220)
 
-                Text("WATCH")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.red)
-                    .tracking(1.2)
+                VStack(spacing: 12) {
+                    Image(systemName: "play.circle.fill")
+                        .font(.system(size: 60))
+                        .foregroundColor(.white.opacity(0.8))
 
-                Spacer()
-
-                Text("ALO")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.white.opacity(0.4))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Capsule().fill(Color.white.opacity(0.1)))
-            }
-
-            videoContentView
-        }
-        .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(Color.red.opacity(0.05))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .stroke(Color.red.opacity(0.2), lineWidth: 1.5)
-                )
-        )
-    }
-
-    /// ALO Exercise Card
-    private var aloExerciseCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // ALO Header
-            HStack {
-                Image(systemName: "hammer.fill")
-                    .font(.system(size: 16))
-                    .foregroundColor(.green)
-
-                Text("PRACTICE")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.green)
-                    .tracking(1.2)
-
-                Spacer()
-
-                Text("ALO")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.white.opacity(0.4))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Capsule().fill(Color.white.opacity(0.1)))
-            }
-
-            interactiveContentView
-        }
-        .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(Color.green.opacity(0.05))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .stroke(Color.green.opacity(0.2), lineWidth: 1.5)
-                )
-        )
-    }
-
-    /// ALO Quiz Card
-    private var aloQuizCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // ALO Header
-            HStack {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 16))
-                    .foregroundColor(.purple)
-
-                Text("ASSESS")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.purple)
-                    .tracking(1.2)
-
-                Spacer()
-
-                Text("ALO")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.white.opacity(0.4))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Capsule().fill(Color.white.opacity(0.1)))
-            }
-
-            quizContentView
-        }
-        .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(Color.purple.opacity(0.05))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .stroke(Color.purple.opacity(0.2), lineWidth: 1.5)
-                )
-        )
-    }
-
-    // MARK: - AI Tutor Question Overlay
-    private var aiTutorQuestionOverlay: some View {
-        ZStack {
-            Color.black.opacity(0.5)
-                .ignoresSafeArea()
-
-            VStack(spacing: 20) {
-                // Header
-                HStack {
-                    Image(systemName: "message.circle.fill")
-                        .font(.system(size: 24))
-                        .foregroundColor(.purple)
-                    Text("Ask AI Tutor")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.white)
-                    Spacer()
-                    Button(action: { showingTutorQuestion = false }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 24))
-                            .foregroundColor(.white.opacity(0.7))
-                    }
-                }
-
-                // Question input
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("What would you like to know?")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
-
-                    TextEditor(text: $tutorQuestion)
-                        .font(.system(size: 16))
-                        .foregroundColor(.white)
-                        .padding(12)
-                        .frame(height: 100)
-                        .background(Color.white.opacity(0.1))
-                        .cornerRadius(12)
-                        .scrollContentBackground(.hidden)
-                }
-
-                // Response area
-                if !tutorResponse.isEmpty {
-                    ScrollView {
-                        Text(tutorResponse)
-                            .font(.system(size: 16))
-                            .foregroundColor(.white)
-                            .padding(16)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .frame(height: 150)
-                    .background(Color.white.opacity(0.1))
-                    .cornerRadius(12)
-                }
-
-                // Action buttons
-                HStack(spacing: 16) {
-                    Button(action: {
-                        tutorQuestion = ""
-                        tutorResponse = ""
-                        showingTutorQuestion = false
-                    }) {
-                        Text("Cancel")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white.opacity(0.7))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(Color.white.opacity(0.1))
-                            .cornerRadius(12)
-                    }
-
-                    Button(action: askTutorQuestion) {
-                        HStack {
-                            if isWaitingForTutorResponse {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                    .scaleEffect(0.8)
-                            }
-                            Text(isWaitingForTutorResponse ? "Thinking..." : "Ask Question")
-                        }
+                    Text("Interactive Video Lesson")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(Color.purple)
-                        .cornerRadius(12)
-                    }
-                    .disabled(tutorQuestion.isEmpty || isWaitingForTutorResponse)
+
+                    Text("Watch and learn at your own pace")
+                        .font(.system(size: 13))
+                        .foregroundColor(.white.opacity(0.6))
                 }
             }
-            .padding(24)
-            .background(
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(Color(red: 0.1, green: 0.1, blue: 0.15))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                    )
-            )
-            .padding(.horizontal, 20)
+
+            // Video notes
+            Text("📝 **Key Points to Watch For:**\n• Fundamental concepts\n• Real-world examples\n• Common mistakes to avoid")
+                .font(.system(size: 14))
+                .foregroundColor(.white.opacity(0.8))
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Color.blue.opacity(0.1))
+                )
         }
     }
 
-    // MARK: - Resources Overlay
-    private var resourcesOverlay: some View {
-        ZStack {
-            Color.black.opacity(0.5)
-                .ignoresSafeArea()
-
-            VStack(spacing: 20) {
-                // Header
+    private var interactiveContentView: some View {
+        VStack(spacing: DesignTokens.Spacing.lg) {
+            // Placeholder for different interactive types
+            switch currentInteractiveType {
+            case .codeEditor:
+                codeEditorView
+            case .multipleChoice:
+                multipleChoiceView
+            case .fillInTheBlank:
+                fillInTheBlankView
+            }
+            
+            // Submit / Check Answer Button
+            Button(action: checkInteractiveAnswer) {
                 HStack {
-                    Image(systemName: "book.fill")
-                        .font(.system(size: 24))
-                        .foregroundColor(.blue)
-                    Text("Additional Resources")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.white)
-                    Spacer()
-                    Button(action: { showingResources = false }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 24))
-                            .foregroundColor(.white.opacity(0.7))
-                    }
+                    Image(systemName: "checkmark.circle.fill")
+                    Text("Check Answer")
                 }
-
-                // Resources list
-                ScrollView {
-                    VStack(spacing: 12) {
-                        ForEach(resources) { resource in
-                            resourceCard(resource)
-                        }
-
-                        if resources.isEmpty {
-                            Text("No additional resources available for this lesson.")
-                                .font(.system(size: 16))
-                                .foregroundColor(.white.opacity(0.7))
-                                .padding(.vertical, 40)
+                .font(DesignTokens.Typography.buttonLabel)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, DesignTokens.Spacing.md)
+                .background(DesignTokens.Colors.brandGradient)
+                .cornerRadius(DesignTokens.Radius.button)
+                .shadow(color: DesignTokens.Colors.brand.opacity(0.3), radius: 8, y: 4)
+            }
+            .disabled(isInteractiveAnswerCorrect)
+            .accessibilityLabel("Check your answer")
+            
+            // Feedback
+            if let feedback = interactiveFeedback {
+                Text(feedback)
+                    .font(DesignTokens.Typography.body)
+                    .foregroundColor(isInteractiveAnswerCorrect ? DesignTokens.Colors.success : DesignTokens.Colors.error)
+                    .padding(DesignTokens.Spacing.md)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                            .fill((isInteractiveAnswerCorrect ? DesignTokens.Colors.success : DesignTokens.Colors.error).opacity(0.1))
+                    )
+                    .transition(.opacity.combined(with: .scale))
+            }
+        }
+        .padding(.top, DesignTokens.Spacing.md)
+    }
+    
+    private var codeEditorView: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+            Text("Your turn to code:")
+                .font(DesignTokens.Typography.labelLarge)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
+            
+            TextEditor(text: $interactiveCodeInput)
+                .font(DesignTokens.Typography.techLabel)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
+                .padding(DesignTokens.Spacing.md)
+                .frame(height: 150)
+                .background(
+                    RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                        .fill(DesignTokens.Colors.neutral900)
+                )
+                .cornerRadius(DesignTokens.Radius.md)
+                .autocapitalization(.none)
+                .disableAutocorrection(true)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Code editor. Type your code here.")
+    }
+    
+    private var multipleChoiceView: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+            Text("Choose the correct option:")
+                .font(DesignTokens.Typography.labelLarge)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
+            
+            ForEach(0..<4) { index in
+                Button(action: { interactiveSelectedOption = index }) {
+                    HStack {
+                        Text("Option \(index + 1)")
+                            .font(DesignTokens.Typography.bodyMedium)
+                            .foregroundColor(DesignTokens.Colors.textPrimary)
+                        Spacer()
+                        if interactiveSelectedOption == index {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(DesignTokens.Colors.success)
                         }
                     }
+                    .padding(DesignTokens.Spacing.md)
+                    .background(
+                        RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                            .fill(interactiveSelectedOption == index ? DesignTokens.Colors.success.opacity(0.1) : DesignTokens.Colors.neutral800)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                                    .stroke(interactiveSelectedOption == index ? DesignTokens.Colors.success : DesignTokens.Colors.neutral600, lineWidth: 1.5)
+                            )
+                    )
+                }
+                .accessibilityLabel("Option \(index + 1)")
+            }
+        }
+    }
+    
+    private var fillInTheBlankView: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+            Text("Fill in the missing word:")
+                .font(DesignTokens.Typography.labelLarge)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
+            
+            HStack {
+                Text("The quick brown fox jumps over the lazy")
+                    .font(DesignTokens.Typography.bodyLarge)
+                
+                TextField("word", text: $interactiveBlankInput)
+                    .font(DesignTokens.Typography.bodyLarge)
+                    .foregroundColor(DesignTokens.Colors.neonBlue)
+                    .padding(DesignTokens.Spacing.sm)
+                    .background(
+                        Rectangle()
+                            .fill(DesignTokens.Colors.neonBlue.opacity(0.1))
+                            .frame(height: 2)
+                        , alignment: .bottom
+                    )
+                    .frame(width: 80)
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Fill in the blank. The quick brown fox jumps over the lazy [input field].")
+    }
+    
+    // MARK: - Helper Functions
+    // MARK: - Skills Graph View
+    private var skillsGraphView: some View {
+        ZStack {
+            // Background and Grid
+            DesignTokens.Colors.backgroundPrimary.ignoresSafeArea()
+            
+            // Radial Gradient
+            Circle()
+                .fill(
+                    RadialGradient(
+                        gradient: Gradient(colors: [DesignTokens.Colors.neonPurple.opacity(0.2), .clear]),
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: 300
+                    )
+                )
+                .frame(width: 600, height: 600)
+            
+            // Grid Lines
+            ForEach(0..<5) { i in
+                Circle()
+                    .stroke(DesignTokens.Colors.neutral700.opacity(0.5), lineWidth: 1)
+                    .frame(width: CGFloat(i + 1) * 100, height: CGFloat(i + 1) * 100)
+            }
+            
+            // Skill Nodes
+            if let course = course {
+                ForEach(Array(course.lessons.enumerated()), id: \.element.id) { index, lesson in
+                    let angle = (2 * .pi / Double(course.lessons.count)) * Double(index)
+                    let radius = 200.0
+                    let x = cos(angle) * radius
+                    let y = sin(angle) * radius
+                    
+                    VStack(spacing: DesignTokens.Spacing.sm) {
+                        ZStack {
+                            Circle()
+                                .fill(DesignTokens.Colors.neutral800)
+                                .frame(width: 60, height: 60)
+                                .overlay(
+                                    Circle()
+                                        .stroke(
+                                            masteryLevels[lesson.id] ?? 0 > 0.7 ? DesignTokens.Colors.neonPurple : DesignTokens.Colors.neutral600,
+                                            lineWidth: 2
+                                        )
+                                )
+                            
+                            Image(systemName: lesson.iconName)
+                                .font(.system(size: 24))
+                                .foregroundColor(masteryLevels[lesson.id] ?? 0 > 0.7 ? DesignTokens.Colors.neonPurple : DesignTokens.Colors.textTertiary)
+                            
+                            Circle()
+                                .trim(from: 0, to: masteryLevels[lesson.id] ?? 0)
+                                .stroke(DesignTokens.Colors.neonPurple, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                                .frame(width: 58, height: 58)
+                                .rotationEffect(.degrees(-90))
+                                .animation(DesignTokens.Animations.smooth, value: masteryLevels[lesson.id])
+                        }
+                        
+                        Text(lesson.title)
+                            .font(DesignTokens.Typography.labelSmall)
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
+                            .frame(width: 80)
+                            .multilineTextAlignment(.center)
+                    }
+                    .offset(x: x, y: y)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Skill: \(lesson.title). Mastery: \(Int((masteryLevels[lesson.id] ?? 0) * 100)) percent.")
                 }
             }
-            .padding(24)
+            
+            // Central "Brain"
+            VStack(spacing: DesignTokens.Spacing.md) {
+                Image(systemName: "brain.head.profile.fill")
+                    .font(.system(size: 48, weight: .bold))
+                    .foregroundColor(DesignTokens.Colors.neonPurple)
+                    .shadow(color: DesignTokens.Colors.neonPurple.opacity(0.5), radius: 15)
+                
+                Text("Mastery Map")
+                    .font(DesignTokens.Typography.titleMedium)
+                    .foregroundColor(DesignTokens.Colors.textPrimary)
+                
+                Text(topic)
+                    .font(DesignTokens.Typography.body)
+                    .foregroundColor(DesignTokens.Colors.textSecondary)
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Mastery Map for \(topic)")
+        }
+        .transition(.scale.combined(with: .opacity))
+    }
+    
+    // MARK: - Helper Functions
+    private func chunkTypeIcon(_ type: ContentChunk.ChunkType) -> some View {
+        let (icon, color) = type.iconAndColor
+        return Circle()
+            .fill(color.opacity(0.2))
+            .frame(width: 24, height: 24)
+            .overlay(
+                Image(systemName: icon)
+                    .font(.system(size: 12))
+                    .foregroundColor(color)
+            )
+    }
+
+    // MARK: - Mini Quiz Section
+    private var miniQuizSection: some View {
+        VStack(spacing: 16) {
+            Text("Quick Check")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.white)
+
+            if let quiz = miniQuizQuestion {
+                miniQuizCard(quiz: quiz)
+            } else {
+                Button(action: generateMiniQuiz) {
+                    HStack {
+                        Image(systemName: "questionmark.circle")
+                        Text("Take Mini Quiz")
+                    }
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                    .background(Color.blue.opacity(0.2))
+                    .cornerRadius(12)
+                }
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color.orange.opacity(0.05))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(Color.orange.opacity(0.2), lineWidth: 1)
+                )
+        )
+    }
+
+    private func miniQuizCard(quiz: QuizQuestion) -> some View {
+        VStack(spacing: 16) {
+            Text(quiz.question)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+
+            ForEach(quiz.answers.indices, id: \.self) { index in
+                Button(action: { checkMiniQuizAnswer(index) }) {
+                    Text(quiz.answers[index])
+                        .font(.system(size: 14))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(12)
+                        .background(Color.white.opacity(0.1))
+                        .cornerRadius(8)
+                }
+            }
+        }
+    }
+
+    // MARK: - AI Tutor Question Button
+    private var aiTutorQuestionButton: some View {
+        Button(action: { showingTutorQuestion = true }) {
+            HStack {
+                Image(systemName: "message.circle.fill")
+                    .font(.system(size: 18))
+                Text("Ask AI Tutor")
+                    .font(.system(size: 16, weight: .medium))
+            }
+            .foregroundColor(.white)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+            .background(Color.purple.opacity(0.2))
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.purple.opacity(0.3), lineWidth: 1)
+            )
+        }
+    }
+
+    // MARK: - Continue Button
+    private var continueButton: some View {
+        Button(action: continueToNextChunk) {
+            HStack {
+                Text(currentChunkIndex >= contentChunks.count - 1 ? "Complete Lesson" : "Continue")
+                    .font(.system(size: 18, weight: .semibold))
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 16))
+            }
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
             .background(
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(Color(red: 0.1, green: 0.1, blue: 0.15))
+                LinearGradient(
+                    colors: [.blue, .purple],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .cornerRadius(16)
+            .shadow(color: Color.blue.opacity(0.3), radius: 8, x: 0, y: 4)
+        }
+        .padding(.horizontal, 20)
+    }
+
+    // MARK: - Lesson Complete Card
+    private var lessonCompleteCard: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 48))
+                .foregroundColor(.green)
+
+            Text("Lesson Complete!")
+                .font(.system(size: 24, weight: .bold))
+                .foregroundColor(.white)
+
+            Text("Great job! You've mastered this concept.")
+                .font(.system(size: 16))
+                .foregroundColor(.white.opacity(0.7))
+                .multilineTextAlignment(.center)
+
+            Button(action: handleLessonComplete) {
+                Text("Continue to Next Lesson")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.green)
+                    .cornerRadius(16)
+            }
+        }
+        .padding(32)
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(Color.green.opacity(0.1))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(Color.green.opacity(0.3), lineWidth: 2)
+                )
+        )
+    }
+
+    // MARK: - Animated Lyo Avatar
+    private var animatedLyoAvatar: some View {
+        HStack(spacing: 16) {
+            // Avatar orb with animation
+            ZStack {
+                // Glow
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [
+                                Color.blue.opacity(0.3),
+                                Color.purple.opacity(0.2),
+                                Color.clear
+                            ],
+                            center: .center,
+                            startRadius: 0,
+                            endRadius: 40
+                        )
+                    )
+                    .frame(width: 80, height: 80)
+                    .blur(radius: 10)
+
+                // Main orb
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.blue, Color.purple],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 60, height: 60)
+
+                // Icon based on state
+                Image(systemName: avatarState.iconName)
+                    .font(.system(size: 24, weight: .medium))
+                    .foregroundColor(.white)
+            }
+
+            // Speech bubble
+            VStack(alignment: .leading, spacing: 4) {
+                Text(avatarState.message)
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(.white)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color.white.opacity(0.1))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
                     )
             )
-            .padding(.horizontal, 20)
+
+            Spacer()
         }
+        .padding(.horizontal, 20)
     }
 
-    // MARK: - Lesson Content Loading
-    private func loadLessonContent() {
-        // Update progress first
-        updateProgress()
-
-        // Initialize adaptive learning state
-        initializeAdaptiveLearningState()
-
-        // Generate progressive lesson content with AI
-        Task {
-            await generateProgressiveLessonContent()
-            
-            // Add welcome message to conversation
-            await MainActor.run {
-                conversation.append(ConversationEntry(
-                    type: .aiResponse,
-                    content: "Hi! I'm Lyo, your AI tutor. I'm excited to teach you about \(topic). Let's get started! 🚀"
-                ))
-                
-                // Add first content chunk to conversation
-                if let firstChunk = contentChunks.first {
-                    conversation.append(ConversationEntry(
-                        type: .lessonChunk,
-                        content: firstChunk.id.uuidString
-                    ))
-                }
-            }
+    // MARK: - Lesson Intro Card
+    private func lessonIntroCard(lesson: LessonOutline) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            lessonBadgeView(index: currentLessonIndex)
+            lessonTitleView(lesson: lesson)
+            lessonDescriptionView(lesson: lesson)
+            lessonMetaInfoView(lesson: lesson)
         }
-    }
-
-    private func generateProgressiveLessonContent() async {
-        guard let course = course, currentLessonIndex < course.lessons.count else { return }
-
-        let currentLesson = course.lessons[currentLessonIndex]
-        await MainActor.run {
-            avatarState = .thinking
-        }
-
-        // Generate progressive chunks instead of single content block
-        let prompt = """
-        You are Lyo, an expert AI teacher creating engaging, progressive lesson content.
-        Break down this lesson into 3-5 smaller chunks that build understanding progressively.
-
-        Topic: \(topic)
-        Lesson: \(currentLesson.title)
-        Lesson Description: \(currentLesson.description)
-
-        Create 3-5 content chunks with these guidelines:
-        1. Each chunk should be 100-200 words
-        2. Start with basic concepts and build complexity
-        3. Include practical examples
-        4. End with a summary or key takeaway
-        5. Add mini-quizzes after complex chunks (mark with "QUIZ:true")
-
-        Format each chunk as:
-        TYPE: [explanation|example|exercise|summary]
-        QUIZ: [true|false]
-        CONTENT: [chunk content here]
-
-        ---
-        """
-
-        // Simulate AI response with progressive chunks
-        let mockChunks = [
-            ContentChunk(
-                type: .explanation,
-                content: """
-                Welcome to this lesson on \(topic)! Let's start with the fundamentals.
-
-                \(currentLesson.title) is a crucial concept that builds upon what you've learned so far. At its core, this topic involves understanding how different components work together to achieve a specific goal.
-
-                Think of it like building a house - you need a solid foundation before adding walls and a roof. We'll start with the basic principles and gradually build up to more complex applications.
-                """,
-                requiresQuiz: false
-            ),
-            ContentChunk(
-                type: .example,
-                content: """
-                Let's look at a practical example to make this concept clearer.
-
-                Imagine you're trying to \(topic.lowercased()) in a real-world scenario. The key steps would be:
-
-                1. First, identify the core problem or goal
-                2. Break it down into manageable components
-                3. Apply the principles we've discussed
-                4. Test and refine your approach
-
-                This example shows how the theory translates into practice.
-                """,
-                requiresQuiz: true
-            ),
-            ContentChunk(
-                type: .exercise,
-                content: """
-                Now it's your turn to practice! Try applying what you've learned.
-
-                Take a moment to think about how you would approach a similar problem in your own work or studies. Consider the key principles and how they interconnect.
-
-                Remember: practice is the best way to solidify your understanding. Don't worry about getting it perfect on the first try - learning is iterative!
-                """,
-                requiresQuiz: false
-            ),
-            ContentChunk(
-                type: .summary,
-                content: """
-                Let's review what we've covered in this lesson:
-
-                • The fundamental principles of \(topic)
-                • How to apply these concepts in practice
-                • Common pitfalls and how to avoid them
-                • The importance of iterative learning
-
-                You've made great progress! The next lesson will build on these foundations to help you master more advanced applications.
-                """,
-                requiresQuiz: false
-            )
-        ]
-
-        await MainActor.run {
-            contentChunks = mockChunks
-            currentChunkIndex = 0
-            avatarState = .explaining
-        }
-    }
-
-    private func initializeAdaptiveLearningState() {
-        // Initialize with sample knowledge components for demo
-        if knowledgeComponents.isEmpty {
-            knowledgeComponents = sampleKnowledgeComponents
-        }
-
-        // Set initial mastery level based on progress
-        currentMasteryLevel = progressPercentage * 0.6 // Simulated mastery
-
-        // Determine adaptive phase based on lesson type
-        if let course = course, currentLessonIndex < course.lessons.count {
-            let currentLesson = course.lessons[currentLessonIndex]
-
-            switch currentLesson.contentType {
-            case .text:
-                adaptivePhase = .deliver
-            case .video:
-                adaptivePhase = .deliver
-            case .interactive:
-                adaptivePhase = .adapt
-            case .quiz:
-                adaptivePhase = .evaluate
-            }
-        }
-
-        print("🧠 [Adaptive] Initialized - Phase: \(adaptivePhase.displayName), Mastery: \(Int(currentMasteryLevel * 100))%")
-    }
-
-    private func generateLessonContentWithAI() async {
-        guard let course = course, currentLessonIndex < course.lessons.count else { return }
-
-        let currentLesson = course.lessons[currentLessonIndex]
-        await MainActor.run {
-            avatarState = .thinking
-        }
-
-        let prompt = """
-        You are Lyo, an expert AI teacher creating engaging lesson content.
-
-        **Topic:** \(topic)
-        **Lesson:** \(currentLesson.title)
-        **Description:** \(currentLesson.description)
-        **Duration:** \(currentLesson.estimatedDuration) minutes
-        **Type:** \(currentLesson.contentType.rawValue)
-
-        **Create lesson content that includes:**
-
-        1. **Hook** - Start with an engaging question or real-world example (1-2 sentences)
-
-        2. **Core Explanation** - Explain the concept clearly using:
-           - Simple language
-           - Real-world analogies
-           - Practical examples (with code if relevant to \(topic))
-           - Step-by-step breakdown
-
-        3. **Key Insight** - One powerful takeaway (1 sentence)
-
-        4. **Application** - How to use this in practice
-
-        **Style Guidelines:**
-        - Use conversational tone
-        - Include specific examples
-        - Break complex ideas into digestible parts
-        - Keep it engaging and practical
-        - Use bullet points for clarity
-
-        **Format:** Write as if you're teaching one-on-one. Natural prose, no markdown headers.
-
-        Generate the lesson content now:
-        """
-
-        do {
-            print("🎓 [Classroom] Generating lesson content for: \(currentLesson.title)")
-            let generatedContent = try await AIAvatarAPIClient.shared.generateWithGemini(prompt)
-
-            await MainActor.run {
-                lessonContent = generatedContent
-                avatarState = .explaining
-                print("✅ [Classroom] Lesson content generated successfully")
-            }
-
-        } catch {
-            print("❌ [Classroom] Failed to generate content: \(error)")
-            await MainActor.run {
-                lessonContent = """
-                **\(currentLesson.title)**
-
-                Welcome to this lesson! Let's explore \(topic) together.
-
-                In this session, we'll cover:
-                • The fundamental concepts
-                • Practical applications
-                • Real-world examples
-                • Common patterns and best practices
-
-                \(currentLesson.description)
-
-                Let's dive in and master these concepts step by step!
-                """
-                avatarState = .explaining
-            }
-        }
-    }
-
-    private func fetchCuratedResources() {
-        // Fetch real resources from APIs
-        Task {
-            await fetchResourcesFromAPIs()
-        }
-    }
-
-    private func fetchResourcesFromAPIs() async {
-        guard let course = course, currentLessonIndex < course.lessons.count else { return }
-
-        let currentLesson = course.lessons[currentLessonIndex]
-        let searchQuery = "\(topic) \(currentLesson.title)"
-
-        print("📚 [Resources] Fetching resources for: \(searchQuery)")
-
-        // Fetch from Google Books
-        if let books = await fetchGoogleBooks(query: searchQuery) {
-            await MainActor.run {
-                resources.append(contentsOf: books)
-            }
-        }
-
-        // Fetch from YouTube
-        if let videos = await fetchYouTubeVideos(query: searchQuery) {
-            await MainActor.run {
-                resources.append(contentsOf: videos)
-            }
-        }
-
-        print("✅ [Resources] Fetched \(resources.count) resources")
-    }
-
-    private func fetchGoogleBooks(query: String) async -> [CuratedResource]? {
-        // TODO: Implement Google Books integration
-        print("⚠️ [Resources] Google Books not implemented")
-        return []
-    }
-
-    private func fetchYouTubeVideos(query: String) async -> [CuratedResource]? {
-        // TODO: Implement YouTube integration
-        print("⚠️ [Resources] YouTube not implemented")
-        return []
-    }
-
-    private func generateQuizQuestion() -> QuizQuestion {
-        // Generate quiz based on actual lesson content
-        Task {
-            await generateQuizWithAI()
-        }
-
-        // Return placeholder while AI generates
-        return QuizQuestion(
-            question: "What is the main concept we just learned about?",
-            answers: [
-                "The fundamental principles",
-                "Advanced techniques",
-                "Common mistakes",
-                "Historical context"
-            ],
-            correctAnswerIndex: 0
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(Color.white.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                )
         )
     }
+    
+    private func lessonBadgeView(index: Int) -> some View {
+        HStack(spacing: 8) {
+            Circle()
+                .fill(Color.blue)
+                .frame(width: 8, height: 8)
 
-    private func generateQuizWithAI() async {
-        guard let course = course, currentLessonIndex < course.lessons.count else { return }
-
-        let currentLesson = course.lessons[currentLessonIndex]
-
-        let prompt = """
-        You are Lyo, creating a comprehension check quiz.
-
-        **Lesson Content:**
-        \(lessonContent)
-
-        **Create ONE multiple-choice question that:**
-        1. Tests understanding (not memorization)
-        2. Has 4 clear options (A, B, C, D)
-        3. Has only ONE correct answer
-        4. Is relevant to what was just taught
-
-        **Format your response EXACTLY like this:**
-        QUESTION: [Your question here]
-        A: [Option A]
-        B: [Option B]
-        C: [Option C]
-        D: [Option D]
-        CORRECT: [Letter of correct answer]
-
-        Generate the quiz question now:
-        """
-
-        do {
-            print("❓ [Quiz] Generating comprehension check...")
-            let response = try await AIAvatarAPIClient.shared.generateWithGemini(prompt)
-
-            // Parse the response
-            let quiz = parseQuizResponse(response)
-
-            await MainActor.run {
-                currentQuizQuestion = quiz
-                print("✅ [Quiz] Question generated: \(quiz.question)")
+            Text("MODULE \(index + 1)")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(.blue)
+                .tracking(1.2)
+        }
+    }
+    
+    private func lessonTitleView(lesson: LessonOutline) -> some View {
+        Text(lesson.title)
+            .font(.system(size: 24, weight: .bold))
+            .foregroundColor(.white)
+    }
+    
+    private func lessonDescriptionView(lesson: LessonOutline) -> some View {
+        Text(lesson.description)
+            .font(.system(size: 15))
+            .foregroundColor(.white.opacity(0.7))
+            .fixedSize(horizontal: false, vertical: true)
+    }
+    
+    private func lessonMetaInfoView(lesson: LessonOutline) -> some View {
+        HStack(spacing: 16) {
+            HStack(spacing: 6) {
+                Image(systemName: "clock")
+                    .font(.system(size: 14))
+                Text("\(lesson.estimatedDuration) min")
+                    .font(.system(size: 13, weight: .medium))
             }
 
-        } catch {
-            print("❌ [Quiz] Failed to generate: \(error)")
+            HStack(spacing: 6) {
+                Image(systemName: lesson.contentType.iconName)
+                    .font(.system(size: 14))
+                Text(lesson.contentType.displayName)
+                    .font(.system(size: 13, weight: .medium))
+            }
+        }
+        .foregroundColor(.white.opacity(0.6))
+    }
+
+    // MARK: - Content Views
+    private var textContentView: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // Key concepts
+            keyConceptsSection
+
+            // Main explanation
+            Text(lessonContent.isEmpty ? "Let's explore this topic together! I'll guide you through each concept step by step..." : lessonContent)
+                .font(.system(size: 16))
+                .foregroundColor(.white.opacity(0.9))
+                .lineSpacing(6)
+                .padding(20)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color.white.opacity(0.05))
+                )
+
+            // Quick check button
+            quickCheckButton
         }
     }
 
-    private func parseQuizResponse(_ response: String) -> QuizQuestion {
-        let lines = response.components(separatedBy: .newlines).filter { !$0.isEmpty }
+    private var videoContentView: some View {
+        VStack(spacing: 16) {
+            // Video placeholder
+            ZStack {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color.white.opacity(0.08))
+                    .frame(height: 220)
 
-        var question = "What did we learn?"
-        var options: [String] = []
-        var correctIndex = 0
+                VStack(spacing: 12) {
+                    Image(systemName: "play.circle.fill")
+                        .font(.system(size: 60))
+                        .foregroundColor(.white.opacity(0.8))
 
-        for line in lines {
-            if line.starts(with: "QUESTION:") {
-                question = line.replacingOccurrences(of: "QUESTION:", with: "").trimmingCharacters(in: .whitespaces)
-            } else if line.starts(with: "A:") {
-                options.append(line.replacingOccurrences(of: "A:", with: "").trimmingCharacters(in: .whitespaces))
-            } else if line.starts(with: "B:") {
-                options.append(line.replacingOccurrences(of: "B:", with: "").trimmingCharacters(in: .whitespaces))
-            } else if line.starts(with: "C:") {
-                options.append(line.replacingOccurrences(of: "C:", with: "").trimmingCharacters(in: .whitespaces))
-            } else if line.starts(with: "D:") {
-                options.append(line.replacingOccurrences(of: "D:", with: "").trimmingCharacters(in: .whitespaces))
-            } else if line.starts(with: "CORRECT:") {
-                let answer = line.replacingOccurrences(of: "CORRECT:", with: "").trimmingCharacters(in: .whitespaces).uppercased()
-                if answer == "A" { correctIndex = 0 }
-                else if answer == "B" { correctIndex = 1 }
-                else if answer == "C" { correctIndex = 2 }
-                else if answer == "D" { correctIndex = 3 }
+                    Text("Interactive Video Lesson")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white)
+
+                    Text("Watch and learn at your own pace")
+                        .font(.system(size: 13))
+                        .foregroundColor(.white.opacity(0.6))
+                }
             }
-        }
 
-        if options.count != 4 {
-            options = ["Option A", "Option B", "Option C", "Option D"]
-        }
-
-        return QuizQuestion(question: question, answers: options, correctAnswerIndex: correctIndex)
-    }
-
-    private func checkAnswer(selectedIndex: Int) {
-        if selectedIndex == currentQuizQuestion?.correctAnswerIndex {
-            avatarState = .celebrating
-            // Show success
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                showingQuiz = false
-                avatarState = .explaining
-            }
-        } else {
-            avatarState = .thinking
-            // Show hint
+            // Video notes
+            Text("📝 **Key Points to Watch For:**\n• Fundamental concepts\n• Real-world examples\n• Common mistakes to avoid")
+                .font(.system(size: 14))
+                .foregroundColor(.white.opacity(0.8))
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Color.blue.opacity(0.1))
+                )
         }
     }
 
-    private func previousLesson() {
-        if currentLessonIndex > 0 {
-            currentLessonIndex -= 1
+    private var interactiveContentView: some View {
+        VStack(spacing: DesignTokens.Spacing.lg) {
+            // Placeholder for different interactive types
+            switch currentInteractiveType {
+            case .codeEditor:
+                codeEditorView
+            case .multipleChoice:
+                multipleChoiceView
+            case .fillInTheBlank:
+                fillInTheBlankView
+            }
             
-            // Reset conversation and content for new lesson
-            conversation.removeAll()
-            contentChunks.removeAll()
-            currentChunkIndex = 0
+            // Submit / Check Answer Button
+            Button(action: checkInteractiveAnswer) {
+                HStack {
+                    Image(systemName: "checkmark.circle.fill")
+                    Text("Check Answer")
+                }
+                .font(DesignTokens.Typography.buttonLabel)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, DesignTokens.Spacing.md)
+                .background(DesignTokens.Colors.brandGradient)
+                .cornerRadius(DesignTokens.Radius.button)
+                .shadow(color: DesignTokens.Colors.brand.opacity(0.3), radius: 8, y: 4)
+            }
+            .disabled(isInteractiveAnswerCorrect)
+            .accessibilityLabel("Check your answer")
             
-            loadLessonContent()
-            fetchCuratedResources()
-            updateProgress()
+            // Feedback
+            if let feedback = interactiveFeedback {
+                Text(feedback)
+                    .font(DesignTokens.Typography.body)
+                    .foregroundColor(isInteractiveAnswerCorrect ? DesignTokens.Colors.success : DesignTokens.Colors.error)
+                    .padding(DesignTokens.Spacing.md)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                            .fill((isInteractiveAnswerCorrect ? DesignTokens.Colors.success : DesignTokens.Colors.error).opacity(0.1))
+                    )
+                    .transition(.opacity.combined(with: .scale))
+            }
+        }
+        .padding(.top, DesignTokens.Spacing.md)
+    }
+    
+    private var codeEditorView: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+            Text("Your turn to code:")
+                .font(DesignTokens.Typography.labelLarge)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
             
-            // Add transition message
+            TextEditor(text: $interactiveCodeInput)
+                .font(DesignTokens.Typography.techLabel)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
+                .padding(DesignTokens.Spacing.md)
+                .frame(height: 150)
+                .background(
+                    RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                        .fill(DesignTokens.Colors.neutral900)
+                )
+                .cornerRadius(DesignTokens.Radius.md)
+                .autocapitalization(.none)
+                .disableAutocorrection(true)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Code editor. Type your code here.")
+    }
+    
+    private var multipleChoiceView: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+            Text("Choose the correct option:")
+                .font(DesignTokens.Typography.labelLarge)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
+            
+            ForEach(0..<4) { index in
+                Button(action: { interactiveSelectedOption = index }) {
+                    HStack {
+                        Text("Option \(index + 1)")
+                            .font(DesignTokens.Typography.bodyMedium)
+                            .foregroundColor(DesignTokens.Colors.textPrimary)
+                        Spacer()
+                        if interactiveSelectedOption == index {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(DesignTokens.Colors.success)
+                        }
+                    }
+                    .padding(DesignTokens.Spacing.md)
+                    .background(
+                        RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                            .fill(interactiveSelectedOption == index ? DesignTokens.Colors.success.opacity(0.1) : DesignTokens.Colors.neutral800)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                                    .stroke(interactiveSelectedOption == index ? DesignTokens.Colors.success : DesignTokens.Colors.neutral600, lineWidth: 1.5)
+                            )
+                    )
+                }
+                .accessibilityLabel("Option \(index + 1)")
+            }
+        }
+    }
+    
+    private var fillInTheBlankView: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+            Text("Fill in the missing word:")
+                .font(DesignTokens.Typography.labelLarge)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
+            
+            HStack {
+                Text("The quick brown fox jumps over the lazy")
+                    .font(DesignTokens.Typography.bodyLarge)
+                
+                TextField("word", text: $interactiveBlankInput)
+                    .font(DesignTokens.Typography.bodyLarge)
+                    .foregroundColor(DesignTokens.Colors.neonBlue)
+                    .padding(DesignTokens.Spacing.sm)
+                    .background(
+                        Rectangle()
+                            .fill(DesignTokens.Colors.neonBlue.opacity(0.1))
+                            .frame(height: 2)
+                        , alignment: .bottom
+                    )
+                    .frame(width: 80)
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Fill in the blank. The quick brown fox jumps over the lazy [input field].")
+    }
+    
+    // MARK: - Helper Functions
+    // MARK: - Skills Graph View
+    private var skillsGraphView: some View {
+        ZStack {
+            // Background and Grid
+            DesignTokens.Colors.backgroundPrimary.ignoresSafeArea()
+            
+            // Radial Gradient
+            Circle()
+                .fill(
+                    RadialGradient(
+                        gradient: Gradient(colors: [DesignTokens.Colors.neonPurple.opacity(0.2), .clear]),
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: 300
+                    )
+                )
+                .frame(width: 600, height: 600)
+            
+            // Grid Lines
+            ForEach(0..<5) { i in
+                Circle()
+                    .stroke(DesignTokens.Colors.neutral700.opacity(0.5), lineWidth: 1)
+                    .frame(width: CGFloat(i + 1) * 100, height: CGFloat(i + 1) * 100)
+            }
+            
+            // Skill Nodes
             if let course = course {
-                let lessonTitle = course.lessons[currentLessonIndex].title
-                conversation.append(ConversationEntry(
-                    type: .aiResponse,
-                    content: "Welcome back to **\(lessonTitle)**! Let's review this together. 📖"
-                ))
-            }
-        }
-    }
-
-    private func nextLesson() {
-        if let course = course, currentLessonIndex < course.lessons.count - 1 {
-            currentLessonIndex += 1
-            
-            // Reset conversation and content for new lesson
-            conversation.removeAll()
-            contentChunks.removeAll()
-            currentChunkIndex = 0
-            
-            loadLessonContent()
-            fetchCuratedResources()
-            saveProgress()
-            updateProgress()
-            
-            // Add transition message
-            let lessonTitle = course.lessons[currentLessonIndex].title
-            conversation.append(ConversationEntry(
-                type: .aiResponse,
-                content: "Excellent progress! Let's dive into **\(lessonTitle)**. 🚀"
-            ))
-        }
-    }
-
-    // MARK: - Code Execution
-    private func executeCode() {
-        isExecutingCode = true
-        codeOutput = ""
-
-        Task {
-            do {
-                // TODO: Implement code execution service
-                await MainActor.run {
-                    codeOutput = "// Code execution not implemented yet\n// This would run your code and show results"
-                    isExecutingCode = false
-                }
-                print("✅ [CodeExec] Stub execution completed")
-
-            } catch {
-                await MainActor.run {
-                    codeOutput = "❌ Error: \(error.localizedDescription)"
-                    isExecutingCode = false
-                }
-                print("❌ [CodeExec] Execution failed: \(error)")
-            }
-        }
-    }
-
-    // MARK: - Progress Persistence
-    private func saveProgress() {
-        guard let course = course else { return }
-        let courseId = "\(topic)-\(course.title)"
-        LearningProgressService.shared.saveProgress(
-            courseId: courseId,
-            lessonIndex: currentLessonIndex,
-            progress: progressPercentage
-        )
-    }
-
-    private func loadSavedProgress() {
-        guard let course = course else { return }
-        let courseId = "\(topic)-\(course.title)"
-
-        if let savedProgress = LearningProgressService.shared.loadProgress(courseId: courseId) {
-            currentLessonIndex = savedProgress.currentLessonIndex
-            progressPercentage = savedProgress.progressPercentage
-            print("📖 [Progress] Restored: Lesson \(currentLessonIndex)")
-        }
-    }
-
-    // MARK: - Voice Narration
-    private func toggleVoice() {
-        voiceEnabled.toggle()
-        if !voiceEnabled {
-            VoiceNarrationService.shared.stop()
-        }
-    }
-
-    private func speakAvatarMessage() {
-        if voiceEnabled {
-            VoiceNarrationService.shared.speak(avatarState.message)
-        }
-    }
-
-    private func speakLessonContent() {
-        if voiceEnabled && !lessonContent.isEmpty {
-            // Speak first paragraph only
-            let firstParagraph = lessonContent.components(separatedBy: "\n\n").first ?? lessonContent
-            VoiceNarrationService.shared.speak(firstParagraph)
-        }
-    }
-
-    // MARK: - Progressive Content Methods
-    private var canContinueToNextChunk: Bool {
-        if contentChunks.isEmpty { return false }
-        if currentChunkIndex >= contentChunks.count { return true } // Lesson complete
-
-        let currentChunk = contentChunks[currentChunkIndex]
-        return !currentChunk.requiresQuiz || chunkQuizCompleted(currentChunk)
-    }
-
-    private func chunkQuizCompleted(_ chunk: ContentChunk) -> Bool {
-        // For now, assume quiz is completed if we've moved past this chunk
-        // In a real implementation, you'd track quiz results
-        currentChunkIndex > contentChunks.firstIndex(where: { $0.id == chunk.id }) ?? -1
-    }
-
-    private func continueToNextChunk() {
-        if currentChunkIndex < contentChunks.count - 1 {
-            currentChunkIndex += 1
-            avatarState = .explaining
-            updateProgress()
-            
-            // Add the next chunk to conversation
-            let nextChunk = contentChunks[currentChunkIndex]
-            conversation.append(ConversationEntry(
-                type: .lessonChunk,
-                content: nextChunk.id.uuidString
-            ))
-        } else {
-            // Lesson complete
-            handleLessonComplete()
-        }
-    }
-
-    private func handleLessonComplete() {
-        avatarState = .celebrating
-        saveProgress()
-        // Navigate to next lesson or show completion
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            nextLesson()
-        }
-    }
-
-    private func updateProgress() {
-        if let course = course {
-            let baseProgress = Double(currentLessonIndex) / Double(course.lessons.count)
-            let chunkProgress = Double(currentChunkIndex + 1) / Double(max(contentChunks.count, 1))
-            let lessonProgress = chunkProgress / Double(course.lessons.count)
-            progressPercentage = baseProgress + lessonProgress
-        }
-    }
-
-    // MARK: - Mini Quiz Methods
-    private func generateMiniQuiz() {
-        // Generate a simple quiz based on current chunk
-        let questions = [
-            "What key concept did we just cover?",
-            "Can you explain this in your own words?",
-            "What's the most important takeaway from this section?"
-        ]
-
-        let answers = [
-            ["The main concept", "A supporting idea", "An example", "Background information"],
-            ["I understand it well", "I need clarification", "I can explain it", "I'm still learning"],
-            ["Practice regularly", "Focus on examples", "Ask questions", "Review frequently"]
-        ]
-
-        let randomIndex = Int.random(in: 0..<questions.count)
-        miniQuizQuestion = QuizQuestion(
-            question: questions[randomIndex],
-            answers: answers[randomIndex],
-            correctAnswerIndex: 0 // Simplified - first answer is always "correct"
-        )
-        showingMiniQuiz = true
-    }
-
-    private func checkMiniQuizAnswer(_ selectedIndex: Int) {
-        if let quiz = miniQuizQuestion {
-            let isCorrect = selectedIndex == quiz.correctAnswerIndex
-            avatarState = isCorrect ? .celebrating : .questioning
-
-            // For now, any answer allows progression
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                showingMiniQuiz = false
-                miniQuizQuestion = nil
-                continueToNextChunk()
-            }
-        }
-    }
-
-    // MARK: - User Input Handler
-    private func handleUserInput() {
-        guard !userInput.isEmpty else { return }
-        
-        let message = userInput.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        // Add user message to conversation
-        conversation.append(ConversationEntry(
-            type: .userMessage,
-            content: message
-        ))
-        
-        userInput = ""
-        isAwaitingAIResponse = true
-        isInputFocused = false
-        
-        Task {
-            // Simulate AI thinking time
-            try? await Task.sleep(nanoseconds: 1_500_000_000) // 1.5 seconds
-            
-            // Check if user wants to continue or asking a question
-            let lowercased = message.lowercased()
-            
-            // Handle lesson navigation commands
-            if lowercased.contains("next lesson") || lowercased == "next lesson" {
-                await MainActor.run {
-                    isAwaitingAIResponse = false
+                ForEach(Array(course.lessons.enumerated()), id: \.element.id) { index, lesson in
+                    let angle = (2 * .pi / Double(course.lessons.count)) * Double(index)
+                    let radius = 200.0
+                    let x = cos(angle) * radius
+                    let y = sin(angle) * radius
                     
-                    if canGoToNextLesson {
-                        conversation.append(ConversationEntry(
-                            type: .aiResponse,
-                            content: "Absolutely! Let's move on to the next lesson. 🚀"
-                        ))
-                        nextLesson()
-                    } else {
-                        conversation.append(ConversationEntry(
-                            type: .aiResponse,
-                            content: "Great work! You've completed all lessons in this course! 🎓✨"
-                        ))
+                    VStack(spacing: DesignTokens.Spacing.sm) {
+                        ZStack {
+                            Circle()
+                                .fill(DesignTokens.Colors.neutral800)
+                                .frame(width: 60, height: 60)
+                                .overlay(
+                                    Circle()
+                                        .stroke(
+                                            masteryLevels[lesson.id] ?? 0 > 0.7 ? DesignTokens.Colors.neonPurple : DesignTokens.Colors.neutral600,
+                                            lineWidth: 2
+                                        )
+                                )
+                            
+                            Image(systemName: lesson.iconName)
+                                .font(.system(size: 24))
+                                .foregroundColor(masteryLevels[lesson.id] ?? 0 > 0.7 ? DesignTokens.Colors.neonPurple : DesignTokens.Colors.textTertiary)
+                            
+                            Circle()
+                                .trim(from: 0, to: masteryLevels[lesson.id] ?? 0)
+                                .stroke(DesignTokens.Colors.neonPurple, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                                .frame(width: 58, height: 58)
+                                .rotationEffect(.degrees(-90))
+                                .animation(DesignTokens.Animations.smooth, value: masteryLevels[lesson.id])
+                        }
+                        
+                        Text(lesson.title)
+                            .font(DesignTokens.Typography.labelSmall)
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
+                            .frame(width: 80)
+                            .multilineTextAlignment(.center)
                     }
+                    .offset(x: x, y: y)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Skill: \(lesson.title). Mastery: \(Int((masteryLevels[lesson.id] ?? 0) * 100)) percent.")
                 }
-            } else if lowercased.contains("previous lesson") || lowercased.contains("prev lesson") || lowercased == "go back" {
-                await MainActor.run {
-                    isAwaitingAIResponse = false
-                    
-                    if currentLessonIndex > 0 {
-                        conversation.append(ConversationEntry(
-                            type: .aiResponse,
-                            content: "Sure! Let's review the previous lesson. ⏮️"
-                        ))
-                        previousLesson()
-                    } else {
-                        conversation.append(ConversationEntry(
-                            type: .aiResponse,
-                            content: "You're already at the first lesson! There's nothing before this. 😊"
-                        ))
-                    }
-                }
-            } else if lowercased.contains("continue") || lowercased.contains("next") || lowercased.contains("go on") {
-                // User wants to continue to next chunk
-                await MainActor.run {
-                    isAwaitingAIResponse = false
-                    
-                    if currentChunkIndex < contentChunks.count - 1 {
-                        conversation.append(ConversationEntry(
-                            type: .aiResponse,
-                            content: "Great! Let's move on to the next concept. 📚"
-                        ))
-                        continueToNextChunk()
-                    } else {
-                        conversation.append(ConversationEntry(
-                            type: .aiResponse,
-                            content: "Awesome! You've completed this lesson. Ready for the next one? 🎉"
-                        ))
-                        handleLessonComplete()
-                    }
-                }
-            } else {
-                // It's a question - generate dynamic AI response
-                let aiResponse = generateDynamicResponse(for: message)
+            }
+            
+            // Central "Brain"
+            VStack(spacing: DesignTokens.Spacing.md) {
+                Image(systemName: "brain.head.profile.fill")
+                    .font(.system(size: 48, weight: .bold))
+                    .foregroundColor(DesignTokens.Colors.neonPurple)
+                    .shadow(color: DesignTokens.Colors.neonPurple.opacity(0.5), radius: 15)
                 
+                Text("Mastery Map")
+                    .font(DesignTokens.Typography.titleMedium)
+                    .foregroundColor(DesignTokens.Colors.textPrimary)
+                
+                Text(topic)
+                    .font(DesignTokens.Typography.body)
+                    .foregroundColor(DesignTokens.Colors.textSecondary)
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Mastery Map for \(topic)")
+        }
+        .transition(.scale.combined(with: .opacity))
+    }
+    
+    // MARK: - Helper Functions
+    private func chunkTypeIcon(_ type: ContentChunk.ChunkType) -> some View {
+        let (icon, color) = type.iconAndColor
+        return Circle()
+            .fill(color.opacity(0.2))
+            .frame(width: 24, height: 24)
+            .overlay(
+                Image(systemName: icon)
+                    .font(.system(size: 12))
+                    .foregroundColor(color)
+            )
+    }
+
+    // MARK: - Mini Quiz Section
+    private var miniQuizSection: some View {
+        VStack(spacing: 16) {
+            Text("Quick Check")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.white)
+
+            if let quiz = miniQuizQuestion {
+                miniQuizCard(quiz: quiz)
+            } else {
+                Button(action: generateMiniQuiz) {
+                    HStack {
+                        Image(systemName: "questionmark.circle")
+                        Text("Take Mini Quiz")
+                    }
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                    .background(Color.blue.opacity(0.2))
+                    .cornerRadius(12)
+                }
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color.orange.opacity(0.05))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(Color.orange.opacity(0.2), lineWidth: 1)
+                )
+        )
+    }
+
+    private func miniQuizCard(quiz: QuizQuestion) -> some View {
+        VStack(spacing: 16) {
+            Text(quiz.question)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+
+            ForEach(quiz.answers.indices, id: \.self) { index in
+                Button(action: { checkMiniQuizAnswer(index) }) {
+                    Text(quiz.answers[index])
+                        .font(.system(size: 14))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(12)
+                        .background(Color.white.opacity(0.1))
+                        .cornerRadius(8)
+                }
+            }
+        }
+    }
+
+    // MARK: - AI Tutor Question Button
+    private var aiTutorQuestionButton: some View {
+        Button(action: { showingTutorQuestion = true }) {
+            HStack {
+                Image(systemName: "message.circle.fill")
+                    .font(.system(size: 18))
+                Text("Ask AI Tutor")
+                    .font(.system(size: 16, weight: .medium))
+            }
+            .foregroundColor(.white)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+            .background(Color.purple.opacity(0.2))
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.purple.opacity(0.3), lineWidth: 1)
+            )
+        }
+    }
+
+    // MARK: - Continue Button
+    private var continueButton: some View {
+        Button(action: continueToNextChunk) {
+            HStack {
+                Text(currentChunkIndex >= contentChunks.count - 1 ? "Complete Lesson" : "Continue")
+                    .font(.system(size: 18, weight: .semibold))
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 16))
+            }
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(
+                LinearGradient(
+                    colors: [.blue, .purple],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .cornerRadius(16)
+            .shadow(color: Color.blue.opacity(0.3), radius: 8, x: 0, y: 4)
+        }
+        .padding(.horizontal, 20)
+    }
+
+    // MARK: - Lesson Complete Card
+    private var lessonCompleteCard: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 48))
+                .foregroundColor(.green)
+
+            Text("Lesson Complete!")
+                .font(.system(size: 24, weight: .bold))
+                .foregroundColor(.white)
+
+            Text("Great job! You've mastered this concept.")
+                .font(.system(size: 16))
+                .foregroundColor(.white.opacity(0.7))
+                .multilineTextAlignment(.center)
+
+            Button(action: handleLessonComplete) {
+                Text("Continue to Next Lesson")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.green)
+                    .cornerRadius(16)
+            }
+        }
+        .padding(32)
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(Color.green.opacity(0.1))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(Color.green.opacity(0.3), lineWidth: 2)
+                )
+        )
+    }
+
+    // MARK: - Animated Lyo Avatar
+    private var animatedLyoAvatar: some View {
+        HStack(spacing: 16) {
+            // Avatar orb with animation
+            ZStack {
+                // Glow
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [
+                                Color.blue.opacity(0.3),
+                                Color.purple.opacity(0.2),
+                                Color.clear
+                            ],
+                            center: .center,
+                            startRadius: 0,
+                            endRadius: 40
+                        )
+                    )
+                    .frame(width: 80, height: 80)
+                    .blur(radius: 10)
+
+                // Main orb
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.blue, Color.purple],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 60, height: 60)
+
+                // Icon based on state
+                Image(systemName: avatarState.iconName)
+                    .font(.system(size: 24, weight: .medium))
+                    .foregroundColor(.white)
+            }
+
+            // Speech bubble
+            VStack(alignment: .leading, spacing: 4) {
+                Text(avatarState.message)
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(.white)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color.white.opacity(0.1))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                    )
+            )
+
+            Spacer()
+        }
+        .padding(.horizontal, 20)
+    }
+
+    // MARK: - Lesson Intro Card
+    private func lessonIntroCard(lesson: LessonOutline) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            lessonBadgeView(index: currentLessonIndex)
+            lessonTitleView(lesson: lesson)
+            lessonDescriptionView(lesson: lesson)
+            lessonMetaInfoView(lesson: lesson)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(Color.white.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                )
+        )
+    }
+    
+    private func lessonBadgeView(index: Int) -> some View {
+        HStack(spacing: 8) {
+            Circle()
+                .fill(Color.blue)
+                .frame(width: 8, height: 8)
+
+            Text("MODULE \(index + 1)")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(.blue)
+                .tracking(1.2)
+        }
+    }
+    
+    private func lessonTitleView(lesson: LessonOutline) -> some View {
+        Text(lesson.title)
+            .font(.system(size: 24, weight: .bold))
+            .foregroundColor(.white)
+    }
+    
+    private func lessonDescriptionView(lesson: LessonOutline) -> some View {
+        Text(lesson.description)
+            .font(.system(size: 15))
+            .foregroundColor(.white.opacity(0.7))
+            .fixedSize(horizontal: false, vertical: true)
+    }
+    
+    private func lessonMetaInfoView(lesson: LessonOutline) -> some View {
+        HStack(spacing: 16) {
+            HStack(spacing: 6) {
+                Image(systemName: "clock")
+                    .font(.system(size: 14))
+                Text("\(lesson.estimatedDuration) min")
+                    .font(.system(size: 13, weight: .medium))
+            }
+
+            HStack(spacing: 6) {
+                Image(systemName: lesson.contentType.iconName)
+                    .font(.system(size: 14))
+                Text(lesson.contentType.displayName)
+                    .font(.system(size: 13, weight: .medium))
+            }
+        }
+        .foregroundColor(.white.opacity(0.6))
+    }
+
+    // MARK: - Content Views
+    private var textContentView: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // Key concepts
+            keyConceptsSection
+
+            // Main explanation
+            Text(lessonContent.isEmpty ? "Let's explore this topic together! I'll guide you through each concept step by step..." : lessonContent)
+                .font(.system(size: 16))
+                .foregroundColor(.white.opacity(0.9))
+                .lineSpacing(6)
+                .padding(20)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color.white.opacity(0.05))
+                )
+
+            // Quick check button
+            quickCheckButton
+        }
+    }
+
+    private var videoContentView: some View {
+        VStack(spacing: 16) {
+            // Video placeholder
+            ZStack {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color.white.opacity(0.08))
+                    .frame(height: 220)
+
+                VStack(spacing: 12) {
+                    Image(systemName: "play.circle.fill")
+                        .font(.system(size: 60))
+                        .foregroundColor(.white.opacity(0.8))
+
+                    Text("Interactive Video Lesson")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white)
+
+                    Text("Watch and learn at your own pace")
+                        .font(.system(size: 13))
+                        .foregroundColor(.white.opacity(0.6))
+                }
+            }
+
+            // Video notes
+            Text("📝 **Key Points to Watch For:**\n• Fundamental concepts\n• Real-world examples\n• Common mistakes to avoid")
+                .font(.system(size: 14))
+                .foregroundColor(.white.opacity(0.8))
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Color.blue.opacity(0.1))
+                )
+        }
+    }
+
+    private var interactiveContentView: some View {
+        VStack(spacing: DesignTokens.Spacing.lg) {
+            // Placeholder for different interactive types
+            switch currentInteractiveType {
+            case .codeEditor:
+                codeEditorView
+            case .multipleChoice:
+                multipleChoiceView
+            case .fillInTheBlank:
+                fillInTheBlankView
+            }
+            
+            // Submit / Check Answer Button
+            Button(action: checkInteractiveAnswer) {
+                HStack {
+                    Image(systemName: "checkmark.circle.fill")
+                    Text("Check Answer")
+                }
+                .font(DesignTokens.Typography.buttonLabel)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, DesignTokens.Spacing.md)
+                .background(DesignTokens.Colors.brandGradient)
+                .cornerRadius(DesignTokens.Radius.button)
+                .shadow(color: DesignTokens.Colors.brand.opacity(0.3), radius: 8, y: 4)
+            }
+            .disabled(isInteractiveAnswerCorrect)
+            .accessibilityLabel("Check your answer")
+            
+            // Feedback
+            if let feedback = interactiveFeedback {
+                Text(feedback)
+                    .font(DesignTokens.Typography.body)
+                    .foregroundColor(isInteractiveAnswerCorrect ? DesignTokens.Colors.success : DesignTokens.Colors.error)
+                    .padding(DesignTokens.Spacing.md)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                            .fill((isInteractiveAnswerCorrect ? DesignTokens.Colors.success : DesignTokens.Colors.error).opacity(0.1))
+                    )
+                    .transition(.opacity.combined(with: .scale))
+            }
+        }
+        .padding(.top, DesignTokens.Spacing.md)
+    }
+    
+    private var codeEditorView: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+            Text("Your turn to code:")
+                .font(DesignTokens.Typography.labelLarge)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
+            
+            TextEditor(text: $interactiveCodeInput)
+                .font(DesignTokens.Typography.techLabel)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
+                .padding(DesignTokens.Spacing.md)
+                .frame(height: 150)
+                .background(
+                    RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                        .fill(DesignTokens.Colors.neutral900)
+                )
+                .cornerRadius(DesignTokens.Radius.md)
+                .autocapitalization(.none)
+                .disableAutocorrection(true)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Code editor. Type your code here.")
+    }
+    
+    private var multipleChoiceView: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+            Text("Choose the correct option:")
+                .font(DesignTokens.Typography.labelLarge)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
+            
+            ForEach(0..<4) { index in
+                Button(action: { interactiveSelectedOption = index }) {
+                    HStack {
+                        Text("Option \(index + 1)")
+                            .font(DesignTokens.Typography.bodyMedium)
+                            .foregroundColor(DesignTokens.Colors.textPrimary)
+                        Spacer()
+                        if interactiveSelectedOption == index {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(DesignTokens.Colors.success)
+                        }
+                    }
+                    .padding(DesignTokens.Spacing.md)
+                    .background(
+                        RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                            .fill(interactiveSelectedOption == index ? DesignTokens.Colors.success.opacity(0.1) : DesignTokens.Colors.neutral800)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                                    .stroke(interactiveSelectedOption == index ? DesignTokens.Colors.success : DesignTokens.Colors.neutral600, lineWidth: 1.5)
+                            )
+                    )
+                }
+                .accessibilityLabel("Option \(index + 1)")
+            }
+        }
+    }
+    
+    private var fillInTheBlankView: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+            Text("Fill in the missing word:")
+                .font(DesignTokens.Typography.labelLarge)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
+            
+            HStack {
+                Text("The quick brown fox jumps over the lazy")
+                    .font(DesignTokens.Typography.bodyLarge)
+                
+                TextField("word", text: $interactiveBlankInput)
                 await MainActor.run {
                     conversation.append(ConversationEntry(
                         type: .aiResponse,

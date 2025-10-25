@@ -4,7 +4,7 @@
 		{
 			"type": "shell",
 			"label": "Build Xcode Project",
-			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5'",
+			"command": "xcodebuild -project LyoApp.xcodeproj -scheme LyoApp build -destination 'platform=iOS Simulator,name=iPhone 17'",
 			"group": "build",
 			"problemMatcher": [
 				"$xcodebuild"

@@ -64,13 +64,16 @@ public class APIClient: ObservableObject {
         // Stub implementation
     }
 
-    public func loadFeed() async throws -> [Post] {
+    public func loadFeed() async throws -> [FeedItem] {
         return []
     }
 
     // MARK: - Learning Resources
-    public func fetchLearningResources() async throws -> [APILearningResource] {
-        return []
+    public func fetchLearningResources() async throws -> [Course] {
+        return [
+            Course(id: UUID(), title: "Stub Course 1", description: "Description for stub course 1", lessons: [], heroImage: "https://example.com/image1.jpg"),
+            Course(id: UUID(), title: "Stub Course 2", description: "Description for stub course 2", lessons: [], heroImage: "https://example.com/image2.jpg")
+        ]
     }
 
     // MARK: - AI Content Generation

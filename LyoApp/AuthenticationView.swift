@@ -53,18 +53,20 @@ struct AuthenticationView: View {
             // App Logo/Icon
             Image(systemName: "brain.head.profile")
                 .font(.system(size: 64))
-                .foregroundStyle(DesignTokens.Colors.primaryGradient)
+                .foregroundStyle(DesignTokens.Gradients.primary)
                 .padding(.bottom, DesignTokens.Spacing.sm)
             
             Text("LyoApp")
                 .font(DesignTokens.Typography.hero)
-                .foregroundColor(DesignTokens.Colors.primary)
+                .foregroundColor(DesignTokens.Colors.textPrimary)
             
             Text(isLoginMode ? "Welcome back!" : "Join the community")
                 .font(DesignTokens.Typography.title3)
-                .foregroundColor(DesignTokens.Colors.secondaryLabel)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
         }
         .padding(.top, DesignTokens.Spacing.xxl)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("LyoApp, " + (isLoginMode ? "Welcome back!" : "Join the community"))
     }
     
     private var formSection: some View {
@@ -72,10 +74,12 @@ struct AuthenticationView: View {
             if !isLoginMode {
                 TextField("Full Name", text: $fullName)
                     .modernTextField()
+                    .accessibilityLabel("Full Name")
                 
                 TextField("Username", text: $username)
                     .modernTextField()
                     .autocapitalization(.none)
+                    .accessibilityLabel("Username")
             }
             
             TextField("Email", text: $email)
@@ -85,16 +89,19 @@ struct AuthenticationView: View {
                 .onFocusChange { focused in
                     emailFocused = focused
                 }
+                .accessibilityLabel("Email Address")
             
             SecureField("Password", text: $password)
                 .modernTextField(isFocused: passwordFocused)
                 .onFocusChange { focused in
                     passwordFocused = focused
                 }
+                .accessibilityLabel("Password")
             
             if !isLoginMode {
                 SecureField("Confirm Password", text: $confirmPassword)
                     .modernTextField()
+                    .accessibilityLabel("Confirm Password")
             }
             
             if isLoginMode {
@@ -105,6 +112,7 @@ struct AuthenticationView: View {
                     }
                     .font(DesignTokens.Typography.caption)
                     .foregroundColor(DesignTokens.Colors.primary)
+                    .accessibilityHint("Tap to reset your password.")
                 }
             }
         }
@@ -123,7 +131,7 @@ struct AuthenticationView: View {
         HStack {
             Text(isLoginMode ? "Don't have an account?" : "Already have an account?")
                 .font(DesignTokens.Typography.footnote)
-                .foregroundColor(DesignTokens.Colors.secondaryLabel)
+                .foregroundColor(DesignTokens.Colors.textSecondary)
             
             Button(isLoginMode ? "Sign Up" : "Sign In") {
                 withAnimation(DesignTokens.Animations.smooth) {
@@ -133,6 +141,7 @@ struct AuthenticationView: View {
             }
             .font(DesignTokens.Typography.footnote)
             .foregroundColor(DesignTokens.Colors.primary)
+            .accessibilityHint(isLoginMode ? "Tap to create a new account." : "Tap to sign in to your existing account.")
         }
     }
     
@@ -142,7 +151,7 @@ struct AuthenticationView: View {
                 VStack { Divider() }
                 Text("OR")
                     .font(DesignTokens.Typography.caption)
-                    .foregroundColor(DesignTokens.Colors.tertiaryLabel)
+                    .foregroundColor(DesignTokens.Colors.textTertiary)
                 VStack { Divider() }
             }
             
@@ -156,6 +165,7 @@ struct AuthenticationView: View {
                     }
                 }
                 .secondaryButton()
+                .accessibilityLabel("Continue with Apple")
                 
                 Button {
                     // Handle Google Sign In
@@ -166,6 +176,7 @@ struct AuthenticationView: View {
                     }
                 }
                 .secondaryButton()
+                .accessibilityLabel("Continue with Google")
             }
         }
         .padding(.top, DesignTokens.Spacing.lg)

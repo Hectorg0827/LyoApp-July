@@ -151,21 +151,9 @@ struct FeaturedCourseCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-            AsyncImage(url: URL(string: course.thumbnailUrl)) { image in
-                image
-                    .resizable()
-                    .aspectRatio(16/9, contentMode: .fill)
-                    .cornerRadius(DesignTokens.Radius.md)
-            } placeholder: {
-                RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
-                    .fill(DesignTokens.Colors.primaryGradient)
-                    .aspectRatio(16/9, contentMode: .fit)
-                    .overlay(
-                        Image(systemName: "play.circle.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(.white.opacity(0.8))
-                    )
-            }
+            OptimizedAsyncImage(url: URL(string: course.thumbnailUrl))
+                .aspectRatio(16/9, contentMode: .fill)
+                .cornerRadius(DesignTokens.Radius.md)
             
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                 Text(course.title)
@@ -211,21 +199,9 @@ struct CourseCard: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: DesignTokens.Spacing.md) {
-                AsyncImage(url: URL(string: course.thumbnailUrl)) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 80, height: 60)
-                        .cornerRadius(DesignTokens.Radius.sm)
-                } placeholder: {
-                    RoundedRectangle(cornerRadius: DesignTokens.Radius.sm)
-                        .fill(DesignTokens.Colors.primaryGradient)
-                        .frame(width: 80, height: 60)
-                        .overlay(
-                            Image(systemName: "graduationcap")
-                                .foregroundColor(.white)
-                        )
-                }
+                OptimizedAsyncImage(url: URL(string: course.thumbnailUrl))
+                    .frame(width: 80, height: 60)
+                    .cornerRadius(DesignTokens.Radius.sm)
                 
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                     Text(course.title)
