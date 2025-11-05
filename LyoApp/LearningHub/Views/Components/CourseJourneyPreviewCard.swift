@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Course Journey Preview Card - Shows the learning path before launching Unity classroom
+/// Course Journey Preview Card - Shows the learning path before launching classroom
 struct CourseJourneyPreviewCard: View {
     let journey: CourseJourney
     let countdown: Int?
@@ -90,7 +90,7 @@ struct CourseJourneyPreviewCard: View {
                     HStack(spacing: 12) {
                         ProgressView()
                             .tint(.cyan)
-                        Text("Launching Unity Classroom...")
+                        Text("Launching Classroom...")
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(.cyan)
                     }

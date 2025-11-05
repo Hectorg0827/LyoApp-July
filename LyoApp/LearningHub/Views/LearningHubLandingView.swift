@@ -133,16 +133,7 @@ struct LearningHubLandingView: View {
                 .animation(.spring(response: 0.4, dampingFraction: 0.8), value: showRecommendations)
             }
             
-            // UNITY INTEGRATION: Dynamic Classroom Overlay
-            if dataManager.showDynamicClassroom,
-               let selectedResource = dataManager.selectedResource {
-                UnityClassroomOverlay(
-                    resource: selectedResource,
-                    isPresented: $dataManager.showDynamicClassroom
-                )
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-                .zIndex(999) // Above everything
-            }
+
         }
         .onAppear {
             // Track screen view
