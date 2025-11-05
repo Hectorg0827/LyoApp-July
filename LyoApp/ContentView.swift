@@ -30,21 +30,12 @@ struct ContentView: View {
                 }
                 .tag(MainTab.ai)
             
-            // Unity 3D Classroom Tab
-            if UnityBridge.shared.isAvailable() {
-                UnityContainerView()
-                    .tabItem {
-                        Label("3D Classroom", systemImage: "cube.fill")
-                    }
-                    .tag(MainTab.post)
-            } else {
-                // Create Post Tab (placeholder)
-                Text("Create Post")
-                    .tabItem {
-                        Label("Post", systemImage: "plus")
-                    }
-                    .tag(MainTab.post)
-            }
+            // Create Post Tab (placeholder)
+            Text("Create Post")
+                .tabItem {
+                    Label("Post", systemImage: "plus")
+                }
+                .tag(MainTab.post)
             
             // More Tab
             MoreTabView()

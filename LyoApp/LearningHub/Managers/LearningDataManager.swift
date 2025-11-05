@@ -18,8 +18,8 @@ class LearningDataManager: ObservableObject {
     @Published var errorMessage: String?
     @Published var selectedCategory: String = "All"
     @Published var searchQuery: String = ""
-    @Published var selectedResource: LearningResource? // NEW: Track selected resource for Unity
-    @Published var showDynamicClassroom: Bool = false // NEW: Toggle classroom view
+    @Published var selectedResource: LearningResource? // Track selected resource
+    @Published var showDynamicClassroom: Bool = false // Toggle classroom view
     
     // MARK: - Private Properties
     private let backendService = BackendIntegrationService.shared
@@ -71,9 +71,9 @@ class LearningDataManager: ObservableObject {
         
         return [
             LearningResource(
-                id: "unity-maya-civilization",
+                id: "maya-civilization",
                 title: "Maya Civilization: Rise and Fall",
-                description: "Explore the ancient Maya civilization through an immersive Unity-powered classroom. Walk through Tikal, decode hieroglyphics, and understand their astronomical achievements.",
+                description: "Explore the ancient Maya civilization through an immersive classroom experience. Walk through Tikal, decode hieroglyphics, and understand their astronomical achievements.",
                 category: "History",
                 difficulty: "Intermediate",
                 duration: 45, // minutes
@@ -94,15 +94,15 @@ class LearningDataManager: ObservableObject {
                 difficultyLevel: .intermediate,
                 contentType: .tutorial,
                 resourcePlatform: .lyo,
-                tags: ["History", "Maya", "Ancient Civilizations", "Unity", "VR"],
+                tags: ["History", "Maya", "Ancient Civilizations", "VR"],
                 isBookmarked: false,
                 progress: 0,
                 publishedDate: Date()
             ),
             LearningResource(
-                id: "unity-mars-exploration",
+                id: "mars-exploration",
                 title: "Mars Surface Exploration",
-                description: "Experience a realistic Mars surface environment powered by Unity. Learn about Martian geology, atmosphere, and the challenges of future colonization.",
+                description: "Experience a realistic Mars surface environment. Learn about Martian geology, atmosphere, and the challenges of future colonization.",
                 category: "Science",
                 difficulty: "Advanced",
                 duration: 60, // minutes
@@ -123,15 +123,15 @@ class LearningDataManager: ObservableObject {
                 difficultyLevel: .advanced,
                 contentType: .tutorial,
                 resourcePlatform: .lyo,
-                tags: ["Science", "Space", "Mars", "Unity", "Astronomy"],
+                tags: ["Science", "Space", "Mars", "Astronomy"],
                 isBookmarked: false,
                 progress: 0,
                 publishedDate: Date()
             ),
             LearningResource(
-                id: "unity-chemistry-lab",
+                id: "chemistry-lab",
                 title: "Interactive Chemistry Lab",
-                description: "Conduct real chemistry experiments in a safe virtual environment. Mix compounds, observe reactions, and learn molecular structures through hands-on Unity simulations.",
+                description: "Conduct real chemistry experiments in a safe virtual environment. Mix compounds, observe reactions, and learn molecular structures through hands-on simulations.",
                 category: "Science",
                 difficulty: "Beginner",
                 duration: 50, // minutes
@@ -152,7 +152,7 @@ class LearningDataManager: ObservableObject {
                 difficultyLevel: .beginner,
                 contentType: .tutorial,
                 resourcePlatform: .lyo,
-                tags: ["Science", "Chemistry", "Laboratory", "Unity", "Education"],
+                tags: ["Science", "Chemistry", "Laboratory", "Education"],
                 isBookmarked: false,
                 progress: 0,
                 publishedDate: Date()
@@ -451,7 +451,7 @@ class LearningDataManager: ObservableObject {
         }
     }
     
-    // MARK: - Course Launch (Unity Activation)
+    // MARK: - Course Launch
     /// Launches the Dynamic Classroom for a selected course
     func launchCourse(_ resource: LearningResource) async {
         await MainActor.run {
@@ -459,7 +459,7 @@ class LearningDataManager: ObservableObject {
             self.showDynamicClassroom = true
         }
         
-        print("🎓 Launching Unity course: \(resource.title)")
+        print("🎓 Launching course: \(resource.title)")
         print("📚 Category: \(resource.category ?? "Unknown")")
         print("⚡️ Difficulty: \(resource.difficulty ?? "Unknown")")
     }
@@ -468,7 +468,7 @@ class LearningDataManager: ObservableObject {
     func closeDynamicClassroom() {
         self.showDynamicClassroom = false
         self.selectedResource = nil
-        print("👋 Closed Unity classroom")
+        print("👋 Closed classroom")
     }
 }
 

@@ -122,7 +122,7 @@ class LearningHubAnalytics: ObservableObject {
         print("📊 Analytics: Launch countdown - \(courseTitle)")
     }
     
-    /// Track course launched to Unity
+    /// Track course launched
     func trackCourseLaunched(
         courseTitle: String,
         topic: String,

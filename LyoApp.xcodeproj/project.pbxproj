@@ -91,7 +91,6 @@
 		862EF79A0E315C4180D6959E /* LyoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600A9F3980D1840C043D0A19 /* LyoApp.swift */; };
 		8697C01D9827E8F1DA6D8F9C /* EdXCoursesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B93A78CE19383035CCF9755 /* EdXCoursesService.swift */; };
 		87C293755A6BE9124F958F00 /* FeedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D900AEF9F7B22764A996EB02 /* FeedModels.swift */; };
-		890F800B9C0041FDAA120206 /* UnityData in Resources */ = {isa = PBXBuildFile; fileRef = 6A211FE83AE646D8839F935B /* UnityData */; };
 		899703D6AE1E127DC7DB11F2 /* SearchResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92ACFCF6440A9D60D0125ED0 /* SearchResultsView.swift */; };
 		8B512EA198F08A8EF13358B9 /* ErrorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3EFD1D3B0001C0B673ABAD9 /* ErrorHandler.swift */; };
 		8D252335B004F3CCA44E839B /* ErrorHandlingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42460C5E3F123FF1666FC0CD /* ErrorHandlingService.swift */; };
@@ -100,7 +99,6 @@
 		93ED23F4B0D586D83DC92BFB /* AppIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FEC208A31B3D16BCB77A11F /* AppIconView.swift */; };
 		96135CB2505A5EC2A6D96069 /* LaunchScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97F5517617EECE37AA28266F /* LaunchScreenView.swift */; };
 		981BD86E20950D88313A6737 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5369183C37F7098FE23998A /* SettingsView.swift */; };
-		98F632D6683E429B91165388 /* LyoApp/Views/UnityContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6123561D814905BCA3EEDA /* LyoApp/Views/UnityContainerView.swift */; };
 		99D342B7B9DF021FEE987919 /* GamificationOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769E7DC97B1B53920079E269 /* GamificationOverlay.swift */; };
 		9A444894FC46A30EE95B3AF0 /* SearchSuggestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8415ED887BC609E4B38D0C1F /* SearchSuggestionsView.swift */; };
 		9C01BE2BAF0B29A287E7DA54 /* YouTubeEducationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C92A0EBE985007E0C42A9A2 /* YouTubeEducationService.swift */; };
@@ -124,7 +122,6 @@
 		D0BE8B92110A4BCFCCD3C326 /* AIModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389E2A71924339227EC03B80 /* AIModels.swift */; };
 		D2BAE0300431D7B5C7F32E11 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33E2B600DC7B23355FE0307C /* NotificationManager.swift */; };
 		D43FDCAA78B95B3C9C452D8B /* CoreServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB8D7AF97C9B6DE4D909F19B /* CoreServices.swift */; };
-		DBB0FE66FAE644A8B14797E1 /* LyoApp/Unity/UnityBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5CA01703A6740DEAA7FD749 /* LyoApp/Unity/UnityBridge.swift */; };
 		DD43B17FD33BB11631A41861 /* GemmaService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2FF07DBA0F9EB6988D443A1 /* GemmaService.swift */; };
 		DDD231FE44970555CCC22666 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBFF4AED827EE9E58F2C84F7 /* SearchViewModel.swift */; };
 		E13C04FE8AC9E6B22D4F18F8 /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C903E6A458BA8A0BC58EB414 /* DownloadManager.swift */; };
@@ -188,7 +185,6 @@
 		48E3D513690BCB485663C042 /* AnalyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsManager.swift; sourceTree = "<group>"; };
 		497A52CB663A204A6D353292 /* VoiceRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceRecognizer.swift; sourceTree = "<group>"; };
 		4B456BC2CF7E36046E58E7F1 /* LearningAssistantViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningAssistantViewModel.swift; sourceTree = "<group>"; };
-		4C6123561D814905BCA3EEDA /* LyoApp/Views/UnityContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyoApp/Views/UnityContainerView.swift; sourceTree = "<group>"; };
 		4C92A0EBE985007E0C42A9A2 /* YouTubeEducationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeEducationService.swift; sourceTree = "<group>"; };
 		4DC35EC4BB06919945358855 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		53222F984FEEB1A50EB3E7B8 /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
@@ -202,7 +198,6 @@
 		600A9F3980D1840C043D0A19 /* LyoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyoApp.swift; sourceTree = "<group>"; };
 		6665E42F4719F7676848E421 /* HomeFeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeFeedView.swift; sourceTree = "<group>"; };
 		6815C36B9967456CAF5BADF0 /* LyoApp/Services/BackgroundScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyoApp/Services/BackgroundScheduler.swift; sourceTree = "<group>"; };
-		6A211FE83AE646D8839F935B /* UnityData */ = {isa = PBXFileReference; lastKnownFileType = folder; name = UnityData; path = LyoApp/UnityData; sourceTree = "<group>"; };
 		6A38DD36ABC5BAAD40A818F6 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		6F951537A440496351DAA781 /* ContentDisplayComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentDisplayComponents.swift; sourceTree = "<group>"; };
 		6FDC9D4A0CD5937A55F174B9 /* ProductionConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductionConfiguration.swift; sourceTree = "<group>"; };
@@ -279,7 +274,6 @@
 		F3EFD1D3B0001C0B673ABAD9 /* ErrorHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorHandler.swift; sourceTree = "<group>"; };
 		F432806DCE27A419E3B68EDA /* RemoteAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAPI.swift; sourceTree = "<group>"; };
 		F456DF306A7BB0198AC11A4E /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
-		F5CA01703A6740DEAA7FD749 /* LyoApp/Unity/UnityBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyoApp/Unity/UnityBridge.swift; sourceTree = "<group>"; };
 		FBFF4AED827EE9E58F2C84F7 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		FFB48DA20EDCBEA07CF360B8 /* UserRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRepository.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -385,10 +379,7 @@
 		34731A462EA94F4E009A2AFA /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
-				4C6123561D814905BCA3EEDA /* LyoApp/Views/UnityContainerView.swift */,
 				6815C36B9967456CAF5BADF0 /* LyoApp/Services/BackgroundScheduler.swift */,
-				F5CA01703A6740DEAA7FD749 /* LyoApp/Unity/UnityBridge.swift */,
-				6A211FE83AE646D8839F935B /* UnityData */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -686,7 +677,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				890F800B9C0041FDAA120206 /* UnityData in Resources */,
 				43F233702523B94C0E53879C /* Assets.xcassets in Resources */,
 				BC0E63F5E1544C822D8C8A9C /* EducationalAPIsStatusReport.md in Resources */,
 				6E9F71C95F388616DA343066 /* LaunchScreen.storyboard in Resources */,
@@ -701,9 +691,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				98F632D6683E429B91165388 /* LyoApp/Views/UnityContainerView.swift in Sources */,
 				137FBBC2A63C4741B79830AC /* LyoApp/Services/BackgroundScheduler.swift in Sources */,
-				DBB0FE66FAE644A8B14797E1 /* LyoApp/Unity/UnityBridge.swift in Sources */,
 				591C1D802AA4DF439FF23D01 /* AIAvatarIntegration.swift in Sources */,
 				059DFA4253B5073396BCB5BF /* AIAvatarView.swift in Sources */,
 				54D0CC3AAF0295567DAEE24E /* AIFullChatViewWithCompletion.swift in Sources */,

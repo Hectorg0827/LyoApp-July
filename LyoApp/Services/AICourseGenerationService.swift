@@ -195,8 +195,6 @@ struct GeneratedCourse: Identifiable, Codable {
     let totalDuration: Int // in minutes
     let modules: [CourseModule]
     
-    // UNITY INTEGRATION FIELDS
-    var unitySceneName: String? // Maps to Unity environment (e.g., "MayaCivilization", "MarsExploration")
     var totalXP: Int? // Total XP available for course completion
     
     var totalDurationFormatted: String {
@@ -214,59 +212,7 @@ struct GeneratedCourse: Identifiable, Codable {
         lessons.count
     }
     
-    // UNITY INTEGRATION: Infer Unity scene from topic
-    var inferredUnityScene: String {
-        if let explicit = unitySceneName {
-            return explicit
-        }
-        
-        let topicLower = topic.lowercased()
-        let titleLower = title.lowercased()
-        let combined = "\(topicLower) \(titleLower)"
-        
-        // History environments
-        if combined.contains("maya") || combined.contains("aztec") || combined.contains("ancient america") {
-            return "MayaCivilization"
-        } else if combined.contains("egypt") || combined.contains("pharaoh") || combined.contains("pyramid") {
-            return "EgyptianTemple"
-        } else if combined.contains("rome") || combined.contains("roman") || combined.contains("caesar") {
-            return "RomanForum"
-        } else if combined.contains("greece") || combined.contains("greek") || combined.contains("athens") {
-            return "GreekAgora"
-        } else if combined.contains("viking") || combined.contains("norse") {
-            return "VikingLonghouse"
-        }
-        // Science environments
-        else if combined.contains("chemistry") || combined.contains("chemical") || combined.contains("lab") {
-            return "ChemistryLab"
-        } else if combined.contains("physics") || combined.contains("quantum") {
-            return "PhysicsLab"
-        } else if combined.contains("biology") || combined.contains("anatomy") {
-            return "BiologyLab"
-        }
-        // Space environments
-        else if combined.contains("mars") || combined.contains("space") || combined.contains("astronaut") {
-            return "MarsExploration"
-        } else if combined.contains("solar system") || combined.contains("planet") {
-            return "SpaceStation"
-        }
-        // Math environments
-        else if combined.contains("math") || combined.contains("algebra") || combined.contains("calculus") {
-            return "MathematicsStudio"
-        } else if combined.contains("geometry") {
-            return "GeometryStudio"
-        }
-        // Programming environments
-        else if combined.contains("programming") || combined.contains("coding") || combined.contains("python") {
-            return "CodingLab"
-        }
-        // Default
-        else {
-            return "DefaultClassroom"
-        }
-    }
-    
-    // UNITY INTEGRATION: Calculate XP based on course content
+    // Calculate XP based on course content
     var calculatedTotalXP: Int {
         if let explicit = totalXP {
             return explicit

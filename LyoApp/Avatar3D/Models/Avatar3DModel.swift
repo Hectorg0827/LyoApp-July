@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import SceneKit
 
 // MARK: - Avatar Species
 
